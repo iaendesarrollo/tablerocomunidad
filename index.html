@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Tableros - Municipio Lomas de Zamora</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <style>
+        :root {
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --azul-profundo: #0D3B57;
+            --gris-claro: #F1F5F9;
+            --texto-oscuro: #1E293B;
+            --borde: #CBD5E1;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--gris-claro);
+            color: var(--texto-oscuro);
+            margin: 0;
+            padding: 0;
+        }
+
+        .hero-header {
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            padding: 3.5rem 1.5rem;
+            text-align: center;
+            border-bottom: 4px solid var(--acento);
+        }
+
+        .section-header {
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: var(--bg-main);
+            margin-top: 3.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section-header::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--borde);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s ease;
+            border: 1px solid var(--borde);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--acento);
+            box-shadow: 0 4px 12px rgba(25, 86, 124, 0.1);
+        }
+
+        .icon-wrapper {
+            width: 48px;
+            height: 48px;
+            background-color: #E2F1F7; /* Azul muy claro */
+            color: var(--bg-main);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--bg-main);
+            line-height: 1.2;
+        }
+
+        .resumen-hero {
+            background: var(--bg-main);
+            border-radius: 12px;
+            padding: 2rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            transition: opacity 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .resumen-hero:hover {
+            opacity: 0.95;
+        }
+
+        footer {
+            margin-top: 5rem;
+            padding: 3rem;
+            background: white;
+            border-top: 1px solid var(--borde);
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748B;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="hero-header">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-black mb-2 uppercase">Tableros de Gestión</h1>
+            <p class="text-blue-100 font-medium opacity-80 uppercase tracking-widest text-sm">Municipio Lomas de Zamora</p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 pb-20">
+
+        <!-- RESUMEN -->
+        <section>
+            <h2 class="section-header">RESUMEN</h2>
+            <a href="Dashboard_Actualizado.html" target="_blank" class="resumen-hero">
+                <div class="flex items-center gap-5">
+                    <div class="bg-white/10 p-4 rounded-lg">
+                        <i class="fa-solid fa-gauge-high text-3xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold uppercase">Dashboard Actualizado</h3>
+                        <p class="text-blue-100/70 text-sm">Indicadores principales del día</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square opacity-30 text-xl"></i>
+            </a>
+        </section>
+
+        <!-- SERVICIOS PÚBLICOS -->
+        <section>
+            <h2 class="section-header">SERVICIOS PÚBLICOS</h2>
+            <div class="grid-container">
+                
+                <a href="Ceamse_Diario_actualizado.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                    <span class="card-title">Ceamse Diario Actualizado</span>
+                </a>
+
+                <a href="Ceamse Anual_actualizado.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-chart-line"></i></div>
+                    <span class="card-title">Ceamse Anual Actualizado</span>
+                </a>
+
+                <a href="Tablero_Covelia_Actualizado.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <span class="card-title">Tablero Covelia Actualizado</span>
+                </a>
+
+                <a href="Salida_Diaria_OP_actualizado.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-truck-moving"></i></div>
+                    <span class="card-title">Salida Diaria OP Actualizado</span>
+                </a>
+
+                <a href="OP Semanal_actualizado.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-list-check"></i></div>
+                    <span class="card-title">OP Semanal Actualizado</span>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- ECONOMÍA Y FINANZAS -->
+        <section>
+            <h2 class="section-header">ECONOMÍA Y FINANZAS</h2>
+            <div class="grid-container">
+                
+                <a href="sgr.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-map-pin"></i></div>
+                    <span class="card-title">sgr.html (Mapa SGR)</span>
+                </a>
+
+                <a href="Tasa_Vial_Actualizado.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-gas-pump"></i></div>
+                    <span class="card-title">Tasa Vial Actualizado</span>
+                </a>
+
+                <a href="Reporte_TISH_Actualizado.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-shop"></i></div>
+                    <span class="card-title">Reporte TISH Actualizado</span>
+                </a>
+
+                <a href="TSG_actualizado.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-house-chimney"></i></div>
+                    <span class="card-title">TSG Actualizado</span>
+                </a>
+
+                <a href="SP-OC_actualizado.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                    <span class="card-title">SP-OC Actualizado</span>
+                </a>
+
+                <a href="Deuda_Flotante_actualizado.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <span class="card-title">Deuda Flotante Actualizado</span>
+                </a>
+
+                <a href="Presupuesto_actualizado.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-chart-pie"></i></div>
+                    <span class="card-title">Presupuesto Actualizado</span>
+                </a>
+
+                <a href="Coparticipacion_Actualizado.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-landmark"></i></div>
+                    <span class="card-title">Coparticipación Actualizado</span>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- AMBIENTE -->
+        <section>
+            <h2 class="section-header">AMBIENTE</h2>
+            <div class="grid-container">
+                
+                <a href="Detalle Placeros.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-users-gear"></i></div>
+                    <span class="card-title">Detalle Placeros</span>
+                </a>
+
+                <a href="Relevamiento Plazas.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-tree-city"></i></div>
+                    <span class="card-title">Relevamiento Plazas</span>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- COMUNICACIÓN -->
+        <section>
+            <h2 class="section-header">COMUNICACIÓN</h2>
+            <div class="grid-container">
+                
+                <a href="Analisis Redes Sociales.html" target="_blank" class="dashboard-card">
+                    <div class="icon-wrapper"><i class="fa-solid fa-hashtag"></i></div>
+                    <span class="card-title">Análisis Redes Sociales</span>
+                </a>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="max-w-6xl mx-auto">
+            <p class="font-bold mb-1 uppercase tracking-wider">Secretaría de Gestión y Control Institucional</p>
+            <p>&copy; 2026 - Municipio de Lomas de Zamora</p>
+        </div>
+    </footer>
+
+</body>
+</html>
