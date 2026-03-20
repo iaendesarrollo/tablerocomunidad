@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Control EcoPunto - Ceamse</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* HEADER SÓLIDO */
+        .solid-header {
+             background-color: var(--bg-main);
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Tarjetas Base del Nuevo Sistema */
+        .radius-sys {
+            border-radius: 12px;
+        }
+
+        .card-grafica {
+            background-color: var(--glass-claro);
+            color: var(--azul-inst);
+            border-radius: 12px;
+            box-shadow: none;
+            position: relative;
+        }
+
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            border-radius: 12px;
+            box-shadow: none;
+            position: relative;
+            overflow: hidden; /* Para contener el ícono de fondo */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .kpi-main-border {
+            border-left: 8px solid var(--acento);
+        }
+
+        /* Tipografía de Tarjetas */
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700; /* Bold según spec */
+            color: var(--azul-inst);
+            line-height: 1;
+        }
+        
+        .kpi-label {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--azul-inst);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-description {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: var(--azul-inst);
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Ícono de fondo sutil monocromático */
+        .bg-icon {
+            position: absolute;
+            bottom: -15px;
+            right: -15px;
+            width: 90px;
+            height: 90px;
+            color: var(--azul-inst);
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8 antialiased">
+
+    <header class="solid-header fixed top-0 left-0 w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-6 w-full sm:w-auto justify-center sm:justify-start">
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-[800] uppercase leading-none tracking-tight text-white">
+                            Tablero de Control EcoPunto
+                        </h1>
+                        <p class="text-xs sm:text-sm font-normal text-white/80 tracking-widest mt-1 uppercase">
+                            Informe Diario de Operaciones - Ceamse
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 text-white/80">Última Actualización</p>
+                        <p class="text-lg font-bold text-white" id="current-date">Cargando...</p>
+                    </div>
+                    <div class="h-10 w-1 bg-white/20 rounded-full hidden sm:block"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-28 sm:h-24"></div>
+
+    <div class="max-w-7xl mx-auto space-y-8 pb-12">
+
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <div class="card-informativa kpi-main-border p-6 h-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="bg-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                <div class="mb-4">
+                    <h2 class="kpi-label">Total Descargado (Ceamse)</h2>
+                </div>
+                <div>
+                    <p id="kpi-total-ceamse" class="kpi-value text-[var(--acento)] mb-1">...</p>
+                    <p id="kpi-total-ceamse-full" class="text-[10px] font-bold tracking-widest uppercase text-[var(--azul-inst)] opacity-70"></p>
+                </div>
+            </div>
+
+            <div class="card-informativa kpi-main-border p-6 h-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="bg-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+                <div class="mb-4">
+                    <h2 class="kpi-label">Traslado a Flores</h2>
+                </div>
+                <div>
+                    <p id="kpi-total-flores" class="kpi-value mb-1">...</p>
+                    <p class="kpi-description">Total RSU Covelia</p>
+                    <p id="kpi-total-flores-full" class="text-[10px] font-bold tracking-widest uppercase text-[var(--azul-inst)] opacity-70 hidden"></p>
+                </div>
+            </div>
+
+            <div class="card-informativa kpi-main-border p-6 h-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="bg-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                <div class="mb-4">
+                    <h2 class="kpi-label">Lomas Limpia</h2>
+                </div>
+                <div>
+                    <p id="kpi-total-lomas-limpia" class="kpi-value mb-1">...</p>
+                    <p id="kpi-total-lomas-limpia-full" class="text-[10px] font-bold tracking-widest uppercase text-[var(--azul-inst)] opacity-70"></p>
+                </div>
+            </div>
+
+            <div class="card-informativa kpi-main-border p-6 h-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="bg-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                <div class="mb-4">
+                    <h2 class="kpi-label">Proyección Fin de Mes</h2>
+                </div>
+                <div>
+                    <p id="kpi-proyeccion" class="kpi-value mb-1">...</p>
+                    <p class="kpi-description">Estimación Total</p>
+                </div>
+            </div>
+
+            <div class="card-informativa kpi-main-border p-6 h-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="bg-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg>
+                <div class="mb-4">
+                    <h2 class="kpi-label">Bateas Covelia (Ayer)</h2>
+                </div>
+                <div>
+                    <div class="flex items-baseline gap-2">
+                        <p id="kpi-bateas-covelia-unidades" class="kpi-value transition-colors">...</p>
+                        <p class="text-lg font-bold opacity-60 text-[var(--azul-inst)]">de 4</p>
+                    </div>
+                    <p id="kpi-bateas-covelia-unidades-date" class="text-[10px] font-bold tracking-widest uppercase text-[var(--azul-inst)] opacity-70 mt-2">...</p>
+                </div>
+            </div>
+
+            <div class="card-informativa kpi-main-border p-6 h-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="bg-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <div class="mb-4">
+                    <h2 class="kpi-label">Viajes Covelia (Ayer)</h2>
+                </div>
+                <div>
+                    <div class="flex items-baseline gap-2">
+                        <p id="kpi-viajes-covelia" class="kpi-value transition-colors">...</p>
+                        <p class="text-lg font-bold opacity-60 text-[var(--azul-inst)]">de 24</p>
+                    </div>
+                    <p id="kpi-viajes-covelia-date" class="text-[10px] font-bold tracking-widest uppercase text-[var(--azul-inst)] opacity-70 mt-2">...</p>
+                </div>
+            </div>
+
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <div class="card-grafica p-6">
+                <h2 class="text-sm font-bold uppercase tracking-wider mb-6">Toneladas Diarias (Total Ceamse)</h2>
+                <div class="relative h-72 md:h-80 w-full">
+                    <canvas id="toneladasDiariasChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card-grafica p-6">
+                <h2 class="text-sm font-bold uppercase tracking-wider mb-6">Descargas Bateas Covelia (Ecopunto)</h2>
+                <div class="relative h-72 md:h-80 w-full">
+                    <canvas id="descargasBateasChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card-grafica p-6 lg:col-span-2">
+                <h2 class="text-sm font-bold uppercase tracking-wider mb-6">Cantidad de Viajes Diarios (Bateas Covelia)</h2>
+                <div class="relative h-72 md:h-80 w-full">
+                    <canvas id="viajesCoveliaChart"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+        <footer class="mt-8 text-center text-white/80 text-xs">
+             <div class="flex justify-center items-center gap-4 mb-2">
+                <span class="h-px w-8 bg-white/20"></span>
+                <p class="uppercase tracking-widest font-bold">Municipio de Lomas de Zamora</p>
+                <span class="h-px w-8 bg-white/20"></span>
+            </div>
+            <p class="font-normal opacity-80">© 2026 · Unidad de Datos e Infraestructura</p>
+        </footer>
+
+    </div>
+
+    <script id="dashboard-data" type="application/json">
+{
+  "fecha_generacion": "2026-03-02 14:58:22.785306",
+  "total_tn_neta_ceamse": "62.82",
+  "descargas_diarias_ceamse": {
+    "2026-03-01 00:00:00": "62.82"
+  },
+  "total_descargas_por_centro": [
+    {
+      "CENTRO": "Flores",
+      "cantidad_descargas": "8",
+      "suma_tn_neta": "56.56"
+    },
+    {
+      "CENTRO": "Zavaleta",
+      "cantidad_descargas": "2",
+      "suma_tn_neta": "6.26"
+    }
+  ],
+  "total_tn_neta_lomas_limpia": "6.26",
+  "descargas_totales_ecopunto": "0",
+  "sum_tn_neta_ecopunto": "0.0",
+  "viajes_covelia_ayer": [],
+  "viajes_lomaslimpia_ayer": [],
+  "resumen_descargas_directas_zavaleta": [
+    {
+      "DIAS TRABAJADOS": "1",
+      "DESCARGAS TOTALES": "2",
+      "TONELADA TOTAL": "6.26",
+      "PROMEDIO VIAJES POR DIA": "2.0",
+      "PROMEDIO TONELADA POR DIA": "6.26"
+    }
+  ],
+  "proyeccion_tn_neta": "1947.42",
+  "grouped_ecopunto_covelia": [],
+  "grouped_ecopunto_zavaleta": [
+    {
+      "DATUM_BAL": "2026-03-01",
+      "cantidad_descargas": "2",
+      "suma_tn_neta": "6.26"
+    }
+  ],
+  "grouped_flores": [
+    {
+      "DATUM_BAL": "2026-03-01",
+      "cantidad_descargas": "8",
+      "suma_tn_neta": "56.56"
+    }
+  ],
+  "lateral_x_dia_sample": [
+    {
+      "Fecha": "2026-03-01 00:00:00",
+      "Patente": "AG143RH",
+      "Cantidad Salida": "1",
+      "TN Neta": "8.34",
+      "Dia_Semana_Nombre": "Sunday"
+    },
+    {
+      "Fecha": "2026-03-01 00:00:00",
+      "Patente": "AG143RU",
+      "Cantidad Salida": "1",
+      "TN Neta": "5.76",
+      "Dia_Semana_Nombre": "Sunday"
+    }
+  ]
+}
+</script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- NUEVOS SETTINGS GLOBALES DE CHART.JS ---
+            Chart.defaults.font.family = "'Montserrat', sans-serif";
+            Chart.defaults.color = '#19567C'; // var(--azul-inst)
+            Chart.defaults.borderColor = 'rgba(25, 86, 124, 0.1)';
+            Chart.defaults.scale.grid.color = 'rgba(25, 86, 124, 0.1)';
+
+            let data;
+            try {
+                const jsonDataElement = document.getElementById('dashboard-data');
+                data = JSON.parse(jsonDataElement.textContent);
+            } catch (e) {
+                console.error("Error parseando JSON:", e);
+                document.getElementById('current-date').textContent = "Error de datos";
+                return;
+            }
+
+            // --- Funciones de Formateo ---
+            const formatNumberTN = (value, compact = false) => {
+                const num = parseFloat(value);
+                if (isNaN(num)) return '...';
+                const options = {
+                    maximumFractionDigits: compact ? 0 : 2,
+                    minimumFractionDigits: compact ? 0 : 2,
+                };
+                if (compact) options.maximumFractionDigits = 0;
+                return num.toLocaleString('es-AR', options) + ' TN';
+            };
+
+            const formatNumberViajes = (value) => {
+                const num = parseInt(value, 10);
+                if (isNaN(num)) return '...';
+                return num.toLocaleString('es-AR') + (num === 1 ? ' viaje' : ' viajes');
+            };
+
+            const yAxisCallbackViajes = (value) => {
+                 if (Number.isInteger(value)) return new Intl.NumberFormat('es-AR').format(value);
+                 return '';
+            };
+
+            const formatDateLabel = (dateString) => {
+                try {
+                    const date = new Date(dateString.split(' ')[0] + 'T00:00:00');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    return `${day}/${month}`;
+                } catch (e) {
+                    return dateString;
+                }
+            };
+            
+            const formatGenerationDate = (dateString) => {
+                 try {
+                    const date = new Date(dateString);
+                    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+                    return date.toLocaleDateString('es-AR', options).replace(',', '') + ' hs';
+                } catch (e) {
+                    return 'Datos actualizados';
+                }
+            };
+
+            // --- Actualizar DOM ---
+            const dateElement = document.getElementById('current-date');
+            if (dateElement && data.fecha_generacion) dateElement.textContent = formatGenerationDate(data.fecha_generacion);
+
+            // KPIs
+            document.getElementById('kpi-total-ceamse').textContent = formatNumberTN(data.total_tn_neta_ceamse, true);
+            document.getElementById('kpi-total-ceamse-full').textContent = formatNumberTN(data.total_tn_neta_ceamse, false);
+
+            const floresData = data.total_descargas_por_centro.find(c => c.CENTRO === 'Flores');
+            if (floresData) {
+                document.getElementById('kpi-total-flores').textContent = formatNumberTN(floresData.suma_tn_neta, true);
+                document.getElementById('kpi-total-flores-full').textContent = formatNumberTN(floresData.suma_tn_neta, false);
+            }
+
+            document.getElementById('kpi-total-lomas-limpia').textContent = formatNumberTN(data.total_tn_neta_lomas_limpia, true);
+            document.getElementById('kpi-total-lomas-limpia-full').textContent = formatNumberTN(data.total_tn_neta_lomas_limpia, false);
+
+            document.getElementById('kpi-proyeccion').textContent = formatNumberTN(data.proyeccion_tn_neta, true);
+
+            // Cálculo de "AYER"
+            let fechaAyerStr = 'N/A';
+            let yesterdayStringKey = '';
+            try {
+                const reportDate = new Date(data.fecha_generacion.split(' ')[0] + 'T00:00:00');
+                const yesterday = new Date(reportDate);
+                yesterday.setDate(reportDate.getDate() - 1);
+                
+                const year = yesterday.getFullYear();
+                const month = String(yesterday.getMonth() + 1).padStart(2, '0');
+                const day = String(yesterday.getDate()).padStart(2, '0');
+                yesterdayStringKey = `${year}-${month}-${day}`;
+                fechaAyerStr = formatDateLabel(yesterdayStringKey);
+            } catch (e) {
+                // fallback
+            }
+
+            // KPI 5: Unidades (Color condicional con el nuevo sistema de colores)
+            const bateasCovelia = data.viajes_covelia_ayer ? data.viajes_covelia_ayer.length : 0;
+            const kpiBateasEl = document.getElementById('kpi-bateas-covelia-unidades');
+            kpiBateasEl.textContent = bateasCovelia;
+            document.getElementById('kpi-bateas-covelia-unidades-date').textContent = `Operativas el ${fechaAyerStr}`;
+            kpiBateasEl.style.color = bateasCovelia < 4 ? 'var(--magenta)' : 'var(--acento)';
+
+            // KPI 6: Viajes (Color condicional con el nuevo sistema de colores)
+            let viajesAyer = 0;
+            if (data.viajes_covelia_ayer && Array.isArray(data.viajes_covelia_ayer)) {
+                viajesAyer = data.viajes_covelia_ayer.reduce((acc, item) => {
+                    const descargas = parseInt(item["Cantidad Descargas"], 10);
+                    return acc + (isNaN(descargas) ? 0 : descargas);
+                }, 0);
+            }
+            
+            const kpiViajesEl = document.getElementById('kpi-viajes-covelia');
+            kpiViajesEl.textContent = viajesAyer;
+            document.getElementById('kpi-viajes-covelia-date').textContent = `Viajes realizados el ${fechaAyerStr}`;
+            kpiViajesEl.style.color = viajesAyer < 24 ? 'var(--magenta)' : 'var(--acento)';
+
+            // --- GRAFICOS ---
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#19567C',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(255,255,255,0.2)',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#19567C' },
+                        grid: { color: 'rgba(25, 86, 124, 0.1)', display: false }
+                    },
+                    y: {
+                        ticks: { color: '#19567C' },
+                        grid: { color: 'rgba(25, 86, 124, 0.1)' },
+                        beginAtZero: true
+                    }
+                }
+            };
+
+            // Grafico 1
+            const chart1Ctx = document.getElementById('toneladasDiariasChart');
+            if (chart1Ctx && data.descargas_diarias_ceamse) {
+                new Chart(chart1Ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(data.descargas_diarias_ceamse).map(formatDateLabel),
+                        datasets: [{
+                            label: 'Toneladas',
+                            data: Object.values(data.descargas_diarias_ceamse).map(parseFloat),
+                            backgroundColor: '#4AB5E0', // var(--acento)
+                            hoverBackgroundColor: '#3A95B8',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: commonOptions
+                });
+            }
+
+            // Grafico 2
+            const chart2Ctx = document.getElementById('descargasBateasChart');
+            if (chart2Ctx && data.grouped_ecopunto_covelia) {
+                new Chart(chart2Ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.grouped_ecopunto_covelia.map(d => formatDateLabel(d.DATUM_BAL)),
+                        datasets: [{
+                            label: 'Toneladas',
+                            data: data.grouped_ecopunto_covelia.map(d => parseFloat(d.suma_tn_neta)),
+                            backgroundColor: '#19567C', // var(--azul-inst)
+                            hoverBackgroundColor: '#134460',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: commonOptions
+                });
+            }
+
+            // Grafico 3
+            const chart3Ctx = document.getElementById('viajesCoveliaChart');
+            if (chart3Ctx && data.grouped_ecopunto_covelia) {
+                new Chart(chart3Ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.grouped_ecopunto_covelia.map(d => formatDateLabel(d.DATUM_BAL)),
+                        datasets: [{
+                            label: 'Viajes',
+                            data: data.grouped_ecopunto_covelia.map(d => parseInt(d.cantidad_descargas, 10)),
+                            borderColor: '#4AB5E0', // var(--acento)
+                            backgroundColor: 'rgba(74, 181, 224, 0.2)', // var(--acento) semi-transparente
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#4AB5E0'
+                        }]
+                    },
+                    options: {
+                        ...commonOptions,
+                        scales: { 
+                            ...commonOptions.scales,
+                            y: { 
+                                ...commonOptions.scales.y,
+                                ticks: { 
+                                    callback: yAxisCallbackViajes, 
+                                    stepSize: 1,
+                                    color: '#19567C'
+                                }
+                            } 
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

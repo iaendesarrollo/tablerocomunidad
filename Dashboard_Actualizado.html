@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumen del Dia - Jefatura de Gabinete</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Font: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* PALETA OBLIGATORIA SISTEMA FONDO OSCURO SGR */
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            font-weight: 400;
+        }
+
+        /* SISTEMA DE COMPONENTES */
+        .radius-sys {
+            border-radius: 12px !important;
+        }
+
+        /* TIPOGRAFÍA */
+        h1 { font-weight: 800; text-transform: uppercase; }
+        h2 { font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .text-desc { font-weight: 400; }
+        .text-num { font-weight: 700; }
+
+        /* CARDS */
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            box-shadow: none;
+            border: none;
+            border-left: 8px solid var(--acento);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card-informativa:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        /* Ícono monocromático en transparencia (dentro de card informativa) */
+        .card-icon {
+            position: absolute;
+            right: -10%;
+            bottom: -20%;
+            height: 140%;
+            width: auto;
+            color: var(--azul-inst);
+            opacity: 0.05;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* HEADER */
+        .solid-header {
+             background-color: var(--bg-main);
+             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* BLOQUES SEPARADORES */
+        .block-title {
+            color: var(--blanco);
+            font-size: 1.25rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .block-divider {
+            flex-grow: 1;
+            height: 1px;
+            background-color: var(--blanco);
+            opacity: 0.2;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--acento); border-radius: 4px; }
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8">
+
+    <!-- Encabezado SÓLIDO -->
+    <header class="solid-header fixed top-0 left-0 w-full z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-6 w-full sm:w-auto justify-center sm:justify-start">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--blanco)]">
+                            Resumen del Día
+                        </h1>
+                        <p class="text-xs sm:text-sm font-bold tracking-widest uppercase mt-1 text-[var(--acento)]">
+                            Bienvenido Intendente Federico Otermin
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4 w-full sm:w-auto justify-center sm:justify-end">
+                    <div class="hidden md:block text-right">
+                        <p class="text-[var(--blanco)] opacity-70 text-[10px] font-bold uppercase tracking-widest">Última Actualización</p>
+                        <p class="text-[var(--blanco)] text-sm font-bold" id="kpi-fecha">--/--/----</p>
+                    </div>
+                    <div class="h-10 w-px bg-[var(--blanco)] opacity-30 hidden sm:block"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-32 sm:h-24"></div>
+
+    <!-- Contenedor principal estructurado por Bloques -->
+    <div class="max-w-[1600px] mx-auto pb-12">
+        
+        <!-- BLOQUE 1: ATENCIÓN CIUDADANA (SGR) -->
+        <section class="mb-14">
+            <div class="block-title">
+                <span>Atención a la Comunidad (SGR)</span>
+                <div class="block-divider"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="bloque-sgr-container">
+                <!-- Se llenará con JS -->
+            </div>
+        </section>
+
+        <!-- BLOQUE 1.5: ATENCIÓN A LA COMUNIDAD (Palacio Municipal) -->
+        <section class="mb-14">
+            <div class="block-title">
+                <span>Atención a la Comunidad (Palacio Municipal)</span>
+                <div class="block-divider"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="bloque-palacio-container">
+                <!-- Se llenará con JS -->
+            </div>
+        </section>
+
+        <!-- BLOQUE 2: ECONOMÍA Y FINANZAS -->
+        <section class="mb-14">
+            <div class="block-title">
+                <span>Economía y Finanzas</span>
+                <div class="block-divider"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="bloque-economia-container">
+                <!-- Se llenará con JS -->
+            </div>
+        </section>
+
+        <!-- BLOQUE 3: OPERACIONES URBANAS -->
+        <section class="mb-14">
+            <div class="block-title">
+                <span>Operaciones Urbanas</span>
+                <div class="block-divider"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="bloque-operaciones-container">
+                <!-- Se llenará con JS -->
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-[var(--blanco)] text-desc text-xs opacity-60">
+             <div class="flex justify-center items-center gap-4 mb-2">
+                <span class="h-px w-8 bg-[var(--blanco)] opacity-30"></span>
+                <p class="uppercase tracking-widest font-normal">Municipio de Lomas de Zamora</p>
+                <span class="h-px w-8 bg-[var(--blanco)] opacity-30"></span>
+            </div>
+            <p>© 2026 · Unidad de Datos e Infraestructura</p>
+        </footer>
+
+    </div>
+
+    <!-- SCRIPT DE DATOS Y RENDERIZADO -->
+    <script>
+        // Establecer fecha actual
+        const hoy = new Date();
+        const fechaFormateada = hoy.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        document.getElementById('kpi-fecha').textContent = fechaFormateada;
+
+        // ============================================================================
+        // DATOS PARA ACTUALIZACIÓN POR PYTHON
+        // ============================================================================
+        
+        // 1. Datos Resumen Diario (SGR)
+        const resumenDiarioData = {
+            "total_registros": 1092,
+            "top_tipo": "Servicios Públicos",
+            "top_sub_tipo": "Retiro de montículos de basura o tierra",
+            "top_zonificacion_cav": "BANFIELD"
+};
+
+        // 1.5 Datos Atención Palacio (Azara)
+        const atencionPalacioData = {
+            "total_ingresos_azara": 743,
+            "area_1_nombre": "Tesorería",
+            "area_1_valor": 238,
+            "area_2_nombre": "TSG",
+            "area_2_valor": 184,
+            "area_3_nombre": "Automotores",
+            "area_3_valor": 143,
+            "area_4_nombre": "CAV",
+            "area_4_valor": 36
+};
+
+        // 2. Datos Economía (Caja Municipal)
+        const economiaData = {
+            "caja_municipal": 13000000.0
+        };
+
+        // 3. Datos Operaciones (Ceamse / Flota)
+        const rawKpiData = {
+            "total_descargas_ceamse": 10,
+            "total_tn_neta_ceamse": 62.82,
+            "proyeccion_tn_neta_ceamse": 389.484,
+            "camiones_trabajando_su": 68,
+            "camiones_op_trabajando": 11,
+            "porcentaje_cumplidas_covelia": 96.29629629629629
+};
+        // ============================================================================
+
+        // --- Funciones de Formateo ---
+        const formatNumber = (num, decimals = 0) => {
+            return num.toLocaleString('es-AR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        };
+        const formatCurrency = (num) => {
+            return num.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 });
+        };
+
+        // --- Lógica de Renderizado SGR UI ---
+        function renderKpiCard(containerId, config) {
+            const container = document.getElementById(containerId);
+            const card = document.createElement('div');
+            
+            // Si hay un color específico para el borde (ej. alertas), lo aplicamos. Si no, usa el Acento.
+            let borderStyle = config.borderColor ? `border-left-color: ${config.borderColor};` : '';
+            
+            card.className = `card-informativa radius-sys p-6 flex flex-col justify-between h-full`;
+            card.style = borderStyle;
+
+            // Ajuste dinámico de tamaño de fuente para textos largos vs números
+            let valClass = "text-4xl";
+            const valStr = String(config.value);
+            if (valStr.length > 20) {
+                valClass = "text-xl";
+            } else if (valStr.length > 12 || isNaN(valStr.replace(/[$.,\s%]/g, ''))) {
+                valClass = "text-2xl leading-tight";
+            }
+
+            // Footer opcional
+            const footerHtml = config.footer 
+                ? `<div class="mt-4 pt-3 border-t border-[var(--azul-inst)] border-opacity-10 text-[10px] text-[var(--azul-inst)] font-bold tracking-widest uppercase">${config.footer}</div>` 
+                : '';
+
+            card.innerHTML = `
+                <svg class="card-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${config.icon}"></path></svg>
+                <div class="relative z-10 flex flex-col h-full justify-between">
+                    <div>
+                        <p class="font-bold text-xs uppercase tracking-widest mb-1 opacity-70">${config.title}</p>
+                        <h3 class="text-num mt-2 ${valClass}" style="color: var(--azul-inst);">${config.value}</h3>
+                        ${config.unit ? `<p class="text-[10px] uppercase mt-2 opacity-60 font-bold tracking-widest">${config.unit}</p>` : ''}
+                    </div>
+                    ${footerHtml}
+                </div>
+            `;
+            container.appendChild(card);
+        }
+
+        // --- 1. CARGAR BLOQUE SGR ---
+        const sgrConfig = [
+            {
+                title: "Gestiones Ingresadas",
+                value: formatNumber(resumenDiarioData.total_registros),
+                unit: "Total Registros",
+                icon: "M9 2a1 1 0 000 2h2a1 1 0 100-2H9z M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"
+            },
+            {
+                title: "Área con Mayor Demanda",
+                value: resumenDiarioData.top_tipo,
+                unit: "Top Tipo",
+                icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+            },
+            {
+                title: "Principal Reclamo",
+                value: resumenDiarioData.top_sub_tipo,
+                unit: "Top Subtipo",
+                icon: "M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
+            },
+            {
+                title: "CGM con MAYOR DEMANDA",
+                value: resumenDiarioData.top_zonificacion_cav,
+                unit: "CGM / Delegación",
+                icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+            }
+        ];
+        sgrConfig.forEach(cfg => renderKpiCard('bloque-sgr-container', cfg));
+
+        // --- 1.5 CARGAR BLOQUE PALACIO ---
+        const palacioConfig = [
+            {
+                title: "Atenciones Diarias Azara",
+                value: formatNumber(atencionPalacioData.total_ingresos_azara),
+                unit: "Total de Ingresos",
+                icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            },
+            {
+                title: "Principales Áreas de Atención",
+                value: atencionPalacioData.area_1_nombre,
+                unit: `${atencionPalacioData.area_1_valor} Atenciones`,
+                footer: `${atencionPalacioData.area_2_nombre}: ${atencionPalacioData.area_2_valor} | ${atencionPalacioData.area_3_nombre}: ${atencionPalacioData.area_3_valor} | ${atencionPalacioData.area_4_nombre}: ${atencionPalacioData.area_4_valor}`,
+                icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            }
+        ];
+        palacioConfig.forEach(cfg => renderKpiCard('bloque-palacio-container', cfg));
+
+        // --- 2. CARGAR BLOQUE ECONOMÍA ---
+        const ecoConfig = [
+            {
+                title: "Caja Municipal",
+                value: formatCurrency(economiaData.caja_municipal),
+                unit: "Saldo Disponible",
+                icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            }
+        ];
+        ecoConfig.forEach(cfg => renderKpiCard('bloque-economia-container', cfg));
+
+        // --- 3. CARGAR BLOQUE OPERACIONES ---
+        const VALOR_TN = 40487.91;
+        const gastoEstimado = rawKpiData.proyeccion_tn_neta_ceamse * VALOR_TN;
+
+        const opsConfig = [
+            {
+                title: "Descargas CEAMSE",
+                value: formatNumber(rawKpiData.total_descargas_ceamse),
+                unit: "Unidades",
+                icon: "M19 14l-7 7m0 0l-7-7m7 7V3"
+            },
+            {
+                title: "Total Descargado (CEAMSE)",
+                value: formatNumber(rawKpiData.total_tn_neta_ceamse, 2),
+                unit: "Toneladas",
+                icon: "M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
+            },
+            {
+                title: "Proyección Mensual (CEAMSE)",
+                value: formatNumber(rawKpiData.proyeccion_tn_neta_ceamse, 2),
+                unit: "Toneladas Est.",
+                icon: "M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z",
+                footer: `Valor Tn: $40.487,91 | Est: ${formatCurrency(gastoEstimado)}`
+            },
+            {
+                title: "Flota Lomas Limpia",
+                value: rawKpiData.camiones_trabajando_su,
+                unit: "Camiones Operativos",
+                icon: "M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+            },
+            {
+                title: "Flota Obras Públicas",
+                value: rawKpiData.camiones_op_trabajando,
+                unit: "Camiones Operativos",
+                icon: "M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+            },
+            {
+                title: "Cumplimiento Recorrido Covelia",
+                value: formatNumber(rawKpiData.porcentaje_cumplidas_covelia, 2) + "%",
+                unit: "Efectividad",
+                icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+                borderColor: rawKpiData.porcentaje_cumplidas_covelia < 80 ? "var(--magenta)" : ""
+            }
+        ];
+        opsConfig.forEach(cfg => renderKpiCard('bloque-operaciones-container', cfg));
+
+    </script>
+</body>
+</html>

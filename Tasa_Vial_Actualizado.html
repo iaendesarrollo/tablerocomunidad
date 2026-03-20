@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Tasa Vial</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Google Font: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* PALETA OBLIGATORIA SISTEMA FONDO OSCURO SGR */
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            font-weight: 400;
+        }
+
+        /* SISTEMA DE COMPONENTES */
+        .radius-sys {
+            border-radius: 12px !important;
+        }
+
+        /* TIPOGRAFÍA */
+        h1 { font-weight: 800; text-transform: uppercase; }
+        h2 { font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .text-desc { font-weight: 400; }
+        .text-num { font-weight: 700; }
+
+        /* CARDS */
+        .card-grafica {
+            background-color: var(--glass-claro);
+            color: var(--azul-inst);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* KPIs Destacados */
+        .kpi-destacado {
+            border-left: 8px solid var(--acento);
+        }
+        
+        .kpi-icon-bg {
+            position: absolute;
+            right: -10%;
+            bottom: -20%;
+            height: 140%;
+            width: auto;
+            color: var(--azul-inst);
+            opacity: 0.05;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* HEADER - Elevado para evitar solapamiento con controles del mapa */
+        .solid-header {
+             background-color: var(--bg-main);
+             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* GRAFICOS CONTENEDOR */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* TABLAS */
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            padding: 1rem;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 2px solid rgba(25, 86, 124, 0.2);
+        }
+        td {
+            padding: 1rem;
+            font-size: 0.875rem;
+            color: var(--azul-inst);
+            border-bottom: 1px solid rgba(25, 86, 124, 0.1);
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover td {
+            background-color: rgba(25, 86, 124, 0.02);
+        }
+
+        /* ETIQUETAS BANDERAS */
+        .badge-ypf { background-color: #DBEAFE; color: #1E40AF; }
+        .badge-shell { background-color: #FEF3C7; color: #92400E; }
+        .badge-puma { background-color: #D1FAE5; color: #065F46; }
+        .badge-axion { background-color: #FCE7F3; color: #9D174D; }
+        .badge-default { background-color: #F1F5F9; color: #475569; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--acento); border-radius: 4px; }
+
+        /* CUSTOM LEAFLET TOOLTIP */
+        .leaflet-tooltip.custom-tooltip {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            border: 1px solid rgba(25, 86, 124, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            font-family: 'Montserrat', sans-serif;
+            padding: 12px;
+            white-space: normal;
+        }
+        .leaflet-tooltip-left.custom-tooltip::before { border-left-color: var(--blanco); }
+        .leaflet-tooltip-right.custom-tooltip::before { border-right-color: var(--blanco); }
+        .leaflet-tooltip-top.custom-tooltip::before { border-top-color: var(--blanco); }
+        .leaflet-tooltip-bottom.custom-tooltip::before { border-bottom-color: var(--blanco); }
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8">
+
+    <!-- Encabezado Fijo (z-[1000] para sobreponerse al mapa) -->
+    <header class="solid-header fixed top-0 left-0 w-full z-[1000]">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl tracking-tight text-[var(--blanco)]">
+                            INFORME TASA VIAL
+                        </h1>
+                        <p class="text-xs sm:text-sm font-bold tracking-widest uppercase mt-1 text-[var(--acento)]">
+                            Secretaría de Economía y Finanzas
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <p class="text-[var(--blanco)] opacity-70 text-[10px] font-bold uppercase tracking-widest">Fecha de Consulta</p>
+                        <p class="text-[var(--blanco)] text-sm font-bold" id="kpi-fecha">--/--/----</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-28 sm:h-24"></div>
+
+    <!-- Contenedor principal -->
+    <div class="max-w-[1600px] mx-auto pb-12 space-y-6">
+
+        <!-- SECCIÓN 1: KPIs FINANCIEROS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <div class="card-informativa kpi-destacado radius-sys p-6 z-10">
+                <svg class="kpi-icon-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-2 z-10 relative">Acumulado Total</h3>
+                <div class="flex items-end gap-2 z-10 relative mt-4">
+                    <span class="text-2xl opacity-60 font-bold">$</span>
+                    <span class="text-4xl text-num tracking-tighter" id="kpi-total">3.703,4 M</span>
+                </div>
+            </div>
+
+            <div class="card-informativa kpi-destacado radius-sys p-6 z-10">
+                <svg class="kpi-icon-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-2 z-10 relative">Recaudado 2026</h3>
+                <div class="flex items-end gap-2 z-10 relative mt-4">
+                    <span class="text-2xl text-[var(--acento)] font-bold">$</span>
+                    <span class="text-4xl text-num text-[var(--acento)] tracking-tighter" id="kpi-2026">436,8 M</span>
+                </div>
+            </div>
+
+            <div class="card-informativa kpi-destacado radius-sys p-6 z-10">
+                <svg class="kpi-icon-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-2 z-10 relative">Recaudado 2025</h3>
+                <div class="flex items-end gap-2 z-10 relative mt-4">
+                    <span class="text-2xl opacity-60 font-bold">$</span>
+                    <span class="text-4xl text-num tracking-tighter" id="kpi-2025">2.265,7 M</span>
+                </div>
+            </div>
+
+            <div class="card-informativa kpi-destacado radius-sys p-6 z-10">
+                <svg class="kpi-icon-bg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-2 z-10 relative">Recaudado 2024</h3>
+                <div class="flex items-end gap-2 z-10 relative mt-4">
+                    <span class="text-2xl opacity-60 font-bold">$</span>
+                    <span class="text-4xl text-num tracking-tighter" id="kpi-2024">1.000,8 M</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECCIÓN 2: GRÁFICOS -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <div class="card-grafica radius-sys p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-lg">Evolución de Recaudación</h2>
+                        <p class="text-xs uppercase tracking-widest opacity-70 mt-1">Comparativa mensual 2025 vs 2026</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chartLineas"></canvas>
+                </div>
+            </div>
+
+            <div class="card-grafica radius-sys p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-lg">Estaciones Aportantes</h2>
+                        <p class="text-xs uppercase tracking-widest opacity-70 mt-1">Cuentas únicas por mes 2025 vs 2026</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chartBarras"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECCIÓN 3: MAPA GEOESPACIAL Y TABLA DE DATOS -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- CONTENEDOR MAPA -->
+            <div class="card-informativa radius-sys p-6 flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-lg">Distribución Geográfica</h2>
+                        <p class="text-xs uppercase tracking-widest opacity-70 mt-1 text-desc">Aportantes por geolocalización y bandera</p>
+                    </div>
+                </div>
+                
+                <div class="flex-grow radius-sys overflow-hidden" style="min-height: 400px; z-index: 10;">
+                    <!-- Div donde se renderizará el mapa de Leaflet -->
+                    <div id="mapa-estaciones" class="w-full h-full"></div>
+                </div>
+            </div>
+
+            <!-- CONTENEDOR TABLA -->
+            <div class="card-informativa radius-sys p-6 flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-lg">Ranking por Titular</h2>
+                        <p class="text-xs uppercase tracking-widest opacity-70 mt-1 text-desc">Top recaudación ordenado por periodo 2026</p>
+                    </div>
+                </div>
+                
+                <div class="table-container flex-grow">
+                    <table id="tabla-datos">
+                        <thead>
+                            <tr>
+                                <th>Titular</th>
+                                <th>Bandera</th>
+                                <th class="text-right">Aporte 2025</th>
+                                <th class="text-right text-[var(--acento)]">Aporte 2026</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-body" class="text-desc">
+                            <!-- Generado vía JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-[var(--blanco)] text-xs opacity-60">
+             <div class="flex justify-center items-center gap-4 mb-2">
+                <span class="h-px w-8 bg-[var(--blanco)] opacity-30"></span>
+                <p class="uppercase tracking-widest font-normal">Municipio de Lomas de Zamora</p>
+                <span class="h-px w-8 bg-[var(--blanco)] opacity-30"></span>
+            </div>
+            <p>© 2026 · Unidad de Datos e Infraestructura</p>
+        </footer>
+
+    </div>
+
+    <!-- SCRIPT DE DATOS Y RENDERIZADO -->
+    <script>
+        // --- 1. CONFIGURACIÓN FECHA ---
+        const hoy = new Date();
+        document.getElementById('kpi-fecha').textContent = hoy.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+        // --- 2. UTILIDADES DE FORMATO ---
+        const formatMoneda = (valor) => {
+            if(valor === null || valor === undefined) return '$ 0,00';
+            return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }).format(valor);
+        };
+
+        const formatMonedaCorto = (valor) => {
+            if(valor >= 1000000) return '$' + (valor / 1000000).toFixed(1) + 'M';
+            return '$' + valor.toLocaleString('es-AR');
+        };
+
+        const getBadgeClass = (bandera) => {
+            const b = bandera.toUpperCase();
+            if (b === 'YPF') return "badge-ypf";
+            if (b === 'SHELL') return "badge-shell";
+            if (b === 'PUMA') return "badge-puma";
+            if (b === 'AXION') return "badge-axion";
+            return "badge-default";
+        };
+
+        // --- 3. DATOS PROPORCIONADOS ---
+        const labelsMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        const dataImporte2025 = [
+        201856811.77,
+        125292724.0,
+        137039948.96,
+        229835704.99,
+        155461978.01,
+        157231754.13,
+        195988975.14,
+        163914488.89,
+        219056216.94,
+        231443976.32,
+        209445444.55,
+        239091746.75
+];
+        const dataImporte2026 = [
+        249918260.54,
+        186900725.45,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+];
+
+        const dataCuentas2025 = [
+        39,
+        33,
+        35,
+        40,
+        35,
+        34,
+        41,
+        36,
+        41,
+        41,
+        36,
+        40
+];
+        const dataCuentas2026 = [
+        38,
+        36,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+];
+
+        const tablaData = [
+        {
+                "Titular": "OPERADORA DE ESTACIONES DE SERVICIOS S.A",
+                "Bandera": "YPF",
+                "2025": 194578762.0,
+                "2026": 39103629.0,
+                "Resto": 108540698.0
+        },
+        {
+                "Titular": "PARANAY S.A.",
+                "Bandera": "YPF",
+                "2025": 187192690.0,
+                "2026": 37621633.0,
+                "Resto": 72445557.0
+        },
+        {
+                "Titular": "COMBUSTIBLES LAS DOS TORRES SRL",
+                "Bandera": "Shell",
+                "2025": 135259972.0,
+                "2026": 30767632.0,
+                "Resto": 57979555.0
+        },
+        {
+                "Titular": "ESTACION INTEGRAL LAS AMERICAS S.A.",
+                "Bandera": "YPF",
+                "2025": 105300403.77,
+                "2026": 29111823.26,
+                "Resto": 47324903.72
+        },
+        {
+                "Titular": "TRANSPORTES AUTOMOTORES DEL PLATA S.A",
+                "Bandera": "Shell",
+                "2025": 135227419.0,
+                "2026": 28900566.0,
+                "Resto": 51053954.0
+        },
+        {
+                "Titular": "ABANILLAS S.A",
+                "Bandera": "YPF",
+                "2025": 142927824.0,
+                "2026": 26465822.0,
+                "Resto": 93577692.0
+        },
+        {
+                "Titular": "BIELVA S.A",
+                "Bandera": "YPF",
+                "2025": 136493587.0,
+                "2026": 26428606.0,
+                "Resto": 48910833.0
+        },
+        {
+                "Titular": "COMBUSTIBLE SIMOSA S.R.L.",
+                "Bandera": "Shell",
+                "2025": 100949957.0,
+                "2026": 21973771.0,
+                "Resto": 47949618.0
+        },
+        {
+                "Titular": "JUAN XXIII SRL",
+                "Bandera": "Shell",
+                "2025": 92105077.0,
+                "2026": 19197183.0,
+                "Resto": 43046351.0
+        },
+        {
+                "Titular": "DISTRI SA.",
+                "Bandera": "Shell",
+                "2025": 87976237.0,
+                "2026": 18927115.0,
+                "Resto": 40048535.0
+        }
+];
+
+        // GEOJSON MAPA
+        const geojsonData = {
+        "type": "FeatureCollection",
+        "name": "tasa_vial_geo",
+        "features": [
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 200001519,
+                                "Titular": "DEHEZA S.A.I.C.F.I.",
+                                "Bandera": "Shell",
+                                "lat_1": -34.7555288004005,
+                                "long_1": -58.4014211900908,
+                                "Importe_2025": 88901572.0,
+                                "Importe_2026": 17723245.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4014211900908,
+                                        -34.7555288004005
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280000035,
+                                "Titular": "COMBUSTIBLE SIMOSA S.R.L.",
+                                "Bandera": "Shell",
+                                "lat_1": -34.7768423013173,
+                                "long_1": -58.3913768224253,
+                                "Importe_2025": 100949957.0,
+                                "Importe_2026": 21973771.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3913768224253,
+                                        -34.7768423013173
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280000118,
+                                "Titular": "DISTRI SA.",
+                                "Bandera": "Shell",
+                                "lat_1": -34.7649566052708,
+                                "long_1": -58.403872,
+                                "Importe_2025": 87976237.0,
+                                "Importe_2026": 18927115.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.403872,
+                                        -34.7649566052708
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280000381,
+                                "Titular": "ACTION DUAL S.R.L.",
+                                "Bandera": "Gulf",
+                                "lat_1": -34.7420323980053,
+                                "long_1": -58.4310288711646,
+                                "Importe_2025": 11480477.0,
+                                "Importe_2026": 2015765.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4310288711646,
+                                        -34.7420323980053
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280000399,
+                                "Titular": "CHOUSAL JUAN",
+                                "Bandera": "Blanca",
+                                "lat_1": -34.7700977991422,
+                                "long_1": -58.3783610239693,
+                                "Importe_2025": 116817419.0,
+                                "Importe_2026": 12541341.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3783610239693,
+                                        -34.7700977991422
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280000423,
+                                "Titular": "ESTACION INTEGRAL LAS AMERICAS S.A.",
+                                "Bandera": "YPF",
+                                "lat_1": -34.7433569408449,
+                                "long_1": -58.4302314868508,
+                                "Importe_2025": 105300403.77,
+                                "Importe_2026": 29111823.26
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4302314868508,
+                                        -34.7433569408449
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280000506,
+                                "Titular": "ESTACION DE SERVICIOS.DE COLORES",
+                                "Bandera": "Puma",
+                                "lat_1": -34.8127463590192,
+                                "long_1": -58.4218239114002,
+                                "Importe_2025": 40812469.0,
+                                "Importe_2026": 7806982.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4218239114002,
+                                        -34.8127463590192
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280000647,
+                                "Titular": "CARPINACCI HNOS. S. A.",
+                                "Bandera": "Puma",
+                                "lat_1": -34.7812333144205,
+                                "long_1": -58.3897056441767,
+                                "Importe_2025": 43203676.0,
+                                "Importe_2026": 9671560.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3897056441767,
+                                        -34.7812333144205
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280000662,
+                                "Titular": "GENEPLUS S.R.L.",
+                                "Bandera": "Axion",
+                                "lat_1": -34.759725157142,
+                                "long_1": -58.3583920030994,
+                                "Importe_2025": 287710.0,
+                                "Importe_2026": 477666.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3583920030994,
+                                        -34.759725157142
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280000696,
+                                "Titular": "CAMACHO-CAMACHO-VILLASENI",
+                                "Bandera": "YPF",
+                                "lat_1": -34.78084862976,
+                                "long_1": -58.4062702558232,
+                                "Importe_2025": 285876.0,
+                                "Importe_2026": 948.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4062702558232,
+                                        -34.78084862976
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280000860,
+                                "Titular": "MACH HNOS. S. A.",
+                                "Bandera": "Dapsa",
+                                "lat_1": -34.766064798011,
+                                "long_1": -58.4235481129442,
+                                "Importe_2025": 142107.0,
+                                "Importe_2026": 0.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4235481129442,
+                                        -34.766064798011
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280000894,
+                                "Titular": "COMBUSTIBLES LAS DOS TORRES SRL",
+                                "Bandera": "Shell",
+                                "lat_1": -34.7354992566982,
+                                "long_1": -58.4344821424113,
+                                "Importe_2025": 135259972.0,
+                                "Importe_2026": 30767632.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4344821424113,
+                                        -34.7354992566982
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001041,
+                                "Titular": "LESCO GNC S.H.",
+                                "Bandera": "Blanca",
+                                "lat_1": -34.7546153402678,
+                                "long_1": -58.3472583801156,
+                                "Importe_2025": 1546919.0,
+                                "Importe_2026": 87146.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3472583801156,
+                                        -34.7546153402678
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001116,
+                                "Titular": "VELEZ SARSFIELD 30 S.R.L.",
+                                "Bandera": "Blanca",
+                                "lat_1": -34.7610362809892,
+                                "long_1": -58.3857016558232,
+                                "Importe_2025": 10882541.0,
+                                "Importe_2026": 1777922.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3857016558232,
+                                        -34.7610362809892
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001181,
+                                "Titular": "LOS ENCINOS S.A",
+                                "Bandera": "Puma",
+                                "lat_1": -34.7712104511618,
+                                "long_1": -58.4050980623228,
+                                "Importe_2025": 0.0,
+                                "Importe_2026": 0.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4050980623228,
+                                        -34.7712104511618
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001215,
+                                "Titular": "EG3 RED SA",
+                                "Bandera": "Puma",
+                                "lat_1": -34.7685074196109,
+                                "long_1": -58.3962483623231,
+                                "Importe_2025": 9577354.56,
+                                "Importe_2026": 0.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3962483623231,
+                                        -34.7685074196109
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001256,
+                                "Titular": "TRANSPORTES AUTOMOTORES DEL PLATA S.A",
+                                "Bandera": "Shell",
+                                "lat_1": -34.72212423423,
+                                "long_1": -58.4441793641732,
+                                "Importe_2025": 135227419.0,
+                                "Importe_2026": 28900566.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4441793641732,
+                                        -34.72212423423
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001264,
+                                "Titular": "D´ATRI BARTOLOME JORGE",
+                                "Bandera": "Axion",
+                                "lat_1": -34.7549013160756,
+                                "long_1": -58.3481264862409,
+                                "Importe_2025": 0.0,
+                                "Importe_2026": 0.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3481264862409,
+                                        -34.7549013160756
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001348,
+                                "Titular": "OPERADORA DE ESTACIONES DE SERVICIOS S.A",
+                                "Bandera": "YPF",
+                                "lat_1": -34.7458720346118,
+                                "long_1": -58.3934716356884,
+                                "Importe_2025": 86415308.0,
+                                "Importe_2026": 16461355.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3934716356884,
+                                        -34.7458720346118
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001371,
+                                "Titular": "KAIULANI S.A.",
+                                "Bandera": "Axion",
+                                "lat_1": -34.7922216138003,
+                                "long_1": -58.4145755623216,
+                                "Importe_2025": 2111663.0,
+                                "Importe_2026": 738388.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4145755623216,
+                                        -34.7922216138003
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001439,
+                                "Titular": "BIELVA S.A",
+                                "Bandera": "YPF",
+                                "lat_1": -34.7928015332829,
+                                "long_1": -58.4142258046509,
+                                "Importe_2025": 42321195.0,
+                                "Importe_2026": 6917032.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4142258046509,
+                                        -34.7928015332829
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001447,
+                                "Titular": "GNC CERRITO S.A.",
+                                "Bandera": "Blanca",
+                                "lat_1": -34.752269036363,
+                                "long_1": -58.3685883731097,
+                                "Importe_2025": 12591787.0,
+                                "Importe_2026": 2190935.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3685883731097,
+                                        -34.752269036363
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001462,
+                                "Titular": "CASTAÑO RADZIUSZ SA",
+                                "Bandera": "Shell",
+                                "lat_1": -34.754028746843,
+                                "long_1": -58.3459543046595,
+                                "Importe_2025": 76101789.0,
+                                "Importe_2026": 16792830.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3459543046595,
+                                        -34.754028746843
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001561,
+                                "Titular": "OPERADORA DE ESTACIONES DE SERVICIOS S.A",
+                                "Bandera": "YPF",
+                                "lat_1": -34.7555182680958,
+                                "long_1": -58.4013543525247,
+                                "Importe_2025": 108163454.0,
+                                "Importe_2026": 22642274.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4013543525247,
+                                        -34.7555182680958
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001579,
+                                "Titular": "GCV S.A.",
+                                "Bandera": "Shell",
+                                "lat_1": -34.7426260344433,
+                                "long_1": -58.3986133846585,
+                                "Importe_2025": 65599357.0,
+                                "Importe_2026": 13354372.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3986133846585,
+                                        -34.7426260344433
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001595,
+                                "Titular": "COL-FRI S.A.",
+                                "Bandera": "Shell",
+                                "lat_1": -34.7609886011659,
+                                "long_1": -58.4220266936394,
+                                "Importe_2025": 28888251.0,
+                                "Importe_2026": 5563509.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4220266936394,
+                                        -34.7609886011659
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001694,
+                                "Titular": "DENAK-BAT S.A.",
+                                "Bandera": "Puma",
+                                "lat_1": -34.7970804175498,
+                                "long_1": -58.4230827946612,
+                                "Importe_2025": 4604622.0,
+                                "Importe_2026": 0.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4230827946612,
+                                        -34.7970804175498
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001710,
+                                "Titular": "TEMPERLEY GAS S.R.L.",
+                                "Bandera": "Blanca",
+                                "lat_1": -34.7764312191439,
+                                "long_1": -58.3916575981525,
+                                "Importe_2025": 3248099.0,
+                                "Importe_2026": 635537.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3916575981525,
+                                        -34.7764312191439
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001728,
+                                "Titular": "CHOUSAL JUAN",
+                                "Bandera": "Blanca",
+                                "lat_1": -34.7702575647895,
+                                "long_1": -58.3784200280061,
+                                "Importe_2025": 2251658.0,
+                                "Importe_2026": 296103.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3784200280061,
+                                        -34.7702575647895
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001785,
+                                "Titular": "DEL TRABAJO S.A.",
+                                "Bandera": "Axion",
+                                "lat_1": -34.8153578376756,
+                                "long_1": -58.431081219661,
+                                "Importe_2025": 47209974.0,
+                                "Importe_2026": 9603806.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.431081219661,
+                                        -34.8153578376756
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001819,
+                                "Titular": "MOCHA S.A.",
+                                "Bandera": "Puma",
+                                "lat_1": -34.796943518458,
+                                "long_1": -58.4089097758152,
+                                "Importe_2025": 29343254.0,
+                                "Importe_2026": 5469011.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4089097758152,
+                                        -34.796943518458
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001868,
+                                "Titular": "EG3 RED S.A.",
+                                "Bandera": "Puma",
+                                "lat_1": -34.7643287694107,
+                                "long_1": -58.3678985469819,
+                                "Importe_2025": 1925028.0,
+                                "Importe_2026": 461616.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3678985469819,
+                                        -34.7643287694107
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001884,
+                                "Titular": "ESTACION MONTEVERDE S.A.",
+                                "Bandera": "YPF",
+                                "lat_1": -34.7280302911073,
+                                "long_1": -58.4197225000707,
+                                "Importe_2025": 95337987.0,
+                                "Importe_2026": 17751394.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4197225000707,
+                                        -34.7280302911073
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001892,
+                                "Titular": "JUAN XXIII SRL",
+                                "Bandera": "Shell",
+                                "lat_1": -34.7685813716622,
+                                "long_1": -58.4383400233877,
+                                "Importe_2025": 92105077.0,
+                                "Importe_2026": 19197183.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4383400233877,
+                                        -34.7685813716622
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001900,
+                                "Titular": "MAZARUKA S.A",
+                                "Bandera": "Blanca",
+                                "lat_1": -34.7566007036423,
+                                "long_1": -58.3958203578041,
+                                "Importe_2025": 7479808.0,
+                                "Importe_2026": 1262902.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3958203578041,
+                                        -34.7566007036423
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001918,
+                                "Titular": "ABANILLAS S.A",
+                                "Bandera": "YPF",
+                                "lat_1": -34.7471031761876,
+                                "long_1": -58.4192937770332,
+                                "Importe_2025": 69794535.0,
+                                "Importe_2026": 13019869.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4192937770332,
+                                        -34.7471031761876
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001926,
+                                "Titular": "PARANAY S.A.",
+                                "Bandera": "YPF",
+                                "lat_1": -34.7643553898788,
+                                "long_1": -58.4322929589141,
+                                "Importe_2025": 68362765.0,
+                                "Importe_2026": 13724239.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4322929589141,
+                                        -34.7643553898788
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280001983,
+                                "Titular": "MULTISERVICIO LLAVALLOL S.R.L",
+                                "Bandera": "YPF",
+                                "lat_1": -34.7978461606766,
+                                "long_1": -58.4255848046505,
+                                "Importe_2025": 54252820.0,
+                                "Importe_2026": 10577950.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4255848046505,
+                                        -34.7978461606766
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280002007,
+                                "Titular": "SOMAVILLA S.A.",
+                                "Bandera": "Blanca",
+                                "lat_1": -34.7055201851543,
+                                "long_1": -58.4343026071201,
+                                "Importe_2025": 13261429.0,
+                                "Importe_2026": 1183713.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4343026071201,
+                                        -34.7055201851543
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280002015,
+                                "Titular": "MAHO GAS S.A.",
+                                "Bandera": "Blanca",
+                                "lat_1": -34.775789499803,
+                                "long_1": -58.4242874586937,
+                                "Importe_2025": 507677.0,
+                                "Importe_2026": 0.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4242874586937,
+                                        -34.775789499803
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280002049,
+                                "Titular": "GARABEROS SA",
+                                "Bandera": "Blanca",
+                                "lat_1": -34.7539674306292,
+                                "long_1": -58.420400895418,
+                                "Importe_2025": 9068750.0,
+                                "Importe_2026": 1465565.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.420400895418,
+                                        -34.7539674306292
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280002082,
+                                "Titular": "PARANAY S.A.",
+                                "Bandera": "YPF",
+                                "lat_1": -34.7326267840978,
+                                "long_1": -58.4641959543736,
+                                "Importe_2025": 118829925.0,
+                                "Importe_2026": 23897394.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4641959543736,
+                                        -34.7326267840978
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280002128,
+                                "Titular": "ABANILLAS S.A",
+                                "Bandera": "YPF",
+                                "lat_1": -34.7458355265965,
+                                "long_1": -58.4188273690713,
+                                "Importe_2025": 73133289.0,
+                                "Importe_2026": 13445953.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4188273690713,
+                                        -34.7458355265965
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280002131,
+                                "Titular": "GIACOBINI DAMIAN COSME MARIO",
+                                "Bandera": "Blanca",
+                                "lat_1": -34.7079036496548,
+                                "long_1": -58.458338204413,
+                                "Importe_2025": 24516393.0,
+                                "Importe_2026": 5280442.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.458338204413,
+                                        -34.7079036496548
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 280002205,
+                                "Titular": "BIELVA S.A",
+                                "Bandera": "YPF",
+                                "lat_1": -34.7623373498937,
+                                "long_1": -58.4148609881067,
+                                "Importe_2025": 94172392.0,
+                                "Importe_2026": 19511574.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.4148609881067,
+                                        -34.7623373498937
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 500000070,
+                                "Titular": "ALTIERI JORGE ALBERTO",
+                                "Bandera": "Dapsa",
+                                "lat_1": -34.746933862842,
+                                "long_1": -58.36582149188,
+                                "Importe_2025": 6519314.0,
+                                "Importe_2026": 2462507.0
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.36582149188,
+                                        -34.746933862842
+                                ]
+                        }
+                },
+                {
+                        "type": "Feature",
+                        "properties": {
+                                "NºCuenta": 5000016614,
+                                "Titular": "Y.P.F. S.A.",
+                                "Bandera": "YPF",
+                                "lat_1": -34.6053101199522,
+                                "long_1": -58.3622085334974,
+                                "Importe_2025": 138890061.12,
+                                "Importe_2026": 11128050.73
+                        },
+                        "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                        -58.3622085334974,
+                                        -34.6053101199522
+                                ]
+                        }
+                }
+        ]
+};
+
+        // --- 4. RENDERIZAR TABLA ---
+        const tbody = document.getElementById('tabla-body');
+        tablaData.forEach(row => {
+            let badgeClass = getBadgeClass(row.Bandera);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="font-bold">${row.Titular}</td>
+                <td><span class="px-2.5 py-1 rounded text-[10px] font-bold tracking-wider uppercase ${badgeClass}">${row.Bandera}</span></td>
+                <td class="text-right text-num">${formatMoneda(row["2025"])}</td>
+                <td class="text-right text-num text-[var(--acento)]">${formatMoneda(row["2026"])}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // --- 5. RENDERIZAR MAPA (LEAFLET) ---
+        // Variables de diseño
+        const colorAzulInst = '#19567C';
+        const colorAcento = '#4AB5E0';
+
+        // Inicializar Mapa centrado aproximado en Lomas de Zamora
+        const map = L.map('mapa-estaciones', {
+            zoomControl: false // Opcional, puedes quitarlo si quieres el control por defecto
+        }).setView([-34.75, -58.41], 12);
+
+        // Añadir controles en otra posición (opcional)
+        L.control.zoom({ position: 'topright' }).addTo(map);
+
+        // Capa Base: CartoDB Positron (Gris Claro)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Renderizar Puntos desde GeoJSON
+        const mapLayer = L.geoJSON(geojsonData, {
+            pointToLayer: function (feature, latlng) {
+                // Marcador circular usando el color de acento
+                return L.circleMarker(latlng, {
+                    radius: 7,
+                    fillColor: colorAcento,
+                    color: "#FFFFFF",
+                    weight: 1.5,
+                    opacity: 1,
+                    fillOpacity: 0.9
+                });
+            },
+            onEachFeature: function (feature, layer) {
+                const props = feature.properties;
+                const badgeClass = getBadgeClass(props.Bandera || 'Desconocida');
+                
+                // Construcción del Tooltip HTML
+                const tooltipHtml = `
+                    <div class="flex flex-col gap-1 min-w-[200px]">
+                        <span class="font-bold text-sm leading-tight text-[var(--azul-inst)]">${props.Titular}</span>
+                        <div class="mt-1"><span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase ${badgeClass}">${props.Bandera}</span></div>
+                        
+                        <div class="w-full h-px bg-[var(--azul-inst)] opacity-10 my-1.5"></div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] uppercase tracking-widest opacity-70 font-bold">Aporte 2025</span>
+                            <span class="font-bold text-xs">${formatMoneda(props.Importe_2025)}</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-0.5">
+                            <span class="text-[10px] uppercase tracking-widest text-[var(--acento)] font-bold">Aporte 2026</span>
+                            <span class="font-bold text-xs text-[var(--acento)]">${formatMoneda(props.Importe_2026)}</span>
+                        </div>
+                    </div>
+                `;
+
+                // Vincular tooltip al hover sobre el punto
+                layer.bindTooltip(tooltipHtml, {
+                    className: 'custom-tooltip',
+                    direction: 'top',
+                    offset: [0, -10],
+                    opacity: 1
+                });
+            }
+        }).addTo(map);
+
+        // Ajustar el zoom del mapa para abarcar todos los puntos automáticamente
+        map.fitBounds(mapLayer.getBounds(), { padding: [30, 30] });
+
+        // --- 6. CONFIGURACIÓN CHART.JS ---
+        const gridColor = 'rgba(25, 86, 124, 0.1)';
+
+        Chart.defaults.color = colorAzulInst;
+        Chart.defaults.font.family = "'Montserrat', sans-serif";
+        Chart.defaults.font.weight = 400;
+
+        // Gráfico 1: Líneas (Recaudación)
+        const ctxLineas = document.getElementById('chartLineas').getContext('2d');
+        new Chart(ctxLineas, {
+            type: 'line',
+            data: {
+                labels: labelsMeses,
+                datasets: [
+                    {
+                        label: '2026',
+                        data: dataImporte2026,
+                        borderColor: colorAcento,
+                        backgroundColor: 'rgba(74, 181, 224, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: colorAcento,
+                        pointBorderColor: '#fff',
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: '2025',
+                        data: dataImporte2025,
+                        borderColor: colorAzulInst,
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointBackgroundColor: colorAzulInst,
+                        pointRadius: 2,
+                        fill: false,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { weight: 700 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                if (context.parsed.y !== null) label += formatMoneda(context.parsed.y);
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: gridColor },
+                        ticks: { font: { weight: 400 }, callback: function(value) { return formatMonedaCorto(value); } }
+                    },
+                    x: { grid: { display: false }, ticks: { font: { weight: 700 } } }
+                }
+            }
+        });
+
+        // Gráfico 2: Barras (Cuentas)
+        const ctxBarras = document.getElementById('chartBarras').getContext('2d');
+        new Chart(ctxBarras, {
+            type: 'bar',
+            data: {
+                labels: labelsMeses,
+                datasets: [
+                    {
+                        label: '2026',
+                        data: dataCuentas2026,
+                        backgroundColor: colorAcento,
+                        borderRadius: 8,
+                        borderWidth: 0,
+                        barPercentage: 0.6
+                    },
+                    {
+                        label: '2025',
+                        data: dataCuentas2025,
+                        backgroundColor: colorAzulInst,
+                        borderRadius: 8,
+                        borderWidth: 0,
+                        barPercentage: 0.6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { weight: 700 } } }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: gridColor },
+                        ticks: { font: { weight: 400 } }
+                    },
+                    x: { grid: { display: false }, ticks: { font: { weight: 700 } } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

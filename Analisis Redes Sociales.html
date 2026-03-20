@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Análisis RRSS – Lomas de Zamora</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-main: #19567C;
+      --blanco: #FFFFFF;
+      --acento: #4AB5E0;
+      --magenta: #D34872;
+      --glass-claro: #E2F1F7;
+      --azul-inst: #19567C;
+      --radius-sys: 12px;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--blanco);
+      min-height: 100vh;
+      margin: 0;
+    }
+    /* Estilos de Tarjetas */
+    .card-informativa {
+      background-color: var(--blanco);
+      color: var(--azul-inst);
+      border-radius: var(--radius-sys);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-grafica {
+      background-color: var(--glass-claro);
+      color: var(--azul-inst);
+      border-radius: var(--radius-sys);
+    }
+    /* Botones de Navegación */
+    .nav-btn {
+      background-color: var(--blanco);
+      color: var(--azul-inst);
+      border-radius: var(--radius-sys);
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover { background-color: var(--glass-claro); }
+    .nav-btn.active {
+      background-color: var(--acento);
+      color: var(--blanco);
+    }
+    .nav-btn.active:hover { background-color: #3A95B8; }
+
+    /* Estilo de KPI destacado */
+    .kpi-border {
+      border-left: 8px solid var(--acento);
+    }
+    .icon-bg {
+      position: absolute;
+      right: 0.5rem;
+      bottom: 0.5rem;
+      opacity: 0.05;
+      color: var(--azul-inst);
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+  </style>
+</head>
+<body class="p-0">
+
+  <div class="flex flex-col lg:flex-row min-h-screen">
+    
+    <aside class="w-full lg:w-72 bg-[#144664] p-6 flex flex-col gap-8 z-20 overflow-y-auto custom-scrollbar">
+      <div class="flex flex-col gap-1">
+        <h2 class="font-extrabold text-xl uppercase tracking-tighter text-white">Social Intelligence</h2>
+        <p class="text-[10px] font-bold opacity-70 uppercase tracking-widest text-white">Lomas de Zamora</p>
+      </div>
+
+      <nav class="flex flex-col gap-2" id="account-nav">
+        <p class="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-2 font-bold">Perfiles Principales</p>
+        <button onclick="selectAccount('fede')" class="nav-btn active text-left px-6 py-3 text-sm font-bold uppercase tracking-wide flex items-center gap-3">
+             Federico Otermin
+        </button>
+        <button onclick="selectAccount('muni')" class="nav-btn text-left px-6 py-3 text-sm font-bold uppercase tracking-wide flex items-center gap-3 mt-1">
+             Municipio Lomas
+        </button>
+        <button onclick="selectAccount('sol')" class="nav-btn text-left px-6 py-3 text-sm font-bold uppercase tracking-wide flex items-center gap-3 mt-1">
+             Sol Tischik
+        </button>
+        
+        <p class="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-2 mt-6 font-bold">Redes Satélites</p>
+        <button onclick="selectAccount('satelites')" class="nav-btn text-left px-6 py-3 text-sm font-bold uppercase tracking-wide flex items-center gap-3">
+             Redes Satélites
+        </button>
+      </nav>
+
+      <div id="sidebar-period" class="mt-auto bg-white/5 p-4 rounded-xl text-[10px] font-bold opacity-60 uppercase tracking-widest leading-relaxed">
+        Período: Enero 2026<br>Unidad de Datos
+      </div>
+    </aside>
+
+    <main class="flex-1 p-6 md:p-10 lg:p-12 overflow-y-auto h-screen bg-[#19567C]">
+      
+      <header class="flex flex-col mb-10 gap-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 id="account-title" class="text-3xl md:text-5xl font-extrabold uppercase tracking-tighter mb-2">Federico Otermin</h1>
+            <p id="methodology" class="text-xs opacity-70 max-w-xl font-medium">
+              Valores correspondientes a las mediciones del 1 al 31 de Enero de 2026.
+            </p>
+          </div>
+          <div class="text-right flex flex-col items-end">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">Última Actualización</p>
+            <span class="text-xl font-extrabold text-white">02/03/2026</span>
+          </div>
+        </div>
+
+        <input type="file" id="tab-upload" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleTabUpload(event)">
+
+        <div class="flex gap-2 overflow-x-auto pb-2" id="platform-tabs"></div>
+      </header>
+
+      <div id="dashboard-content" class="space-y-6">
+        
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card-informativa kpi-border p-8 flex flex-col justify-center">
+                <h4 class="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-4">Análisis de Volumen</h4>
+                <div id="volume-text" class="text-lg font-bold leading-snug"></div>
+                <i data-lucide="bar-chart" class="icon-bg w-12 h-12"></i>
+            </div>
+            <div class="card-informativa p-8 flex items-center justify-around">
+                <div class="text-center">
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-50 mb-1">Total Mensual</p>
+                    <span id="stat-total" class="text-4xl font-extrabold">--</span>
+                </div>
+                <div class="w-px h-12 bg-gray-200"></div>
+                <div class="text-center">
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-50 mb-1">Promedio Diario</p>
+                    <span id="stat-avg" class="text-4xl font-extrabold" style="color: var(--acento)">--</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card-informativa p-8">
+            <h3 class="text-[10px] font-bold uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+                <span class="w-3 h-3 bg-[#D34872] rounded-full"></span> Top 3 Publicaciones con Mayor Engagement
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="engagement-list"></div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <section class="card-grafica p-8">
+                <h3 class="text-[10px] font-bold uppercase tracking-[0.2em] mb-8 text-[#19567C]">Distribución por Formato</h3>
+                <div class="flex flex-col sm:flex-row items-center gap-8">
+                    <div class="w-44 h-44 flex-shrink-0">
+                        <canvas id="formatsChart"></canvas>
+                    </div>
+                    <div class="flex-1 space-y-4 w-full" id="formats-legend"></div>
+                </div>
+            </section>
+
+            <section class="card-informativa p-8">
+                <h3 class="text-[10px] font-bold uppercase tracking-[0.2em] mb-8 opacity-60">Matriz de Tonos</h3>
+                <div class="space-y-6">
+                    <div class="border-l-4 border-[#4AB5E0] pl-4">
+                        <p class="text-[9px] font-bold opacity-50 mb-1 uppercase tracking-widest">Tono Principal</p>
+                        <div id="tone-inf"></div>
+                    </div>
+                    <div class="border-l-4 border-[#D34872] pl-4">
+                        <p class="text-[9px] font-bold opacity-50 mb-1 uppercase tracking-widest">Tono Objetivo</p>
+                        <div id="tone-obj"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <section class="card-informativa p-8">
+                <h3 class="text-[10px] font-bold uppercase tracking-[0.2em] mb-6 opacity-60">Áreas de Gestión y Ejes Temáticos</h3>
+                <p id="area-analysis" class="text-sm leading-relaxed font-bold"></p>
+            </section>
+
+            <section class="card-informativa p-8">
+                <h3 class="text-[10px] font-bold uppercase tracking-[0.2em] mb-6 opacity-60">Distribución Territorial (CGM)</h3>
+                <div class="space-y-2" id="cgm-list"></div>
+            </section>
+        </div>
+
+      </div>
+
+      <footer class="mt-20 pb-8 text-center text-white/30 text-[9px] font-bold uppercase tracking-[0.5em]">
+        Subsecretaría de Comunicación Institucional · Municipio de Lomas de Zamora
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const avg = (total) => (total / 31).toFixed(1);
+    const rawData = {
+        fede: { name: "Federico Otermin", platforms: { "Instagram": { period: "1 al 31 de Enero de 2026", volume: { total: 34, avg: avg(34) }, engagement: [ { date: "06/01/2026", title: "95° Desfile Tradicional de los Reyes Magos", val: "4.92%" }, { date: "02/01/2026", title: "Hoy cumple años la compañera Daniela", val: "4.57%" }, { date: "05/01/2026", title: "¡Lomas se llenó de magia y amor en Reyes!", val: "3.38%" } ], areas: "REYES MAGOS EN COMUNIDAD, GOBIERNO DE LA COMUNIDAD, AMBIENTE LOMAS", formats: [ { name: "Video", pct: 50, count: 17 }, { name: "Foto", pct: 29, count: 10 }, { name: "Foto Carrusel", pct: 21, count: 7 } ], tones: { informativo: { label: "Blando", pct: 100, count: 34 }, objetivo: { label: "Testimonial", pct: 85, count: 29 } }, cgm: [ { name: "LOMAS", pct: 85, count: 29 }, { name: "VARIOS", pct: 15, count: 5 } ] }, "Facebook": { period: "1 al 31 de Enero de 2026", volume: { total: 34, avg: avg(34) }, engagement: [ { date: "06/01/2026", title: "95° Desfile Tradicional de los Reyes Magos", val: "3.77%" }, { date: "02/01/2026", title: "Hoy cumple años la compañera Daniela", val: "2.63%" }, { date: "05/01/2026", title: "¡Lomas se llenó de magia en Reyes!", val: "2.16%" } ], areas: "REYES MAGOS EN COMUNIDAD, COMPARTIR LOMAS", formats: [ { name: "Video", pct: 60, count: 20 }, { name: "Foto", pct: 29, count: 10 }, { name: "Foto Carrusel", pct: 11, count: 4 } ], tones: { informativo: { label: "Blando", pct: 100, count: 34 }, objetivo: { label: "Testimonial", pct: 90, count: 30 } }, cgm: [ { name: "LOMAS", pct: 80, count: 27 }, { name: "VARIOS", pct: 20, count: 7 } ] }, "Twitter": { period: "1 al 31 de Enero de 2026", volume: { total: 9, avg: avg(9) }, engagement: [ { date: "22/01/2026", title: "En #LomasDeZamora, nos encontramos con @fotermin", val: "8.79%" }, { date: "21/01/2026", title: "Estamos transformando la Ruta Provincial 4", val: "6.80%" }, { date: "06/01/2026", title: "¡Lomas se llenó de magia y amor en Reyes!", val: "4.32%" } ], areas: "OBRAS DE LA COMUNIDAD, REYES EN COMUNIDAD, DIARIO LOMAS", formats: [ { name: "Foto Carrusel", pct: 60, count: 5 }, { name: "Foto", pct: 40, count: 4 } ], tones: { informativo: { label: "Blando", pct: 100, count: 9 }, objetivo: { label: "Testimonial", pct: 66, count: 6 } }, cgm: [ { name: "LOMAS", pct: 78, count: 7 }, { name: "VARIOS / NO", pct: 22, count: 2 } ] }, "Tik Tok": { period: "1 al 31 de Enero de 2026", volume: { total: 10, avg: avg(10) }, engagement: [ { date: "06/01/2026", title: "95º Tradicional Desfile de Reyes en Lomas", val: "44.99%" }, { date: "25/01/2026", title: "El mood de hoy", val: "38.26%" }, { date: "08/01/2026", title: "La caravana de los Reyes en Comunidad", val: "36.71%" } ], areas: "REYES EN COMUNIDAD, OBRAS, COMUNIDAD LOMAS LIMPIA", formats: [{ name: "Video", pct: 100, count: 10 }], tones: { informativo: { label: "Blando", pct: 100, count: 10 }, objetivo: { label: "Testimonial", pct: 100, count: 10 } }, cgm: [ { name: "LOMAS", pct: 60, count: 6 }, { name: "FIORITO", pct: 20, count: 2 }, { name: "SAN JOSE", pct: 20, count: 2 } ] } } },
+        muni: { name: "Municipio de Lomas de Zamora", platforms: { "Instagram": { period: "1 al 31 de diciembre de 2025", volume: { total: 71, avg: avg(71) }, engagement: [ { date: "01/12/2025", title: "Adoquinadores de la Comunidad", val: "0.05%" }, { date: "30/12/2025", title: "Gobierno de la Comunidad, La Película", val: "0.04%" }, { date: "30/12/2025", title: "Fiestas Felices sin Pirotecnia", val: "0.03%" } ], areas: "Servicios Públicos, Cultura, Salud", formats: [ { name: "Video", pct: 60, count: 42 }, { name: "Foto Carrusel", pct: 30, count: 21 }, { name: "Flyer", pct: 10, count: 8 } ], tones: { informativo: { label: "Blando / Gris", pct: 90, count: 64 }, objetivo: { label: "Testimonial / Informativo", pct: 100, count: 71 } }, cgm: [ { name: "LOMAS", pct: 50, count: 35 }, { name: "BANFIELD", pct: 10, count: 7 }, { name: "VARIOS", pct: 40, count: 29 } ] }, "Facebook": { period: "1 al 31 de diciembre de 2025", volume: { total: 115, avg: avg(115) }, engagement: [ { date: "28/12/2025", title: "Te lo pide Ricky (Pirotecnia)", val: "0.09%" }, { date: "01/12/2025", title: "Adoquinadores en Banfield", val: "0.05%" }, { date: "29/12/2025", title: "Desobstrucción Sumideros", val: "0.04%" } ], areas: "Obras Públicas, Gestión", formats: [ { name: "Foto Carrusel", pct: 70, count: 80 }, { name: "Video", pct: 20, count: 23 }, { name: "Flyer", pct: 10, count: 12 } ], tones: { informativo: { label: "Blando", pct: 95, count: 109 }, objetivo: { label: "Testimonial", pct: 80, count: 92 } }, cgm: [ { name: "LOMAS", pct: 40, count: 46 }, { name: "TEMPERLEY", pct: 10, count: 12 }, { name: "BANFIELD", pct: 10, count: 12 } ] }, "Twitter": { period: "1 al 31 de diciembre de 2025", volume: { total: 75, avg: avg(75) }, engagement: [ { date: "01/12/2025", title: "Adoquinadores en Banfield", val: "1.45%" }, { date: "28/12/2025", title: "Hospital Diagnóstico Banfield", val: "1.27%" }, { date: "27/12/2025", title: "Parque Acuático Albertina", val: "0.92%" } ], areas: "Obras, Salud, Educación", formats: [ { name: "Foto Carrusel", pct: 80, count: 60 }, { name: "Video", pct: 10, count: 7 }, { name: "Flyer", pct: 10, count: 8 } ], tones: { informativo: { label: "Blando", pct: 90, count: 67 }, objetivo: { label: "Testimonial", pct: 85, count: 63 } }, cgm: [ { name: "LOMAS", pct: 60, count: 45 }, { name: "BANFIELD", pct: 15, count: 11 }, { name: "ALBERTINA", pct: 5, count: 4 } ] }, "Tik Tok": { period: "1 al 31 de diciembre de 2025", volume: { total: 17, avg: avg(17) }, engagement: [ { date: "02/12/2025", title: "Storytime Gabriel y Ariel", val: "3.09%" }, { date: "01/12/2025", title: "Skatepark Parque Caaguazú", val: "2.95%" }, { date: "27/12/2025", title: "Prácticas en COFEX", val: "2.71%" } ], areas: "Juventud, Deportes, Educación", formats: [{ name: "Video", pct: 100, count: 17 }], tones: { informativo: { label: "Blando", pct: 80, count: 14 }, objetivo: { label: "Testimonial", pct: 100, count: 17 } }, cgm: [ { name: "LOMAS", pct: 80, count: 14 }, { name: "SAN JOSE", pct: 10, count: 2 } ] } } },
+        sol: { name: "Sol Tischik", platforms: { "Instagram": { period: "1 al 31 de diciembre de 2025", volume: { total: 26, avg: avg(26) }, engagement: [ { date: "29/12/2025", title: "Gobierno de la Comunidad en Verano", val: "12.58%" }, { date: "02/12/2025", title: "Asunción Evi Limone", val: "6.50%" }, { date: "02/12/2025", title: "Escuela de Enfermería", val: "3.96%" } ], areas: "Política, Social, Género", formats: [ { name: "Video", pct: 50, count: 13 }, { name: "Foto Carrusel", pct: 50, count: 13 } ], tones: { informativo: { label: "Blando", pct: 100, count: 26 }, objetivo: { label: "Testimonial", pct: 100, count: 26 } }, cgm: [ { name: "LOMAS", pct: 80, count: 20 }, { name: "NO DEFINIDO", pct: 20, count: 6 } ] }, "Facebook": { period: "1 al 31 de diciembre de 2025", volume: { total: 32, avg: avg(32) }, engagement: [ { date: "02/12/2025", title: "Asunción Evi Limone", val: "18.71%" }, { date: "01/12/2025", title: "Feliz cumple, Fede", val: "12.76%" }, { date: "03/12/2025", title: "Día Personas con Discapacidad", val: "6.56%" } ], areas: "Social, Efemérides", formats: [ { name: "Foto Carrusel", pct: 80, count: 25 }, { name: "Video", pct: 20, count: 7 } ], tones: { informativo: { label: "Blando", pct: 100, count: 32 }, objetivo: { label: "Testimonial", pct: 100, count: 32 } }, cgm: [ { name: "LOMAS", pct: 90, count: 29 }, { name: "NO", pct: 10, count: 3 } ] }, "Twitter": { period: "1 al 31 de diciembre de 2025", volume: { total: 28, avg: avg(28) }, engagement: [ { date: "02/12/2025", title: "Asunción Evi Limone", val: "5.71%" }, { date: "29/12/2025", title: "Gobierno de la Comunidad en Verano", val: "4.00%" }, { date: "28/12/2025", title: "Navidad en Comunidad", val: "3.40%" } ], areas: "Política", formats: [ { name: "Foto Carrusel", pct: 85, count: 24 }, { name: "Video", pct: 15, count: 4 } ], tones: { informativo: { label: "Blando", pct: 100, count: 28 }, objetivo: { label: "Testimonial", pct: 100, count: 28 } }, cgm: [ { name: "LOMAS", pct: 85, count: 24 }, { name: "NO", pct: 15, count: 4 } ] }, "Tik Tok": { period: "1 al 31 de diciembre de 2025", volume: { total: 1, avg: "0.03" }, engagement: [ { date: "01/12/2025", title: "Con el Polaco Tischik nunca es tranqui", val: "57.18%" } ], areas: "Entretenimiento", formats: [{ name: "Video", pct: 100, count: 1 }], tones: { informativo: { label: "Blando", pct: 100, count: 1 }, objetivo: { label: "Testimonial", pct: 100, count: 1 } }, cgm: [{ name: "LOMAS", pct: 100, count: 1 }] } } },
+        satelites: { name: "Instagram de Redes Satélites", platforms: { "Comunidad Lomas": { period: "1 al 31 de diciembre de 2025", volume: { total: 79, avg: avg(79) }, engagement: [ { date: "08/12/2025", title: "Nonpalidece en Lomas", val: "High" }, { date: "01/12/2025", title: "Skatepark Caaguazú", val: "4.82%" }, { date: "28/12/2025", title: "Te lo pide Ricky", val: "2.22%" } ], areas: "Cultura, Deportes, Servicios", formats: [{ name: "Video", pct: 50, count: 40 }, { name: "Flyer", pct: 50, count: 39 }], tones: { informativo: { label: "Blando", pct: 100, count: 79 }, objetivo: { label: "Testimonial", pct: 100, count: 79 } }, cgm: [{ name: "LOMAS", pct: 80, count: 63 }, { name: "SAN JOSE", pct: 20, count: 16 }] }, "Comunidad Lomas Limpia": { period: "1 al 31 de diciembre de 2025", volume: { total: 15, avg: avg(15) }, engagement: [ { date: "26/12/2025", title: "Limpieza de Calles", val: "4.06%" }, { date: "26/12/2025", title: "Limpieza en tu barrio", val: "1.72%" } ], areas: "Servicios Públicos", formats: [{ name: "Foto Carrusel", pct: 100, count: 15 }], tones: { informativo: { label: "Blando", pct: 100, count: 15 }, objetivo: { label: "Testimonial", pct: 100, count: 15 } }, cgm: [{ name: "LOMAS", pct: 90, count: 13 }, { name: "VARIOS", pct: 10, count: 2 }] }, "Empleo Lomas": { period: "1 al 31 de diciembre de 2025", volume: { total: 4, avg: avg(4) }, engagement: [ { date: "01/12/2025", title: "Oportunidades Laborales", val: "0.41%" } ], areas: "Empleo", formats: [{ name: "Flyer", pct: 100, count: 4 }], tones: { informativo: { label: "Blando", pct: 100, count: 4 }, objetivo: { label: "Informativo", pct: 100, count: 4 } }, cgm: [{ name: "LOMAS", pct: 100, count: 4 }] }, "Compartir Lomas": { period: "1 al 31 de diciembre de 2025", volume: { total: 3, avg: avg(3) }, engagement: [ { date: "08/12/2025", title: "Nonpalidece en Lomas", val: "255%" } ], areas: "Cultura, Eventos", formats: [{ name: "Flyer", pct: 100, count: 3 }], tones: { informativo: { label: "Blando", pct: 100, count: 3 }, objetivo: { label: "Informativo", pct: 100, count: 3 } }, cgm: [{ name: "LOMAS", pct: 100, count: 3 }] }, "Comunidad de D10S": { period: "1 al 31 de diciembre de 2025", volume: { total: 1, avg: avg(1) }, engagement: [ { date: "30/12/2025", title: "Gobierno de la Comunidad, La Película", val: "1.66%" } ], areas: "Homenaje", formats: [{ name: "Video", pct: 100, count: 1 }], tones: { informativo: { label: "Blando", pct: 100, count: 1 }, objetivo: { label: "Testimonial", pct: 100, count: 1 } }, cgm: [{ name: "FIORITO", pct: 100, count: 1 }] }, "Seguridad Lomas": { period: "1 al 31 de diciembre de 2025", volume: { total: 4, avg: avg(4) }, engagement: [ { date: "08/12/2025", title: "¡Descargá la App!", val: "1.23%" } ], areas: "Seguridad", formats: [{ name: "Flyer", pct: 50, count: 2 }, { name: "Foto Carrusel", pct: 50, count: 2 }], tones: { informativo: { label: "Gris", pct: 100, count: 4 }, objetivo: { label: "Informativo", pct: 75, count: 3 } }, cgm: [{ name: "LOMAS", pct: 100, count: 4 }] }, "Comercios de la Comunidad": { period: "1 al 31 de diciembre de 2025", volume: { total: 6, avg: avg(6) }, engagement: [ { date: "21/12/2025", title: "La Noche de los Comercios", val: "1.62%" } ], areas: "Comercio", formats: [{ name: "Flyer", pct: 50, count: 3 }, { name: "Video", pct: 50, count: 3 }], tones: { informativo: { label: "Blando", pct: 100, count: 6 }, objetivo: { label: "Informativo", pct: 100, count: 6 } }, cgm: [{ name: "LOMAS", pct: 80, count: 5 }, { name: "VARIOS", pct: 20, count: 1 }] }, "Aprender Lomas": { period: "1 al 31 de diciembre de 2025", volume: { total: 3, avg: avg(3) }, engagement: [ { date: "02/12/2025", title: "Escuela de Enfermería", val: "3.96%" } ], areas: "Educación", formats: [{ name: "Foto Carrusel", pct: 66, count: 2 }, { name: "Video", pct: 33, count: 1 }], tones: { informativo: { label: "Blando", pct: 100, count: 3 }, objetivo: { label: "Testimonial", pct: 100, count: 3 } }, cgm: [{ name: "LOMAS", pct: 100, count: 3 }] } } }
+    };
+
+    let currentAccount = 'fede';
+    let currentPlatform = "Instagram";
+    let chartInstance = null;
+    let platformToUpdate = null;
+
+    function init() {
+        lucide.createIcons();
+        renderPlatformTabs();
+        updateDashboard();
+    }
+
+    function selectAccount(id) {
+        currentAccount = id;
+        currentPlatform = Object.keys(rawData[id].platforms)[0];
+        document.querySelectorAll('#account-nav button').forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        renderPlatformTabs();
+        updateDashboard();
+    }
+
+    function selectPlatform(plt) {
+        currentPlatform = plt;
+        renderPlatformTabs();
+        updateDashboard();
+    }
+
+    function triggerUpload(plt) {
+        platformToUpdate = plt;
+        document.getElementById('tab-upload').click();
+    }
+
+    function renderPlatformTabs() {
+        const container = document.getElementById('platform-tabs');
+        container.innerHTML = '';
+        const platforms = Object.keys(rawData[currentAccount].platforms);
+        
+        platforms.forEach(plt => {
+            const isActive = currentPlatform === plt;
+            const tabDiv = document.createElement('div');
+            tabDiv.className = `flex items-center gap-2 px-6 py-3 rounded-xl transition-all cursor-pointer ${isActive ? 'bg-[#4AB5E0] text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'}`;
+            tabDiv.onclick = () => selectPlatform(plt);
+            
+            const btnName = document.createElement('span');
+            btnName.className = `text-[10px] font-bold uppercase tracking-widest`;
+            btnName.innerText = plt;
+            
+            const btnUpload = document.createElement('button');
+            btnUpload.className = `p-1 rounded bg-black/10 hover:bg-black/20`;
+            btnUpload.innerHTML = `<i data-lucide="upload" class="w-3 h-3"></i>`;
+            btnUpload.onclick = (e) => { e.stopPropagation(); triggerUpload(plt); };
+
+            tabDiv.appendChild(btnName);
+            tabDiv.appendChild(btnUpload);
+            container.appendChild(tabDiv);
+        });
+        lucide.createIcons();
+    }
+
+    function updateDashboard() {
+        const data = rawData[currentAccount].platforms[currentPlatform];
+        document.getElementById('account-title').innerText = rawData[currentAccount].name;
+        document.getElementById('methodology').innerText = `Valores correspondientes a las mediciones del período: ${data.period}.`;
+        document.getElementById('stat-total').innerText = data.volume.total;
+        document.getElementById('stat-avg').innerText = data.volume.avg;
+        document.getElementById('volume-text').innerHTML = `Mes cerrado con <span style="color:var(--acento)">${data.volume.total}</span> publicaciones y un promedio diario de <span style="color:var(--acento)">${data.volume.avg}</span> contenidos publicados.`;
+
+        const engContainer = document.getElementById('engagement-list');
+        engContainer.innerHTML = '';
+        data.engagement.forEach(item => {
+            engContainer.innerHTML += `
+                <div class="bg-gray-50 p-6 rounded-xl border border-gray-100">
+                    <p class="text-[9px] opacity-40 font-bold mb-2 uppercase">${item.date}</p>
+                    <p class="text-xs font-bold mb-4 leading-tight h-8 overflow-hidden">${item.title}</p>
+                    <p class="text-2xl font-black text-[#D34872] tracking-tighter">${item.val}</p>
+                </div>
+            `;
+        });
+
+        document.getElementById('area-analysis').innerText = data.areas || "Sin datos consolidados.";
+        const legendContainer = document.getElementById('formats-legend');
+        legendContainer.innerHTML = '';
+        data.formats.forEach(f => {
+            legendContainer.innerHTML += `
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[9px] uppercase font-bold text-[#19567C]">
+                        <span>${f.name}</span>
+                        <span>${f.pct}%</span>
+                    </div>
+                    <div class="w-full bg-[#19567C]/10 h-2 rounded-full overflow-hidden">
+                        <div class="bg-[#19567C] h-full" style="width: ${f.pct}%"></div>
+                    </div>
+                </div>
+            `;
+        });
+        updateChart(data.formats);
+
+        document.getElementById('tone-inf').innerHTML = `<p class="text-lg font-bold">${data.tones.informativo.label}</p><p class="text-xs font-medium opacity-60">${data.tones.informativo.pct}% del volumen total</p>`;
+        document.getElementById('tone-obj').innerHTML = `<p class="text-lg font-bold">${data.tones.objetivo.label}</p><p class="text-xs font-medium opacity-60">${data.tones.objetivo.pct}% de efectividad testimonial</p>`;
+
+        const cgmContainer = document.getElementById('cgm-list');
+        cgmContainer.innerHTML = '';
+        data.cgm.forEach(item => {
+            cgmContainer.innerHTML += `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <span class="text-[10px] font-bold uppercase tracking-wider">${item.name}</span>
+                    <span class="text-sm font-black text-[#4AB5E0]">${item.pct}%</span>
+                </div>
+            `;
+        });
+    }
+
+    function updateChart(formats) {
+        const ctx = document.getElementById('formatsChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: formats.map(f => f.name),
+                datasets: [{
+                    data: formats.map(f => f.pct),
+                    backgroundColor: ['#19567C', '#4AB5E0', '#D34872', '#144664'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                cutout: '80%'
+            }
+        });
+    }
+
+    function processPlatformData(jsonData, targetPlatform) {
+        const normalizedData = jsonData.filter(row => Object.keys(row).length > 2).map(row => {
+            const newRow = {};
+            for(let key in row) { newRow[key.trim().toUpperCase()] = row[key]; }
+            return newRow;
+        });
+        const total = normalizedData.length;
+        const top3 = [...normalizedData].sort((a,b) => (parseFloat(b['ENGAGEMENT']) || 0) - (parseFloat(a['ENGAGEMENT']) || 0)).slice(0, 3).map(item => ({
+            date: item['FECHA'] || "S/F",
+            title: item['TITULO'] || item['TÍTULO'] || "Sin título",
+            val: (parseFloat(item['ENGAGEMENT']) || 0).toFixed(2) + "%"
+        }));
+        rawData[currentAccount].platforms[targetPlatform] = {
+            period: `Actualizado vía importación`,
+            volume: { total, avg: (total/31).toFixed(1) },
+            engagement: top3,
+            areas: "Datos procesados recientemente",
+            formats: [{name: "Procesado", pct: 100, count: total}],
+            tones: { informativo: { label: "Informativo", pct: 100, count: total }, objetivo: { label: "Objetivo", pct: 100, count: total } },
+            cgm: [{name: "Territorio", pct: 100, count: total}]
+        };
+    }
+
+    function handleTabUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+            processPlatformData(jsonData, platformToUpdate);
+            selectPlatform(platformToUpdate);
+        };
+        reader.readAsArrayBuffer(file);
+        event.target.value = '';
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>

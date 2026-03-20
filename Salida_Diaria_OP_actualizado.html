@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero Salida Diaria OP - Municipio Lomas de Zamora</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+            --radius-sys: 12px;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Títulos */
+        h1 { font-weight: 800; text-transform: uppercase; }
+        h2 { font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* Tarjetas */
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            border-radius: var(--radius-sys);
+            padding: 1.5rem;
+        }
+
+        .card-grafica {
+            background-color: var(--glass-claro);
+            color: var(--azul-inst);
+            border-radius: var(--radius-sys);
+            padding: 1.5rem;
+        }
+
+        /* KPIs Destacados */
+        .kpi-destacado {
+            border-left: 8px solid var(--acento);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .text-desc { font-weight: 400; font-size: 0.875rem; }
+        .text-num { font-weight: 700; }
+
+        /* Estilos de Tabla */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--azul-inst);
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid rgba(25, 86, 124, 0.2);
+        }
+        td {
+            padding: 1rem;
+            font-size: 0.875rem;
+            color: var(--azul-inst);
+            border-bottom: 1px solid rgba(25, 86, 124, 0.1);
+        }
+        tr:last-child td { border-bottom: none; }
+
+        /* Clases de utilidad */
+        .bg-acento { background-color: var(--acento); }
+        .text-magenta { color: var(--magenta); }
+        .text-acento { color: var(--acento); }
+
+        header {
+            background-color: var(--bg-main);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <header class="fixed top-0 left-0 w-full z-50 py-4 shadow-lg">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl md:text-3xl text-white">Tablero Salida Diaria OP</h1>
+                <p class="text-xs uppercase tracking-widest text-white/70">Gestión Operativa Institucional</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-white/60">Última Actualización</p>
+                <p class="text-xl font-bold text-white" id="kpi-fecha">--/--/----</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-28"></div>
+
+    <main class="max-w-7xl mx-auto space-y-10">
+
+        <section>
+            <h2 class="text-sm text-white/80 mb-4 flex items-center gap-2">
+                <span class="w-3 h-3 bg-acento rounded-full"></span> Flota: Camiones
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="kpi-container-camiones"></div>
+        </section>
+
+        <section>
+            <h2 class="text-sm text-white/80 mb-4 flex items-center gap-2">
+                <span class="w-3 h-3 bg-white rounded-full"></span> Flota: Maquinaria
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="kpi-container-maquinaria"></div>
+        </section>
+
+        <section class="card-grafica">
+            <h2 class="text-lg mb-6" style="color: var(--azul-inst);">Evolución Operativa 30 Días</h2>
+            <div class="h-[400px]">
+                <canvas id="grafica30dias"></canvas>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <section class="card-informativa">
+                <h2 class="text-base mb-4 pb-2 border-b border-gray-100">Salida Diaria por Área</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Área</th>
+                                <th>Tipo</th>
+                                <th>Total</th>
+                                <th class="text-acento">Op</th>
+                                <th class="text-magenta">No Op</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-salida-area-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="card-informativa">
+                <h2 class="text-base mb-4 pb-2 border-b border-gray-100 text-magenta">Detalle No Operativos</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dominio</th>
+                                <th>Tipo</th>
+                                <th>Motivo / Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-no-operativos-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="py-12 text-center text-white/40 text-[10px] uppercase tracking-[0.2em]">
+        Municipio de Lomas de Zamora — Unidad de Datos e Infraestructura — 2026
+    </footer>
+
+    <script>
+        // MANTENIMIENTO DE ESTRUCTURA DE DATOS PARA ACTUALIZACIÓN PYTHON
+        const camionesData = {
+    "Fecha": "2026-03-02",
+    "Operativos": 13,
+    "No_Operativo": 7
+};
+        const maquinariaData = {
+    "Fecha": "2026-03-02",
+    "Operativos": 2,
+    "No_Operativo": 5
+};
+        
+        const salidaDiariaRaw = {
+    "resumen_maq": [
+        {
+            "Fecha": "2026-03-02",
+            "Area": "SS PLANIFICACION HIDRICA",
+            "Operativos": 2,
+            "No_Operativo": 5
+        }
+    ],
+    "resumen_cam": [
+        {
+            "Fecha": "2026-03-02",
+            "Area": "SS PLANIFICACION HIDRICA",
+            "Operativos": 5,
+            "No_Operativo": 4
+        },
+        {
+            "Fecha": "2026-03-02",
+            "Area": "SS REDES Y SERV. CONCESIONADOS",
+            "Operativos": 8,
+            "No_Operativo": 3
+        }
+    ]
+};
+
+        const noOperativosRaw = {
+    "no_operativos_ultimo_dia_maq": [
+        {
+            "Fecha": "02/03/2026",
+            "Dominio": "BWI65",
+            "Tipo": "MINI CARGADORA",
+            "Detalle": "TALLER"
+        },
+        {
+            "Fecha": "02/03/2026",
+            "Dominio": "CJZ34",
+            "Tipo": "RETROEXCAVADORA",
+            "Detalle": "TALLER"
+        },
+        {
+            "Fecha": "02/03/2026",
+            "Dominio": "CXJ80",
+            "Tipo": "MOTONIVELADORA",
+            "Detalle": "TALLER"
+        },
+        {
+            "Fecha": "02/03/2026",
+            "Dominio": "CXJ99",
+            "Tipo": "MOTONIVELADORA",
+            "Detalle": "TALLER"
+        },
+        {
+            "Fecha": "02/03/2026",
+            "Dominio": "DHV52",
+            "Tipo": "MOTONIVELADORA",
+            "Detalle": "TALLER"
+        }
+    ],
+    "no_operativos_ultimo_dia": [
+        {
+            "Fecha": "02/03/2026",
+            "Dominio": "AG979EU",
+            "Tipo": "DESOBSTRUCTOR",
+            "Detalle": "TALLER"
+        },
+        {
+            "Fecha": "02/03/2026",
+            "Dominio": "BTM638",
+            "Tipo": "DESOBSTRUCTOR",
+            "Detalle": "TALLER"
+        },
+        {
+            "Fecha": "02/03/2026",
+            "Dominio": "IWL376",
+            "Tipo": "VOLCADOR",
+            "Detalle": "TALLER"
+        },
+        {
+            "Fecha": "02/03/2026",
+            "Dominio": "KRV507",
+            "Tipo": "DESOBSTRUCTOR",
+            "Detalle": "TALLER"
+        },
+        {
+            "Fecha": "02/03/2026",
+            "Dominio": "AF827ZU",
+            "Tipo": "HIDRANTE",
+            "Detalle": "FALLA EN BOMBA Y PERDIDA EN TAJADURA DE TANQUE"
+        },
+        {
+            "Fecha": "02/03/2026",
+            "Dominio": "AG863SQ",
+            "Tipo": "ATMOSFERICO",
+            "Detalle": "A LA ESPERA DE NOVEDADES "
+        },
+        {
+            "Fecha": "02/03/2026",
+            "Dominio": "OBC435",
+            "Tipo": "HIDROELEVADOR",
+            "Detalle": "VA A TALLER"
+        }
+    ]
+};
+
+        const historicoData = {
+    "tabla_30d": [
+        {
+            "Fecha": "2026-02-02",
+            "Operativos": 10,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-03",
+            "Operativos": 10,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-04",
+            "Operativos": 11,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-05",
+            "Operativos": 11,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-06",
+            "Operativos": 11,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-09",
+            "Operativos": 12,
+            "No_Operativo": 6
+        },
+        {
+            "Fecha": "2026-02-10",
+            "Operativos": 11,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-11",
+            "Operativos": 11,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-12",
+            "Operativos": 11,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-13",
+            "Operativos": 10,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-18",
+            "Operativos": 11,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-19",
+            "Operativos": 12,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-20",
+            "Operativos": 13,
+            "No_Operativo": 6
+        },
+        {
+            "Fecha": "2026-02-23",
+            "Operativos": 12,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-24",
+            "Operativos": 13,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-25",
+            "Operativos": 13,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-26",
+            "Operativos": 13,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-02-27",
+            "Operativos": 13,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-03-02",
+            "Operativos": 13,
+            "No_Operativo": 7
+        }
+    ],
+    "tabla_30d_maq": [
+        {
+            "Fecha": "2026-02-02",
+            "Operativos": 2,
+            "No_Operativo": 6
+        },
+        {
+            "Fecha": "2026-02-03",
+            "Operativos": 2,
+            "No_Operativo": 6
+        },
+        {
+            "Fecha": "2026-02-04",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-05",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-06",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-09",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-10",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-11",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-12",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-13",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-18",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-19",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-20",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-23",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-24",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-25",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-26",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-02-27",
+            "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-02",
+            "Operativos": 2,
+            "No_Operativo": 5
+        }
+    ]
+};
+
+        // Lógica de Renderizado
+        const [anio, mes, dia] = camionesData.Fecha.split('-');
+        document.getElementById('kpi-fecha').textContent = `${dia}/${mes}/${anio}`;
+
+        function renderKPIs(containerId, data) {
+            const container = document.getElementById(containerId);
+            const total = data.Operativos + data.No_Operativo;
+            const items = [
+                { title: "Total Unidades", value: total, color: "var(--azul-inst)" },
+                { title: "Operativos", value: data.Operativos, color: "var(--acento)" },
+                { title: "No Operativos", value: data.No_Operativo, color: "var(--magenta)" }
+            ];
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card-informativa kpi-destacado';
+                card.innerHTML = `
+                    <p class="text-[10px] uppercase font-bold tracking-widest opacity-60 mb-1">${item.title}</p>
+                    <p class="kpi-value" style="color: ${item.color}">${item.value}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        renderKPIs('kpi-container-camiones', camionesData);
+        renderKPIs('kpi-container-maquinaria', maquinariaData);
+
+        // ChartJS Global Config
+        Chart.defaults.color = '#19567C';
+        Chart.defaults.font.family = "'Montserrat', sans-serif";
+        Chart.defaults.font.weight = 400;
+
+        const ctx = document.getElementById('grafica30dias').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: historicoData.tabla_30d.map(d => d.Fecha.split('-').reverse().slice(0,2).join('/')),
+                datasets: [
+                    {
+                        label: 'Camiones Operativos',
+                        data: historicoData.tabla_30d.map(d => d.Operativos),
+                        borderColor: '#4AB5E0',
+                        backgroundColor: '#4AB5E0',
+                        borderWidth: 4,
+                        tension: 0.2
+                    },
+                    {
+                        label: 'Maquinaria Operativa',
+                        data: historicoData.tabla_30d_maq.map(d => d.Operativos),
+                        borderColor: '#19567C',
+                        backgroundColor: '#19567C',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        tension: 0.2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(25, 86, 124, 0.1)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Tablas
+        const renderTable = (id, data, templateFn) => {
+            const tbody = document.getElementById(id);
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = templateFn(item);
+                tbody.appendChild(tr);
+            });
+        };
+
+        const unificada = [
+            ...salidaDiariaRaw.resumen_cam.map(i => ({...i, Tipo: 'Camión'})),
+            ...salidaDiariaRaw.resumen_maq.map(i => ({...i, Tipo: 'Maq'}))
+        ];
+
+        renderTable('tabla-salida-area-body', unificada, i => `
+            <td class="text-num">${i.Area}</td>
+            <td class="text-desc">${i.Tipo}</td>
+            <td class="text-num">${i.Operativos + i.No_Operativo}</td>
+            <td class="text-num text-acento">${i.Operativos}</td>
+            <td class="text-num text-magenta">${i.No_Operativo}</td>
+        `);
+
+        const noOpUnificada = [...noOperativosRaw.no_operativos_ultimo_dia, ...noOperativosRaw.no_operativos_ultimo_dia_maq];
+        renderTable('tabla-no-operativos-body', noOpUnificada, i => `
+            <td class="text-num">${i.Dominio}</td>
+            <td class="text-desc">${i.Tipo}</td>
+            <td class="text-desc text-magenta">${i.Detalle}</td>
+        `);
+    </script>
+</body>
+</html>

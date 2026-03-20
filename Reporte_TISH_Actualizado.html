@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero Recaudacion TISH - Municipio Lomas de Zamora</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+            --radius-sys: 12px;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .solid-header {
+             background-color: var(--bg-main);
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 { font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+        h2, h3 { font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            border-radius: var(--radius-sys);
+            padding: 1.5rem;
+            position: relative;
+            border-left: 8px solid var(--acento);
+        }
+
+        .card-grafica {
+            background-color: var(--glass-claro);
+            color: var(--azul-inst);
+            border-radius: var(--radius-sys);
+            padding: 1.5rem;
+        }
+
+        .kpi-icon {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            opacity: 0.05;
+            color: var(--azul-inst);
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--azul-inst);
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid rgba(25, 86, 124, 0.2);
+            background: var(--blanco);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        td {
+            padding: 0.85rem 1rem;
+            font-size: 0.875rem;
+            color: var(--azul-inst);
+            border-bottom: 1px solid rgba(25, 86, 124, 0.1);
+        }
+        tbody tr:hover { background-color: rgba(25, 86, 124, 0.03); }
+        .font-mono-nums { font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8">
+
+    <header class="solid-header fixed top-0 left-0 w-full z-50">
+        <div class="container mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex flex-col items-center sm:items-start">
+                <h1 class="text-xl sm:text-2xl text-white">Recaudación TISH</h1>
+                <p class="text-xs font-bold tracking-widest uppercase text-white/70">Secretaría de Economía y Finanzas</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-white/60">ULTIMA ACTUALIZACION</p>
+                <p class="text-xl font-bold text-white" id="fecha-actual">--/--/----</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-28 sm:h-24"></div>
+
+    <div class="max-w-7xl mx-auto space-y-8 pb-12">
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="kpi-container"></section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card-grafica">
+                <h3 class="text-sm mb-6 text-center border-b border-[#19567C]/10 pb-2">Composición por Rubro Top 5</h3>
+                <div class="relative w-full h-[350px]"><canvas id="chartRubros"></canvas></div>
+            </div>
+            <div class="card-grafica">
+                <h3 class="text-sm mb-6 text-center border-b border-[#19567C]/10 pb-2">Recaudación por CGM</h3>
+                <div class="relative w-full h-[350px]"><canvas id="chartCGM"></canvas></div>
+            </div>
+        </section>
+
+        <section class="card-informativa" style="border-left: none;">
+            <h2 class="text-sm mb-6 border-b border-[#19567C]/10 pb-2">Ranking Top 25 Titulares</h2>
+            <div class="table-container max-h-[800px] overflow-y-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="w-16 text-center">#</th>
+                            <th>Contribuyente / Titular</th>
+                            <th class="text-right">Recaudado 2026</th>
+                            <th class="text-right">Recaudado 2025</th>
+                            <th class="text-right">% Part.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-titulares-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const dataKPI = {
+    "Total_RECAUDACION_EJERCICIO_2025": 66890988308.16,
+    "Total_RECAUDACION_EJERCICIO_2026": 6674074804.41,
+    "Total_RECAUDACION_TOTAL_2025": 74391664308.88,
+    "Total_RECAUDACION_TOTAL_2026": 14462122854.72
+};
+
+        const dataRubros = [
+    {
+        "rubro": "BANCOS",
+        "total": 2778783818.0
+    },
+    {
+        "rubro": "FERIAS",
+        "total": 2034329974.3
+    },
+    {
+        "rubro": "EMPRESAS DE SERVICIOS",
+        "total": 1923455025.49
+    },
+    {
+        "rubro": "SUPERMERCADOS Y AUTOSERVICIOS",
+        "total": 1906978115.69
+    },
+    {
+        "rubro": "FABRICAS",
+        "total": 1383041604.26
+    }
+];
+
+        const rawCGM = {
+    "Lomas": 5561612869.02,
+    "Lamadrid": 2055251677.96,
+    "Llavallol": 1828848962.3400002,
+    "Banfield": 1679368284.68,
+    "Temperley": 1202765033.15,
+    "Parque Barón": 394536138.82,
+    "San José": 306768183.02,
+    "Centenario": 221903773.93,
+    "Turdera": 196476290.16,
+    "Santa Marta": 196466930.97,
+    "Fiorito": 130082861.62,
+    "Ing. Budge": 65675460.59,
+    "Albertina": 48357852.9,
+    "Santa Catalina": 10926208.01
+};
+        
+        const rawTitulares2026 = {
+    "EDESUR S.A.": 892970765.49,
+    "PUNTA MOGOTE SCA": 621977925.8,
+    "COTO C.I.C.S.A.": 535042935.0,
+    "URKUPIÑA S.A.": 445824955.8,
+    "CENCOSUD  S. A.": 435849696.98,
+    "BRIDGESTONE ARGENTINA S.A.I. Y C.": 408957687.99,
+    "CARREFOUR": 407974076.0,
+    "COOP.OCEAN DE PROV.DE SERV.PARA FERIANTE Y COMERCIANTES LIMITADA": 382816800.0,
+    "METROGAS S.A.": 370610169.0,
+    "BANCO SUPERVIELLE S.A.": 368895032.0,
+    "BANCO DE GALICIA Y BS. AS.": 352325370.0,
+    "BANCO SANTANDER RÍO S.A.": 345292004.0,
+    "BANCO BBVA ARGENTINA S.A.": 300408108.0,
+    "BANCO NACION ARGENTINA": 286716226.0,
+    "AGUA Y SANEAMIENTOS ARGENTINOS SA": 216322973.0,
+    "TELECOM PERSONAL S.A.": 194263646.0,
+    "BANCO CREDICOOP COOPERATIVA  LIMITADA": 184447516.0,
+    "VIDRIERIA ARG.(V.A.S.A.)": 177207080.19,
+    "BANCO COMAFI S.A.": 176535238.0,
+    "BINGOS DEL OESTE S.A.": 169966468.0,
+    "TELEFONICA MOVILES ARGENTINA S.A": 135701027.0,
+    "ASOCIACION MUTUAL SANCOR SALUD": 128677515.0,
+    "COLGATE PALMOLIVE ARGENTINA S.A.": 125215376.88000001,
+    "SUPERMERCADOS MAYORISTAS MAKRO S.A.": 111865768.0,
+    "BLANCO ISABEL": 106157912.9
+};
+
+        const rawTitulares2025 = {
+    "EDESUR S.A.": 3821733172.5299997,
+    "PUNTA MOGOTE SCA": 3189325224.6,
+    "COTO C.I.C.S.A.": 2619829403.0,
+    "URKUPIÑA S.A.": 2231483406.45,
+    "CENCOSUD  S. A.": 2098444653.74,
+    "BRIDGESTONE ARGENTINA S.A.I. Y C.": 2598188818.1,
+    "CARREFOUR": 2082080076.0,
+    "COOP.OCEAN DE PROV.DE SERV.PARA FERIANTE Y COMERCIANTES LIMITADA": 2042425758.0,
+    "METROGAS S.A.": 1735541890.0,
+    "BANCO SUPERVIELLE S.A.": 1930441358.0,
+    "BANCO DE GALICIA Y BS. AS.": 1656135171.0,
+    "BANCO SANTANDER RÍO S.A.": 1686003241.0,
+    "BANCO BBVA ARGENTINA S.A.": 1588365760.0,
+    "BANCO NACION ARGENTINA": 1274435219.83,
+    "AGUA Y SANEAMIENTOS ARGENTINOS SA": 1281776537.0,
+    "TELECOM PERSONAL S.A.": 991834308.0,
+    "BANCO CREDICOOP COOPERATIVA  LIMITADA": 972353044.0,
+    "VIDRIERIA ARG.(V.A.S.A.)": 1097521433.4199998,
+    "BANCO COMAFI S.A.": 930641842.0,
+    "BINGOS DEL OESTE S.A.": 895968692.0,
+    "TELEFONICA MOVILES ARGENTINA S.A": 861088446.0,
+    "ASOCIACION MUTUAL SANCOR SALUD": 549222578.0,
+    "COLGATE PALMOLIVE ARGENTINA S.A.": 509892755.40999997,
+    "SUPERMERCADOS MAYORISTAS MAKRO S.A.": 537154325.0,
+    "BLANCO ISABEL": 577191966.3000001
+};
+
+        const formatCurrency = (val) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(val);
+        const formatMillions = (val) => '$ ' + (val / 1000000).toFixed(1) + ' M';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('fecha-actual').textContent = new Date().toLocaleDateString('es-AR');
+
+            const kpiContainer = document.getElementById('kpi-container');
+            const kpis = [
+                { title: "Recaudación Total 2026", val: formatMillions(dataKPI.Total_RECAUDACION_TOTAL_2026), icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2" },
+                { title: "Recaudación Total 2025", val: formatMillions(dataKPI.Total_RECAUDACION_TOTAL_2025), icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
+                { title: "Recaudación Periodo 2026", val: formatMillions(dataKPI.Total_RECAUDACION_EJERCICIO_2026), icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2" },
+                { title: "Recaudación Periodo 2025", val: formatMillions(dataKPI.Total_RECAUDACION_EJERCICIO_2025), icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5" }
+            ];
+
+            kpis.forEach(kpi => {
+                const card = document.createElement('div');
+                card.className = "card-informativa";
+                card.innerHTML = `<p class="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">${kpi.title}</p><h3 class="text-2xl font-extrabold font-mono-nums">${kpi.val}</h3><div class="kpi-icon"><svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${kpi.icon}" /></svg></div>`;
+                kpiContainer.appendChild(card);
+            });
+
+            Chart.defaults.color = '#19567C';
+            new Chart(document.getElementById('chartRubros'), { type: 'doughnut', data: { labels: dataRubros.map(d => d.rubro), datasets: [{ data: dataRubros.map(d => d.total), backgroundColor: ['#19567C', '#4AB5E0', '#D34872', '#B8D8E6', '#7FB3D5'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } } } });
+            
+            // AJUSTE: RECAUDACIÓN POR CGM EN MILLONES
+            new Chart(document.getElementById('chartCGM'), { 
+                type: 'bar', 
+                data: { 
+                    labels: Object.keys(rawCGM), 
+                    datasets: [{ label: 'Total', data: Object.values(rawCGM), backgroundColor: '#4AB5E0', borderRadius: 6 }] 
+                }, 
+                options: { 
+                    indexAxis: 'y', 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => formatMillions(ctx.raw)
+                            }
+                        }
+                    },
+                    scales: { 
+                        x: { 
+                            grid: { color: 'rgba(25, 86, 124, 0.05)' },
+                            ticks: {
+                                callback: (val) => '$' + (val / 1000000).toFixed(1) + 'M'
+                            }
+                        }, 
+                        y: { grid: { display: false } } 
+                    } 
+                } 
+            });
+
+            const tablaBody = document.getElementById('tabla-titulares-body');
+            Object.keys(rawTitulares2026).forEach((tit, idx) => {
+                const tr = document.createElement('tr');
+                const m26 = rawTitulares2026[tit];
+                const part = ((m26 / dataKPI.Total_RECAUDACION_TOTAL_2026) * 100).toFixed(1);
+                tr.innerHTML = `<td class="text-center text-xs font-bold opacity-50">${idx + 1}</td><td class="text-xs font-bold uppercase">${tit}</td><td class="text-right font-mono-nums">${formatCurrency(m26)}</td><td class="text-right font-mono-nums">${formatCurrency(rawTitulares2025[tit] || 0)}</td><td class="text-right font-bold" style="color: var(--magenta)">${part}%</td>`;
+                tablaBody.appendChild(tr);
+            });
+        });
+    </script>
+</body>
+</html>

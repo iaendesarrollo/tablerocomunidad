@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Control - Obras Públicas</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+            --radius-sys: 12px;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        h1 { font-weight: 800; text-transform: uppercase; }
+        h2, h3 { font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+
+        .solid-header {
+             background-color: var(--bg-main);
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            border-radius: var(--radius-sys);
+            border-left: 8px solid var(--acento);
+        }
+
+        .card-grafica {
+            background-color: var(--glass-claro);
+            color: var(--azul-inst);
+            border-radius: var(--radius-sys);
+        }
+
+        .card-alerta { border-left-color: var(--magenta) !important; }
+        .text-magenta { color: var(--magenta) !important; }
+        .kpi-value { font-size: 2.25rem; font-weight: 700; line-height: 1.2; }
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8">
+
+    <header class="solid-header fixed top-0 left-0 w-full z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div>
+                    <h1 class="text-xl sm:text-2xl text-white">Tablero de Control</h1>
+                    <p class="text-xs font-bold text-white/70 uppercase tracking-widest mt-1">Reclamos Obras Públicas</p>
+                </div>
+                
+                <div class="text-right">
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 text-white">ULTIMA ACTUALIZACION</p>
+                    <p class="text-lg font-bold text-white" id="fecha-actual">--/--/----</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-28 sm:h-24"></div>
+
+    <div class="max-w-7xl mx-auto space-y-6 pb-12">
+
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            <div class="card-informativa p-5">
+                <p class="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-70">Total Ingresados</p>
+                <p id="kpi-total-ingresados" class="kpi-value">...</p>
+            </div>
+            <div class="card-informativa p-5">
+                <p class="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-70">Hídricos</p>
+                <p id="kpi-hidricos" class="kpi-value">...</p>
+            </div>
+            <div class="card-informativa p-5">
+                <p class="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-70">Obras Públicas</p>
+                <p id="kpi-obras" class="kpi-value">...</p>
+            </div>
+            <div class="card-informativa p-5">
+                <p class="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-70">Emp. Servicios</p>
+                <p id="kpi-empresas-servicios" class="kpi-value">...</p>
+            </div>
+            <div class="card-informativa p-5">
+                <p class="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-70">Solucionados</p>
+                <p id="kpi-solucionados" class="kpi-value" style="color: var(--acento)">...</p>
+            </div>
+            <div class="card-informativa p-5 card-alerta">
+                <p class="text-[10px] font-bold uppercase tracking-widest mb-1 text-magenta">Pendientes</p>
+                <p id="kpi-pendientes" class="kpi-value text-magenta">...</p>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card-grafica p-6">
+                <h3 class="text-sm mb-6">Evolución Semanal</h3>
+                <div class="relative h-64 sm:h-80"><canvas id="ingresosSemanalesChart"></canvas></div>
+            </div>
+            <div class="card-grafica p-6">
+                <h3 class="text-sm mb-6">Estado por Zonificación (14 CGM)</h3>
+                <div class="relative h-64 sm:h-80"><canvas id="reclamosPorZonaChart"></canvas></div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="space-y-4">
+                 <div class="card-informativa p-4 card-alerta">
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Pendientes Hídricos</p>
+                    <p id="kpi-no-solucionados-hidricos" class="text-2xl font-bold">...</p>
+                 </div>
+                 <div class="card-informativa p-4 card-alerta">
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Pendientes Obras</p>
+                    <p id="kpi-no-solucionados-obras" class="text-2xl font-bold">...</p>
+                 </div>
+                 <div class="card-informativa p-4 card-alerta">
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Pend. Emp. Servicios</p>
+                    <p id="kpi-pendientes-empresas-servicios" class="text-2xl font-bold">...</p>
+                 </div>
+            </div>
+            <div class="card-grafica p-6 lg:col-span-2">
+                <h3 class="text-sm mb-6">Distribución de Pendientes por Subtipo</h3>
+                <div class="relative h-64 sm:h-80"><canvas id="pendientesPorSubtipoChart"></canvas></div>
+            </div>
+        </section>
+
+        <footer class="mt-8 text-center text-white/50 text-[10px] uppercase font-bold tracking-widest">
+            Municipio de Lomas de Zamora — 2026
+        </footer>
+    </div>
+
+    <script id="dashboard-data" type="application/json">
+{
+    "total_reclamos": 473,
+    "ingresos_por_tipo": {
+        "Asuntos Hidricos": 346,
+        "Empresa de Servicios Públicos": 64,
+        "Mantenimiento y Obras Públicas": 63
+    },
+    "ingresos_por_subtipo": {
+        "Bache en la vía pública": 39,
+        "Boca de tormenta obstruida": 120,
+        "Falta de terminación de obra de empresa de servicios": 1,
+        "Inconveniente por obra de empresa de servicios": 3,
+        "Materiales sobrantes por obra en la vía pública": 3,
+        "Mejorado de calle de tierra": 2,
+        "Otras intervenciones del área": 26,
+        "Pavimento o vereda rota por obra municipal": 5,
+        "Pavimento roto": 8,
+        "Poste de empresa de servicios en mal estado": 44,
+        "Pérdida de gas o agua en la vía pública": 2,
+        "Solicitud de asfalto": 1,
+        "Solicitud de camión atmosférico pedido extraordinario": 118,
+        "Sumidero reconstrucción": 4,
+        "Sumidero tapado": 57,
+        "Zanja obstruida": 40
+    },
+    "ingresos_por_dia_semana": {
+        "Lunes": 67,
+        "Martes": 144,
+        "Miércoles": 110,
+        "Jueves": 65,
+        "Viernes": 79,
+        "Sábado": 5,
+        "Domingo": 3
+    },
+    "reclamos_por_estado": [
+        {
+            "conteo": "Nuevo",
+            "count": 285
+        },
+        {
+            "conteo": "Solucionado",
+            "count": 99
+        },
+        {
+            "conteo": "En Abordaje",
+            "count": 55
+        },
+        {
+            "conteo": "Reiterado",
+            "count": 23
+        },
+        {
+            "conteo": "Duplicado",
+            "count": 6
+        },
+        {
+            "conteo": "Tratado sin resolver",
+            "count": 3
+        },
+        {
+            "conteo": "Error en derivación",
+            "count": 1
+        },
+        {
+            "conteo": "Error en datos",
+            "count": 1
+        }
+    ],
+    "solucionados_por_tipo": {
+        "Asuntos Hidricos": 89,
+        "Empresa de Servicios Públicos": 8,
+        "Mantenimiento y Obras Públicas": 2
+    },
+    "no_solucionados_por_tipo": {
+        "Asuntos Hidricos": 257,
+        "Mantenimiento y Obras Públicas": 61,
+        "Empresa de Servicios Públicos": 56
+    },
+    "solucionados_por_dia": {
+        "Lunes": 21,
+        "Martes": 21,
+        "Miércoles": 27,
+        "Jueves": 14,
+        "Viernes": 14,
+        "Sábado": 0,
+        "Domingo": 2
+    },
+    "solucionados_por_subtipo": {
+        "Boca de tormenta obstruida": 7,
+        "Mejorado de calle de tierra": 2,
+        "Otras intervenciones del área": 1,
+        "Poste de empresa de servicios en mal estado": 6,
+        "Pérdida de gas o agua en la vía pública": 1,
+        "Solicitud de camión atmosférico pedido extraordinario": 35,
+        "Sumidero reconstrucción": 1,
+        "Sumidero tapado": 39,
+        "Zanja obstruida": 7
+    },
+    "no_solucionados_por_subtipo": {
+        "Bache en la vía pública": 39,
+        "Boca de tormenta obstruida": 113,
+        "Falta de terminación de obra de empresa de servicios": 1,
+        "Inconveniente por obra de empresa de servicios": 3,
+        "Materiales sobrantes por obra en la vía pública": 3,
+        "Otras intervenciones del área": 25,
+        "Pavimento o vereda rota por obra municipal": 5,
+        "Pavimento roto": 8,
+        "Poste de empresa de servicios en mal estado": 38,
+        "Pérdida de gas o agua en la vía pública": 1,
+        "Solicitud de asfalto": 1,
+        "Solicitud de camión atmosférico pedido extraordinario": 83,
+        "Sumidero reconstrucción": 3,
+        "Sumidero tapado": 18,
+        "Zanja obstruida": 33
+    },
+    "totales_por_persona": {
+        "CGM": 80,
+        "Otros": 393
+    },
+    "solucionados_por_zona": [
+        {
+            "Zonificacion_CAV": "SANTA CATALINA",
+            "conteo": 55
+        },
+        {
+            "Zonificacion_CAV": "BUDGE",
+            "conteo": 8
+        },
+        {
+            "Zonificacion_CAV": "LAMADRID",
+            "conteo": 7
+        },
+        {
+            "Zonificacion_CAV": "PARQUE BARON",
+            "conteo": 6
+        },
+        {
+            "Zonificacion_CAV": "SAN JOSE",
+            "conteo": 4
+        },
+        {
+            "Zonificacion_CAV": "ALBERTINA",
+            "conteo": 4
+        },
+        {
+            "Zonificacion_CAV": "LLAVALLOL",
+            "conteo": 4
+        },
+        {
+            "Zonificacion_CAV": "CENTENARIO",
+            "conteo": 4
+        },
+        {
+            "Zonificacion_CAV": "LOMAS",
+            "conteo": 3
+        },
+        {
+            "Zonificacion_CAV": "BANFIELD",
+            "conteo": 2
+        },
+        {
+            "Zonificacion_CAV": "FIORITO",
+            "conteo": 2
+        }
+    ],
+    "no_solucionados_por_zona": [
+        {
+            "Zonificacion_CAV": "BANFIELD",
+            "conteo": 72
+        },
+        {
+            "Zonificacion_CAV": "TEMPERLEY",
+            "conteo": 46
+        },
+        {
+            "Zonificacion_CAV": "LLAVALLOL",
+            "conteo": 35
+        },
+        {
+            "Zonificacion_CAV": "CENTENARIO",
+            "conteo": 33
+        },
+        {
+            "Zonificacion_CAV": "LOMAS",
+            "conteo": 31
+        },
+        {
+            "Zonificacion_CAV": "SANTA MARTA",
+            "conteo": 30
+        },
+        {
+            "Zonificacion_CAV": "SAN JOSE",
+            "conteo": 25
+        },
+        {
+            "Zonificacion_CAV": "ALBERTINA",
+            "conteo": 22
+        },
+        {
+            "Zonificacion_CAV": "FIORITO",
+            "conteo": 21
+        },
+        {
+            "Zonificacion_CAV": "PARQUE BARON",
+            "conteo": 21
+        },
+        {
+            "Zonificacion_CAV": "LAMADRID",
+            "conteo": 17
+        },
+        {
+            "Zonificacion_CAV": "BUDGE",
+            "conteo": 11
+        },
+        {
+            "Zonificacion_CAV": "SANTA CATALINA",
+            "conteo": 6
+        },
+        {
+            "Zonificacion_CAV": "TURDERA",
+            "conteo": 4
+        }
+    ],
+    "por_zona": [
+        {
+            "Zonificacion_CAV": "BANFIELD",
+            "conteo": 74
+        },
+        {
+            "Zonificacion_CAV": "SANTA CATALINA",
+            "conteo": 61
+        },
+        {
+            "Zonificacion_CAV": "TEMPERLEY",
+            "conteo": 46
+        },
+        {
+            "Zonificacion_CAV": "LLAVALLOL",
+            "conteo": 39
+        },
+        {
+            "Zonificacion_CAV": "CENTENARIO",
+            "conteo": 37
+        },
+        {
+            "Zonificacion_CAV": "LOMAS",
+            "conteo": 34
+        },
+        {
+            "Zonificacion_CAV": "SANTA MARTA",
+            "conteo": 30
+        },
+        {
+            "Zonificacion_CAV": "SAN JOSE",
+            "conteo": 29
+        },
+        {
+            "Zonificacion_CAV": "PARQUE BARON",
+            "conteo": 27
+        },
+        {
+            "Zonificacion_CAV": "ALBERTINA",
+            "conteo": 26
+        },
+        {
+            "Zonificacion_CAV": "LAMADRID",
+            "conteo": 24
+        },
+        {
+            "Zonificacion_CAV": "FIORITO",
+            "conteo": 23
+        },
+        {
+            "Zonificacion_CAV": "BUDGE",
+            "conteo": 19
+        },
+        {
+            "Zonificacion_CAV": "TURDERA",
+            "conteo": 4
+        }
+    ]
+}
+</script>
+
+    <script>
+        Chart.defaults.color = '#19567C';
+        Chart.defaults.font.family = "'Montserrat', sans-serif";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const data = JSON.parse(document.getElementById('dashboard-data').textContent);
+            document.getElementById('fecha-actual').textContent = new Date().toLocaleDateString('es-AR');
+
+            const sol = data.reclamos_por_estado.find(e => e.conteo === 'Solucionado')?.count || 0;
+            document.getElementById('kpi-total-ingresados').textContent = data.total_reclamos;
+            document.getElementById('kpi-hidricos').textContent = data.ingresos_por_tipo["Asuntos Hidricos"];
+            document.getElementById('kpi-obras').textContent = data.ingresos_por_tipo["Mantenimiento y Obras Públicas"];
+            document.getElementById('kpi-empresas-servicios').textContent = data.ingresos_por_tipo["Empresa de Servicios Públicos"];
+            document.getElementById('kpi-solucionados').textContent = sol;
+            document.getElementById('kpi-pendientes').textContent = data.total_reclamos - sol;
+            
+            document.getElementById('kpi-no-solucionados-hidricos').textContent = data.no_solucionados_por_tipo["Asuntos Hidricos"];
+            document.getElementById('kpi-no-solucionados-obras').textContent = data.no_solucionados_por_tipo["Mantenimiento y Obras Públicas"];
+            document.getElementById('kpi-pendientes-empresas-servicios').textContent = data.no_solucionados_por_tipo["Empresa de Servicios Públicos"];
+
+            // Evolución
+            new Chart(document.getElementById('ingresosSemanalesChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
+                    datasets: [
+                        { label: 'Ingresados', data: Object.values(data.ingresos_por_dia_semana), borderColor: '#19567C', borderWidth: 2, tension: 0.3 },
+                        { label: 'Solucionados', data: Object.values(data.solucionados_por_dia), borderColor: '#4AB5E0', backgroundColor: 'rgba(74, 181, 224, 0.2)', fill: true, tension: 0.3 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Zonificación (14 CGM)
+            const labels = data.por_zona.map(z => z.Zonificacion_CAV);
+            const solMap = Object.fromEntries(data.solucionados_por_zona.map(s => [s.Zonificacion_CAV, s.conteo]));
+            const pendMap = Object.fromEntries(data.no_solucionados_por_zona.map(p => [p.Zonificacion_CAV, p.conteo]));
+
+            new Chart(document.getElementById('reclamosPorZonaChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'SOLUCIONADOS', data: labels.map(l => solMap[l] || 0), backgroundColor: '#4AB5E0', borderRadius: 4 },
+                        { label: 'PENDIENTES', data: labels.map(l => pendMap[l] || 0), backgroundColor: '#D34872', borderRadius: 4 },
+                        { label: 'TOTAL', data: data.por_zona.map(z => z.conteo), backgroundColor: '#19567C', borderRadius: 4 }
+                    ]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(25, 86, 124, 0.1)' } } }
+                }
+            });
+
+            // Subtipos
+            const subtipos = Object.entries(data.no_solucionados_por_subtipo).sort((a,b) => b[1]-a[1]).slice(0, 5);
+            new Chart(document.getElementById('pendientesPorSubtipoChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: subtipos.map(s => s[0]),
+                    datasets: [{ 
+                        data: subtipos.map(s => s[1]), 
+                        backgroundColor: ['#19567C', '#4AB5E0', '#D34872', '#B8D8E6', '#7FB3D5'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'right' } } 
+                }
+            });
+        });
+    </script>
+</body>
+</html>

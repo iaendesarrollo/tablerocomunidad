@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero Control Presupuesto 2026 - Municipio Lomas de Zamora</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+            --radius-sys: 12px;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        .solid-header {
+             background-color: var(--bg-main);
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* TIPOGRAFÍA */
+        h1 { font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+        h2 { font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--azul-inst); }
+        .text-desc { font-weight: 400; font-size: 0.875rem; }
+        .text-num { font-weight: 700; }
+        .tracking-widest { letter-spacing: 0.1em; }
+
+        /* COMPONENTES BASE (CARDS FLAT) */
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            border-radius: var(--radius-sys);
+            padding: 1.5rem;
+            position: relative;
+            border-left: 8px solid var(--acento);
+        }
+
+        .card-grafica {
+            background-color: var(--glass-claro);
+            color: var(--azul-inst);
+            border-radius: var(--radius-sys);
+            padding: 1.5rem;
+        }
+
+        .kpi-icon {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            opacity: 0.05;
+            color: var(--azul-inst);
+        }
+
+        /* TABLAS */
+        .table-container {
+            width: 100%;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--azul-inst);
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid rgba(25, 86, 124, 0.2);
+            position: sticky;
+            top: 0;
+            background: var(--blanco);
+            z-index: 10;
+        }
+        td {
+            padding: 1rem;
+            font-size: 0.875rem;
+            color: var(--azul-inst);
+            border-bottom: 1px solid rgba(25, 86, 124, 0.1);
+        }
+        tbody tr:hover { background-color: rgba(25, 86, 124, 0.03); }
+        
+        .font-mono-nums { font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8">
+
+    <header class="solid-header fixed top-0 left-0 w-full z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex flex-col items-center sm:items-start">
+                    <h1 class="text-xl sm:text-2xl text-white">Economía y Finanzas</h1>
+                    <p class="text-[10px] font-bold tracking-widest uppercase opacity-80 text-white/70">Control Presupuesto 2026</p>
+                </div>
+                
+                <div class="text-right">
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 text-white/70">ULTIMA ACTUALIZACION</p>
+                    <p class="text-xl font-bold text-white" id="fecha-actual">--/--/----</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-28 sm:h-24"></div>
+
+    <div class="max-w-7xl mx-auto space-y-8 pb-12">
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6" id="kpi-container">
+            </section>
+
+        <section class="card-grafica">
+            <h2 class="mb-6">Comparativa Presupuesto vs Gasto por Área</h2>
+            <div class="relative w-full h-[500px]">
+                <canvas id="presupuestoChart"></canvas>
+            </div>
+        </section>
+
+        <section class="card-informativa" style="border-left: none;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 style="color: var(--azul-inst);">Monto Presupuestado vs Ejecutado (Detalle Completo)</h2>
+                <span class="text-xs font-bold uppercase tracking-widest opacity-60">Total Áreas: 18</span>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="w-1/3">Descripción / Área</th>
+                            <th class="text-right">Presupuestado</th>
+                            <th class="text-right">Gastado</th> 
+                            <th class="text-right">Saldo</th>
+                            <th class="text-center">% Ejec.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-presupuesto-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <script id="dashboard-data" type="application/json">
+{
+      "totales": {
+            "presupuestado": 388901497840.61,
+            "gastado": 121871794785.48,
+            "saldo": 267029703055.12997
+      },
+      "detalle": [
+            {
+                  "Descripcion": "SECRETARIA DE SERVICIOS PUBLICOS",
+                  "Presupuestado": 74498564565.81999,
+                  "Gastado": 12080537574.97,
+                  "Saldo": 62418026990.84999,
+                  "% Gast/Presu": 0.1621579912
+            },
+            {
+                  "Descripcion": "SECRETARIA DE SALUD",
+                  "Presupuestado": 67493625310.16002,
+                  "Gastado": 18293168915.53,
+                  "Saldo": 49200456394.63002,
+                  "% Gast/Presu": 0.2710355064
+            },
+            {
+                  "Descripcion": "SECRETARIA DE OBRAS PUBLICAS",
+                  "Presupuestado": 61563475044.37001,
+                  "Gastado": 30664349287.0,
+                  "Saldo": 30899125757.37001,
+                  "% Gast/Presu": 0.4980932162
+            },
+            {
+                  "Descripcion": "SECRETARIA DE SEGURIDAD Y JUSTICIA",
+                  "Presupuestado": 28524512925.77999,
+                  "Gastado": 8350694605.06,
+                  "Saldo": 20173818320.71999,
+                  "% Gast/Presu": 0.2927550289
+            },
+            {
+                  "Descripcion": "SECRETARIA GENERAL",
+                  "Presupuestado": 25080959630.91999,
+                  "Gastado": 4858245476.43,
+                  "Saldo": 20222714154.48999,
+                  "% Gast/Presu": 0.1937025356
+            },
+            {
+                  "Descripcion": "JEFATURA DE GABINETE",
+                  "Presupuestado": 17631364001.97,
+                  "Gastado": 3909445299.72,
+                  "Saldo": 13721918702.250002,
+                  "% Gast/Presu": 0.2217324365
+            },
+            {
+                  "Descripcion": "SECRETARÍA DE ECONOMIA Y FINANZAS",
+                  "Presupuestado": 17481400766.42,
+                  "Gastado": 2482500930.42,
+                  "Saldo": 14998899835.999998,
+                  "% Gast/Presu": 0.1420081242
+            },
+            {
+                  "Descripcion": "SECRETARIA DE GOBIERNO",
+                  "Presupuestado": 15308660725.309998,
+                  "Gastado": 3584575490.77,
+                  "Saldo": 11724085234.539997,
+                  "% Gast/Presu": 0.2341534348
+            },
+            {
+                  "Descripcion": "PARTIDAS NO ASIGNABLES A PROGRAMAS",
+                  "Presupuestado": 14875609727.41,
+                  "Gastado": 19831504735.88,
+                  "Saldo": -4955895008.470001,
+                  "% Gast/Presu": 1.3331557563
+            },
+            {
+                  "Descripcion": "SECRETARIA DE DESARROLLO SOCIAL",
+                  "Presupuestado": 13745588648.890001,
+                  "Gastado": 9389795647.44,
+                  "Saldo": 4355793001.450001,
+                  "% Gast/Presu": 0.6831133891
+            },
+            {
+                  "Descripcion": "SECRETARIA DE EDUCACION, PRODUCCION Y TRABAJO",
+                  "Presupuestado": 10138761397.679993,
+                  "Gastado": 1475081002.36,
+                  "Saldo": 8663680395.319992,
+                  "% Gast/Presu": 0.1454892708
+            },
+            {
+                  "Descripcion": "SECRETARIA DE DEPORTES",
+                  "Presupuestado": 9052136175.630003,
+                  "Gastado": 740166833.38,
+                  "Saldo": 8311969342.250003,
+                  "% Gast/Presu": 0.08176709
+            },
+            {
+                  "Descripcion": "SECRETARIA DE AMBIENTE",
+                  "Presupuestado": 8451075571.609997,
+                  "Gastado": 2784187508.76,
+                  "Saldo": 5666888062.849997,
+                  "% Gast/Presu": 0.3294477117
+            },
+            {
+                  "Descripcion": "HONORABLE CONCEJO DELIBERANTE",
+                  "Presupuestado": 7596128254.930001,
+                  "Gastado": 995474980.4,
+                  "Saldo": 6600653274.530002,
+                  "% Gast/Presu": 0.1310503123
+            },
+            {
+                  "Descripcion": "SECRETARIA PRIVADA",
+                  "Presupuestado": 7467844963.2300005,
+                  "Gastado": 611883025.29,
+                  "Saldo": 6855961937.940001,
+                  "% Gast/Presu": 0.0819356894
+            },
+            {
+                  "Descripcion": "SECRETARIA DE RELACIONES CON LA COMUNIDAD",
+                  "Presupuestado": 5048105668.820002,
+                  "Gastado": 1049478227.15,
+                  "Saldo": 3998627441.6700015,
+                  "% Gast/Presu": 0.2078954554
+            },
+            {
+                  "Descripcion": "SECRETARIA DE HABITAT E INTEGRACION COMUNITARIA",
+                  "Presupuestado": 2486556092.26,
+                  "Gastado": 434666072.47,
+                  "Saldo": 2051890019.7900002,
+                  "% Gast/Presu": 0.1748064618
+            },
+            {
+                  "Descripcion": "SECRETARIA DE MUJERES, GENEROS Y DIVERSIDAD",
+                  "Presupuestado": 2457128369.4,
+                  "Gastado": 336039172.45,
+                  "Saldo": 2121089196.95,
+                  "% Gast/Presu": 0.1367609347
+            }
+      ]
+}
+</script>
+
+    <script>
+        const formatCurrency = (amount) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(amount);
+        const formatLarge = (amount) => `$ ${new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(amount / 1000000)} M`;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const rawData = JSON.parse(document.getElementById('dashboard-data').textContent);
+            document.getElementById('fecha-actual').textContent = new Date().toLocaleDateString('es-AR');
+
+            // Renderizar KPIs
+            const kpiContainer = document.getElementById('kpi-container');
+            const kpis = [
+                { title: "Total Presupuestado", value: formatLarge(rawData.totales.presupuestado), icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2" },
+                { title: "Total Gastado", value: formatLarge(rawData.totales.gastado), icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" },
+                { title: "Total Saldo", value: formatLarge(rawData.totales.saldo), icon: "M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0" }
+            ];
+
+            kpis.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "card-informativa";
+                card.innerHTML = `
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">${item.title}</p>
+                    <h3 class="text-3xl font-extrabold font-mono-nums">${item.value}</h3>
+                    <div class="kpi-icon"><svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="${item.icon}" /></svg></div>
+                `;
+                kpiContainer.appendChild(card);
+            });
+
+            // Renderizar Tabla
+            const tablaBody = document.getElementById('tabla-presupuesto-body');
+            rawData.detalle.forEach(row => {
+                const tr = document.createElement('tr');
+                const percent = ((row.Gastado / row.Presupuestado) * 100).toFixed(2);
+                tr.innerHTML = `
+                    <td class="text-num uppercase" style="font-size: 0.7rem;">${row.Descripcion}</td>
+                    <td class="text-right font-mono-nums">${formatCurrency(row.Presupuestado)}</td>
+                    <td class="text-right font-mono-nums" style="color: var(--magenta)">${formatCurrency(row.Gastado)}</td>
+                    <td class="text-right font-mono-nums">${formatCurrency(row.Saldo)}</td>
+                    <td class="text-center font-bold">${percent}%</td>
+                `;
+                tablaBody.appendChild(tr);
+            });
+
+            // Renderizar Gráfico
+            Chart.defaults.color = '#19567C';
+            Chart.defaults.font.family = "'Montserrat', sans-serif";
+            const ctx = document.getElementById('presupuestoChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: rawData.detalle.map(d => d.Descripcion.replace('SECRETARIA DE ', '').substring(0, 15)),
+                    datasets: [
+                        { label: 'Presupuestado', data: rawData.detalle.map(d => d.Presupuestado), backgroundColor: '#19567C', borderRadius: 4 },
+                        { label: 'Gastado', data: rawData.detalle.map(d => d.Gastado), backgroundColor: '#4AB5E0', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            grid: { color: 'rgba(25, 86, 124, 0.1)' },
+                            ticks: { callback: (v) => '$' + (v / 1000000000).toFixed(0) + 'B' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Placeros - Municipio Lomas de Zamora</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+            --radius-sys: 12px;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 100px; /* Altura optimizada para encabezado compacto */
+        }
+
+        header {
+             background-color: var(--bg-main);
+             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        details {
+            border-radius: var(--radius-sys);
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            scroll-margin-top: 110px;
+        }
+
+        summary {
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            padding: 0.85rem 1.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.85rem;
+        }
+
+        summary::-webkit-details-marker { display: none; }
+
+        summary::after {
+            content: '▼';
+            font-size: 0.6rem;
+            transition: transform 0.3s ease;
+            color: var(--acento);
+        }
+
+        details[open] > summary::after { transform: rotate(180deg); }
+
+        .cgm-details { border-left: 6px solid var(--acento); }
+        
+        .plaza-details {
+            background-color: var(--glass-claro);
+            margin: 0.25rem 0.75rem 0.75rem 0.75rem;
+            border-radius: 8px;
+        }
+        
+        .plaza-summary {
+            padding: 0.6rem 1rem;
+            font-size: 0.8rem;
+            color: var(--azul-inst);
+        }
+
+        .placero-card {
+            background-color: var(--blanco);
+            border: 1px solid rgba(25, 86, 124, 0.1);
+            border-radius: 6px;
+            padding: 0.85rem;
+            color: var(--azul-inst);
+        }
+
+        .label-text {
+            color: var(--azul-inst);
+            opacity: 0.6;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            display: block;
+        }
+        
+        .value-text {
+            font-weight: 700;
+            display: block;
+            font-size: 0.85rem;
+            line-height: 1.2;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--acento); border-radius: 3px; }
+    </style>
+</head>
+<body class="px-4 md:px-10">
+
+    <header class="fixed top-0 left-0 w-full z-50">
+        <div class="container mx-auto px-6 py-3">
+            <div class="flex flex-row justify-between items-center">
+                <div>
+                    <h1 class="text-xl md:text-2xl font-extrabold uppercase leading-none tracking-tighter text-white">
+                        Detalle de Placeros
+                    </h1>
+                    <p class="text-[9px] font-bold text-blue-200 mt-1 uppercase tracking-[0.2em]">
+                        Municipio Lomas de Zamora
+                    </p>
+                </div>
+                
+                <div class="bg-white/10 px-4 py-1.5 rounded-lg border border-white/10 text-right">
+                    <p class="text-[8px] font-bold uppercase tracking-wider text-white/60">Última Actualización</p>
+                    <p class="text-sm font-bold text-white">02/03/2026</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto pb-10">
+        <div id="detalle-container" class="w-full">
+            <div class="text-center py-20">
+                <p class="text-white/40 uppercase tracking-widest text-[10px] font-bold animate-pulse">Sincronizando registros...</p>
+            </div>
+        </div>
+
+        <footer class="mt-10 text-center text-white/20 text-[8px] font-bold uppercase tracking-[0.4em]">
+            Unidad de Datos e Infraestructura · 2026
+        </footer>
+    </div>
+
+    <script>
+        // BASE DE DATOS COMPLETA
+        const driveData = [
+          { "PLAZA": null, "PLACERO": "ACOSTA MARISA", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": null },
+          { "PLAZA": "PLAZA LA PAZ", "PLACERO": "ACUÑA NORA", "LEGAJO": "COOPERATIVA", "CGM": "TEMPERLEY", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZA SARGENTO CABRAL", "PLACERO": "AGUERO VERONICA", "LEGAJO": "COOPERATIVA", "CGM": "CENTENARIO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA CARLOS LENA", "PLACERO": "AGUILAR JORGE", "LEGAJO": "COOPERATIVA", "CGM": "FIORITO", "HORARIO": null },
+          { "PLAZA": "PLAZA CHAPERIO, LA CAVA", "PLACERO": "AGUILAR JORGE", "LEGAJO": "COOPERATIVA", "CGM": "FIORITO", "HORARIO": null },
+          { "PLAZA": "PLAZA CACHO SANTARELLI", "PLACERO": "AGUILAR JORGE", "LEGAJO": "COOPERATIVA", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA SANTA MARTA", "PLACERO": "AGUIRRE SANDRA", "LEGAJO": "COOPERATIVA", "CGM": "SANTA MARTA", "HORARIO": "LUNES A VIERNES 14 A 18 HS" },
+          { "PLAZA": "PLAZA SAN MARTIN", "PLACERO": "AIELLO CARMEN", "LEGAJO": "COOPERATIVA", "CGM": "TURDERA", "HORARIO": null },
+          { "PLAZA": "PLAZA GOWLAND", "PLACERO": "ALBARRACIN LAURA", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZA JORGE LUIS MONZÓN / ARA SAN JUAN", "PLACERO": "ALMIRON SANDRA", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": null },
+          { "PLAZA": "PLAZA GRIGERA", "PLACERO": "ALVAREZ JULIETA", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA DE LA FAMILIA", "PLACERO": "ALVAREZ JULIETA SALOME", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA GRIGERA", "PLACERO": "ALVEZ EZEQUIEL", "LEGAJO": "665331", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 15 HS SABADO 8 A 14 HS" },
+          { "PLAZA": "PLAZA COLON", "PLACERO": "AMARILLA GALEANO SILVANA", "LEGAJO": "COOPERATIVA", "CGM": "TEMPERLEY", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZA LIBERTAD", "PLACERO": "ANRIQUEZ HERNAN ", "LEGAJO": "497826", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 16 HS SABADO 8 A 13 HS" },
+          { "PLAZA": "PLAZA MALVINAS ARGENTINAS", "PLACERO": "ARAUJO MARIA ELENA", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA LIBERTAD", "PLACERO": "ARCE ADAN", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZA MARTINS", "PLACERO": "ARCE ADAN", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES  14 A 18 HS" },
+          { "PLAZA": "PLAZA MARTELL", "PLACERO": "ARELLANO JORGE OMAR", "LEGAJO": "559419", "CGM": "BANFIELD", "HORARIO": "LUNES VIERNES 7 A 13 HS" },
+          { "PLAZA": "PLAZA MARISCAL SUCRE", "PLACERO": "AVILA  DOMINGA ", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A VIERNES 11 A 14 HS" },
+          { "PLAZA": "PLAZA  6 DE AGOSTO", "PLACERO": "AVILA DOMINGA", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A VIERNES 7 A 10 HS" },
+          { "PLAZA": "POLIDEPORTIVO EVITA", "PLACERO": "BAEZ NATALIA", "LEGAJO": "COOPERATIVA", "CGM": "ALBERTINA", "HORARIO": "SABADOS Y DOMINGOS DE 10 A 18 HS" },
+          { "PLAZA": "PLAZA CHAPERIO, LA CAVA", "PLACERO": "BALLESTEROS MAXIMILIANO", "LEGAJO": "COOPERATIVA", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA BRUNO TAVANO", "PLACERO": "BARACHO CARLOS", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA BETO CARASATORRE", "PLACERO": "BARACHO CARLOS", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA STEIMBERG", "PLACERO": "CABRAL NILDA", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "POLIDEPORTIVO EVITA", "PLACERO": "CABRAL VANESA", "LEGAJO": "COOPERATIVA", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "POLIDEPORTIVO EVITA", "PLACERO": "CABRAL VANESA", "LEGAJO": "COOPERATIVA", "CGM": "ALBERTINA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA FUNDACION BANCO PROVINCIA", "PLACERO": "CABRERA DAIANA", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA LINCH Y CAAGUAZU", "PLACERO": "CABRERA DAIANA", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA DE LAS COLECTIVIDADES", "PLACERO": "CACERES SHEILA", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": null },
+          { "PLAZA": "PLAZA FLORENTINO AMEGHINO", "PLACERO": "CACERES SHEILA", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": null },
+          { "PLAZA": "PLAZA SAN FRANCISCO DE ASIS", "PLACERO": "CACERES SHEILA", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZOLETA BARRIO 420", "PLACERO": "CARDOZO NESTOR", "LEGAJO": "COOPERATIVA", "CGM": "CENTENARIO", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA CARLOS PELLEGRINI", "PLACERO": "CARRERA ERICA", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA BARRIO OBRERO", "PLACERO": "CARRILLO JOHANA", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A VIERNES 13 A 19 HS" },
+          { "PLAZA": "PLAZA SAN MARTIN", "PLACERO": "CASTILLO ELISA", "LEGAJO": "497917", "CGM": "TURDERA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PARQUE ISABEL LA CATOLICA", "PLACERO": "CENTENO LORENA", "LEGAJO": "COOPERATIVA", "CGM": "PARQUE BARON", "HORARIO": "LUNES MIERCOLES VIERNES SABADO Y DOMINGO 16 A 20 HS" },
+          { "PLAZA": "PLAZA DEL CAMPEON", "PLACERO": "CENTENO NICOLAS", "LEGAJO": "668582", "CGM": "BANFIELD", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA SAN FRANCISCO DE ASIS", "PLACERO": "CEREIJO GISELLE", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "LUNES A VIERNES  14 A 18 HS" },
+          { "PLAZA": "PLAZA DE LOS MILITANTES", "PLACERO": "CHAMORRO GRACIELA", "LEGAJO": "COOPERATIVA", "CGM": "ALBERTINA", "HORARIO": null },
+          { "PLAZA": "POLIDEPORTIVO EVITA", "PLACERO": "CHAMORRO SOLEDAD", "LEGAJO": "COOPERATIVA", "CGM": "ALBERTINA", "HORARIO": null },
+          { "PLAZA": "PLAZA COMBATIENTES DE MALVINAS", "PLACERO": "CIRIMONTE PABLO", "LEGAJO": "COOPERATIVA", "CGM": "BANFIELD", "HORARIO": null },
+          { "PLAZA": "PLAZA TUNEL CHACABUCO", "PLACERO": "CIRIMONTE PABLO", "LEGAJO": "COOPERATIVA", "CGM": "BANFIELD", "HORARIO": null },
+          { "PLAZA": "PLAZA DOS SANTOS LARA", "PLACERO": "CORDOBA CLAUDIA", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA RENE FAVALORO", "PLACERO": "CORDOBA CLAUDIA", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA LENCINA", "PLACERO": "CUYUA GISELA ADRIANA ELIZABETH", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA SAN MARTIN", "PLACERO": "D'ASSORO ANABEL", "LEGAJO": "COOPERATIVA", "CGM": "TURDERA", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA MARIANO MORENO", "PLACERO": "DA ROSA ALEJANDRO", "LEGAJO": "COOPERATIVA", "CGM": "SANTA MARTA", "HORARIO": null },
+          { "PLAZA": "PLAZA CABRERA", "PLACERO": "DE GAUDIO SEBASTIAN", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA ROLDAN", "PLACERO": "DEAMIGO DIEGO", "LEGAJO": "659144", "CGM": "BANFIELD", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZOLETA HEROES DE MALVINAS", "PLACERO": "DEAMIGO DIEGO", "LEGAJO": "659144", "CGM": "BANFIELD", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA LOS VECINOS", "PLACERO": "DELTIN SEBASTIAN", "LEGAJO": "459255", "CGM": "BANFIELD", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA GARRAFA SANCHEZ", "PLACERO": "DELTIN SEBASTIAN", "LEGAJO": "459255", "CGM": "BANFIELD", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "POLIDEPORTIVO 2 DE ABRIL", "PLACERO": "DIAZ ANGEL", "LEGAJO": "697359", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A SABADOS 8 A 14 HS." },
+          { "PLAZA": "PLAZA LIBERTAD", "PLACERO": "DIAZ CLAUDIO", "LEGAJO": "650409", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 16 HS SABADO 8 A 13 HS" },
+          { "PLAZA": "PLAZA DE LOS ITALIANOS", "PLACERO": "DIAZ MIRIAM", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA DE LOS MILITANTES", "PLACERO": "DUARTE VILLALBA OLGA", "LEGAJO": "COOPERATIVA", "CGM": "ALBERTINA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA EL OMBU", "PLACERO": "ENCINA GRACIELA", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA EVA PERON", "PLACERO": "ENCINA GRACIELA", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZOLETA 11 DE SEPTIEMBRE", "PLACERO": "ESQUEMA SALGUERO", "LEGAJO": null, "CGM": "BANFIELD", "HORARIO": null },
+          { "PLAZA": "PLAZA DE LA JUSTICIA", "PLACERO": "ESQUEMA SALGUERO", "LEGAJO": null, "CGM": "LOMAS", "HORARIO": null },
+          { "PLAZA": "PLAZA BARRIO OBRERO", "PLACERO": "ESQUEMA SALGUERO", "LEGAJO": null, "CGM": "LOMAS", "HORARIO": null },
+          { "PLAZA": "PLAZOLETA NAHUEL GARCIA", "PLACERO": "ESQUEMA SALGUERO", "LEGAJO": null, "CGM": "LOMAS", "HORARIO": null },
+          { "PLAZA": "PLAZOLETA ENRIQUE CASTILLO", "PLACERO": "ESQUEMA SALGUERO", "LEGAJO": null, "CGM": "LOMAS", "HORARIO": null },
+          { "PLAZA": "TERRENO 24 DE MAYO Y OLIDEN", "PLACERO": "ESQUEMA SALGUERO", "LEGAJO": null, "CGM": "LOMAS", "HORARIO": null },
+          { "PLAZA": "PLAZA NESTOR KIRCHNER", "PLACERO": "ESQUEMA SALGUERO", "LEGAJO": null, "CGM": "PARQUE BARON", "HORARIO": null },
+          { "PLAZA": "PLAZOLETA PILCOMAYO", "PLACERO": "ESQUEMA SALGUERO", "LEGAJO": null, "CGM": "FIORITO", "HORARIO": null },
+          { "PLAZA": "PLAZOLETA LA VIRGENCITA", "PLACERO": "ESQUEMA SALGUERO", "LEGAJO": null, "CGM": "TURDERA", "HORARIO": null },
+          { "PLAZA": "PLAZOLETA JUAN XXIII", "PLACERO": "ESQUEMA SALGUERO", "LEGAJO": null, "CGM": "CENTENARIO", "HORARIO": null },
+          { "PLAZA": "PLAZA ALFREDO BERANGER", "PLACERO": "ESQUEMA SALGUERO", "LEGAJO": null, "CGM": "TEMPERLEY", "HORARIO": null },
+          { "PLAZA": "PLAZA LIBERTAD", "PLACERO": "ESQUIVEL FABIAN", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZA STEIMBERG", "PLACERO": "ESQUIVEL FABIAN", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 14 A 18 HS" },
+          { "PLAZA": "PLAZA ALGODONERA", "PLACERO": "ETCHARREN RAUL", "LEGAJO": "578294", "CGM": "TEMPERLEY", "HORARIO": "LUNES A VIERNES 8 A 16 HS" },
+          { "PLAZA": "PLAZA GRIGERA", "PLACERO": "FERNANDEZ JOSE", "LEGAJO": "667246", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 15 HS SABADO 8 A 14 HS" },
+          { "PLAZA": "PLAZA BRUNO TAVANO", "PLACERO": "FERREYRA RAMON", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZA LEVALLE", "PLACERO": "FIGUEIRAS ERICA", "LEGAJO": "COOPERATIVA", "CGM": "BANFIELD", "HORARIO": null },
+          { "PLAZA": "PLAZA DEL CAMPEON", "PLACERO": "FLORENTIN VANESA", "LEGAJO": "COOPERATIVA", "CGM": "BANFIELD", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA LAS FLORES", "PLACERO": "FLORES LUCIANA", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA GOWLAND", "PLACERO": "FLORES LUCIANA", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA DIEGO ARMANDO MARADONA ", "PLACERO": "FUGLISTALER SANDRA", "LEGAJO": "746461", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA ESQUEL", "PLACERO": "FUGLISTALER SANDRA", "LEGAJO": "746461", "CGM": "FIORITO", "HORARIO": null },
+          { "PLAZA": "PLAZA CANADA", "PLACERO": "GAMARRA RUBEN", "LEGAJO": "COOPERATIVA", "CGM": "BUDGE", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA SIN NOMBRE", "PLACERO": "GAMARRA RUBEN", "LEGAJO": "COOPERATIVA", "CGM": "BUDGE", "HORARIO": null },
+          { "PLAZA": "PLAZA MALVINAS ARGENTINAS", "PLACERO": "GARCIA SERGIO DAVID", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA LORENZINI", "PLACERO": "GODOY NORMA", "LEGAJO": "COOPERATIVA", "CGM": "TEMPERLEY", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZA MARTINS", "PLACERO": "GOMEZ ANDREA", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA FACCIOLO", "PLACERO": "GOMEZ ANDREA", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": null },
+          { "PLAZA": "PLAZOLETA PEDROLO", "PLACERO": "GOMEZ ANDREA", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA BELÉN", "PLACERO": "GOMEZ NATALIA", "LEGAJO": "COOPERATIVA", "CGM": "PARQUE BARON", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA ARA SAN JUAN", "PLACERO": "GONZALEZ JUAN", "LEGAJO": "467688", "CGM": "PARQUE BARON", "HORARIO": "LUNES A SABADOS 9 A 14 HS" },
+          { "PLAZA": "PLAZOLETA ESTADO DE ISRAEL", "PLACERO": "GONZALEZ JUAN ", "LEGAJO": "467688", "CGM": "PARQUE BARON", "HORARIO": "LUNES A SABADOS 8 A 14 HS" },
+          { "PLAZA": "PLAZA SAN MARTÍN", "PLACERO": "GONZALEZ JUAN CARLOS", "LEGAJO": "106393", "CGM": "SAN JOSE", "HORARIO": "FINES DE SEMANAS TAREAS LIVIANAS" },
+          { "PLAZA": "PLAZA SAN CRISTOBAL", "PLACERO": "GONZALEZ OSCAR ALBERTO", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZA BETO CARASATORRE", "PLACERO": "GUTIERREZ DANIELA", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZA EMANUEL MAIDANA", "PLACERO": "GUTIERREZ LUDMILA", "LEGAJO": "COOPERATIVA", "CGM": "CENTENARIO", "HORARIO": "LUNES A VIERNES 8 A 13 HS " },
+          { "PLAZA": "PLAZA CENTRO CULTURAL UPA", "PLACERO": "GUTIERREZ SONIA", "LEGAJO": "COOPERATIVA", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA LENCINA", "PLACERO": "GUZMAN GERARDO", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": null },
+          { "PLAZA": "PLAZA SIN NOMBRE BARRIO APOLO", "PLACERO": "GUZMAN LORENA", "LEGAJO": "COOPERATIVA", "CGM": "CENTENARIO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA PASEO SMITH", "PLACERO": "GUZMAN LORENA", "LEGAJO": "COOPERATIVA", "CGM": "CENTENARIO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA 17 DE AGOSTO", "PLACERO": "GUZMAN ROSA", "LEGAJO": "COOPERATIVA", "CGM": "CENTENARIO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA LAS AMERICAS", "PLACERO": "JUAREZ BRISA", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA PASEO SMITH", "PLACERO": "LAMAS SANDRA", "LEGAJO": "COOPERATIVA", "CGM": "CENTENARIO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA SOLDADO LENA ", "PLACERO": "LAMAS SANDRA ", "LEGAJO": "COOPERATIVA", "CGM": "CENTENARIO", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA CARLOS PELLEGRINI", "PLACERO": "LANDRIEL GABRIELA", "LEGAJO": "604769", "CGM": "LLAVALLOL", "HORARIO": null },
+          { "PLAZA": "PLAZA SAN FRANCISCO DE ASIS", "PLACERO": "LINDER MIRYAM", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "LUNES A VIERNES 14 A 18 HS" },
+          { "PLAZA": "PLAZA SAN FRANCISCO DE ASIS", "PLACERO": "LINDER VANESA", "LEGAJO": "472431", "CGM": "LLAVALLOL", "HORARIO": "LUNES A SABADO 8 A 14 HS" },
+          { "PLAZA": "PLAZA SARGENTO CABRAL", "PLACERO": "LOPEZ JONATHAN", "LEGAJO": "COOPERATIVA", "CGM": "CENTENARIO", "HORARIO": "LUNES A VIERNES 13 A 17 HS" },
+          { "PLAZA": "POLIDEPORTIVO EVITA", "PLACERO": "LUNA RAUL", "LEGAJO": "COOPERATIVA", "CGM": "ALBERTINA", "HORARIO": null },
+          { "PLAZA": "PLAZA DE LOS MILITANTES", "PLACERO": "LUNA RAUL", "LEGAJO": "COOPERATIVA", "CGM": "ALBERTINA", "HORARIO": "LUNES A VIERNES 13 A 19 HS" },
+          { "PLAZA": "PLAZA TURNER", "PLACERO": "MACEK MIRTA", "LEGAJO": "COOPERATIVA", "CGM": "BUDGE", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PARQUE LINEAL PAPA FRANCISCO", "PLACERO": "MAGALLANES SUSANA", "LEGAJO": "COOPERATIVA", "CGM": "ALBERTINA", "HORARIO": "SABADOS Y DOMINGOS DE 10 A 18 HS" },
+          { "PLAZA": "PLAZA SAN CRISTOBAL", "PLACERO": "MALDONADO JOSE", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA LAGOMARSINO", "PLACERO": "MAURO MARISOL", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA ROBERTO SANCHEZ", "PLACERO": "MEDINA NATALIA", "LEGAJO": "COOPERATIVA", "CGM": "BANFIELD", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA CABRERA", "PLACERO": "MENDOZA CARINA", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZA LIBERTAD", "PLACERO": "MILLAN DANISA CELESTE", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "VIERNES SABADOS DOMINGOS Y FERIADOS 14 A 18 HS" },
+          { "PLAZA": "PLAZA SAN ANTONIO", "PLACERO": "MILLAN DANISA CELESTE", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA DE LOS ITALIANOS", "PLACERO": "MILLAN DENISE", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZA LAGOMARSINO", "PLACERO": "MILLAN DENISE ANDREA YASMINA", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES  14 A 18 HS" },
+          { "PLAZA": "PLAZOLETA ESCONDIDA", "PLACERO": "MIÑO NORMA", "LEGAJO": "560359", "CGM": "LLAVALLOL", "HORARIO": "LUNES A SABADO 8 A 14 HS" },
+          { "PLAZA": "PLAZA DE LA COMUNIDAD", "PLACERO": "MIÑO NORMA", "LEGAJO": "560359", "CGM": "LLAVALLOL", "HORARIO": null },
+          { "PLAZA": "PLAZA DE LOS INMIGRANTES", "PLACERO": "MIÑO NORMA", "LEGAJO": "560359", "CGM": "LLAVALLol", "HORARIO": "LUNES A SABADO 8 A 14 HS" },
+          { "PLAZA": "PLAZA CAACUPE", "PLACERO": "MIRANDA RAMON", "LEGAJO": "654897", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A SABADOS 8 A 14 HS" },
+          { "PLAZA": "PLAZA JUAN DOMINGO PERON REY (4 MÓDULOS)", "PLACERO": "MOLINAS ANALIA", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA LUJAN", "PLACERO": "MONTENEGRO MATIAS", "LEGAJO": "COOPERATIVA", "CGM": "PARQUE BARON", "HORARIO": null },
+          { "PLAZA": "PLAZA RENÉ FAVALORO", "PLACERO": "MONTERO ANDREA", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": null },
+          { "PLAZA": "PLAZA NAMUNCURA", "PLACERO": "MOSQUERA OSLVADO", "LEGAJO": "574236", "CGM": "LOMAS", "HORARIO": "LUNES A SABADOS 8 A 14 HS" },
+          { "PLAZA": "PLAZA VICTORIA", "PLACERO": "MOSQUERA OSLVADO", "LEGAJO": "574236", "CGM": "LOMAS", "HORARIO": "LUNES A SABADOS 8 A 14 HS" },
+          { "PLAZA": "PLAZA TOMAS  ESPORA", "PLACERO": "NADEO EZEQUIEL", "LEGAJO": "COOPERATIVA", "CGM": "TEMPERLEY", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PLAZA SAN ANTONIO", "PLACERO": "OJEDA YESICA", "LEGAJO": "COOPERATIVA", "CGM": "PARQUE BARON", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA LUJAN", "PLACERO": "OJEDA YESICA", "LEGAJO": "COOPERATIVA", "CGM": "PARQUE BARON", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA ESPERANZA", "PLACERO": "ORTIZ LEIVA LOURDES", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A VIERNES 7:30 A 13:30 HS" },
+          { "PLAZA": "POLIDEPORTIVO EVITA", "PLACERO": "OYOLA AYLEN", "LEGAJO": "COOPERATIVA", "CGM": "ALBERTINA", "HORARIO": "REFUERZO FINES DE SEMANA" },
+          { "PLAZA": "PARQUE LINEAL PAPA FRANCISCO", "PLACERO": "OYOLA AYLEN", "LEGAJO": "COOPERATIVA", "CGM": "ALBERTINA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA DE LOS MILITANTES", "PLACERO": "PASCUA MARIA SOLEDAD", "LEGAJO": "COOPERATIVA", "CGM": "ALBERTINA", "HORARIO": null },
+          { "PLAZA": "PLAZA ROBERTO SANCHEZ", "PLACERO": "PASSADORES LORENA VERONICA", "LEGAJO": "COOPERATIVA", "CGM": "BANFIELD", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA SARGENTO MARTIN", "PLACERO": "PEDROZO MAITE", "LEGAJO": "COOPERATIVA", "CGM": "TEMPERLEY", "HORARIO": "LUNES A VIERNES 8 A 16 HS" },
+          { "PLAZA": "PLAZA LORENZINI", "PLACERO": "PEDROZO MAITE", "LEGAJO": "COOPERATIVA", "CGM": "TEMPERLEY", "HORARIO": "LUNES A VIERNES 8 A 16 HS" },
+          { "PLAZA": "PLAZA LA PAZ", "PLACERO": "PEDROZO MAITE", "LEGAJO": "COOPERATIVA", "CGM": "TEMPERLEY", "HORARIO": "LUNES A VIERNES 8 A 16 HS" },
+          { "PLAZA": "PLAZA BELISARIO ROLDAN", "PLACERO": "PEÑA BEATRIZ", "LEGAJO": "COOPERATIVA", "CGM": "TURDERA", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA DEL CAMPEON", "PLACERO": "PERALTA NELIDA", "LEGAJO": "494819", "CGM": "BANFIELD", "HORARIO": "LUNES A VIERNES 12 A 18 HS" },
+          { "PLAZA": "PLAZA 17 DE AGOSTO", "PLACERO": "PEREYRA ROSA", "LEGAJO": "COOPERATIVA", "CGM": "CENTENARIO", "HORARIO": "LUNES A VIERNES12 A 16 HS" },
+          { "PLAZA": "PLAZA UPA", "PLACERO": "PEREZ DIEGO ARMANDO", "LEGAJO": "COOPERATIVA", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA CENTRO CULTURAL", "PLACERO": "PEREZ DIEGO ARMANDO", "LEGAJO": "COOPERATIVA", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA ESQUEL", "PLACERO": "PEREZ DIEGO ARMANDO", "LEGAJO": "COOPERATIVA", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA LUIS PIEDRABUENA", "PLACERO": "PEREZ VANINA", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": null },
+          { "PLAZA": "POLIDEPORTIVO EVITA", "PLACERO": "PIRIZ ROXANA", "LEGAJO": "COOPERATIVA", "CGM": "ALBERTINA", "HORARIO": "LUNES A VIERNES  13 A 19 HS" },
+          { "PLAZA": "PLAZA BARRIO SEBASTIAN", "PLACERO": "QUISPE OROQUE RAMIRO", "LEGAJO": "733349", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A SABADOS 8 A 14 HS" },
+          { "PLAZA": "PLAZA NESTOR KIRCHNER", "PLACERO": "QUISPE OROQUE RAMIRO", "LEGAJO": "733349", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A SABADOS 8 A 14 HS" },
+          { "PLAZA": "PLAZA SIN NOMBRE 2", "PLACERO": "RAMOS LEONARDO", "LEGAJO": "COOPERATIVA", "CGM": "LAMADRID", "HORARIO": "LUNES  A VIERNES 14 A 18 HS" },
+          { "PLAZA": "PLAZA GRIGERA", "PLACERO": "RIVERO ANA BELEN", "LEGAJO": "723682", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 15 HS SABADO 8 A 14 HS" },
+          { "PLAZA": "PLAZA SANTA MARIA DE LOS NIÑOS", "PLACERO": "RIVERO DAMIAN", "LEGAJO": "COOPERATIVA", "CGM": "TURDERA", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA COLECTORA", "PLACERO": "RIVEROS ENRIQUE", "LEGAJO": "COOPERATIVA", "CGM": "BUDGE", "HORARIO": null },
+          { "PLAZA": "PLAZA MALDONADO", "PLACERO": "RIVEROS ENRIQUE", "LEGAJO": null, "CGM": "BUDGE", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA DE LOS NIÑOS", "PLACERO": "RIVEROS ENRIQUE", "LEGAJO": "COOPERATIVA", "CGM": "BUDGE", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA STEIMBERG", "PLACERO": "RODRIGUEZ CARLA", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA TUCCI", "PLACERO": "RODRIGUEZ MARCELA", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA PRIMERA JUNTA", "PLACERO": "RODRIGUEZ MARCELA", "LEGAJO": "COOPERATIVA", "CGM": "LOMAS", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA REY MOMO", "PLACERO": "RODRIGUEZ RODRIGO", "LEGAJO": "COOPERATIVA", "CGM": "PARQUE BARON", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PARQUE ISABEL LA CATOLICA", "PLACERO": "RODRIGUEZ RODRIGO", "LEGAJO": "COOPERATIVA", "CGM": "PARQUE BARON", "HORARIO": "LUNES MIERCOLES VIERNES SABADO Y DOMINGO 13 A 16 HS" },
+          { "PLAZA": "PLAZA LUIS PIEDRABUENA", "PLACERO": "RODRIGUEZ SILVIA", "LEGAJO": "589648", "CGM": "LLAVALLOL", "HORARIO": "LUNES A SABADO 8 A 14 HS" },
+          { "PLAZA": "PLAZA COLON", "PLACERO": "ROJAS CRISTIAN", "LEGAJO": "607044", "CGM": "TEMPERLEY", "HORARIO": "LUNES A VIERNES 8 A 16 HS" },
+          { "PLAZA": "PLAZA BARRIO CAMPANARIO Nº 1", "PLACERO": "ROMERO ABEL", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA BARRIO CAMPANARIO N° 2", "PLACERO": "ROMERO ABEL", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA BARRIO CAMPANARIO Nº 3", "PLACERO": "ROMERO ABEL", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA JDP NESTOR KIRCHNER", "PLACERO": "ROMERO ELIDA", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A VIERNES 12 A 18 HS" },
+          { "PLAZA": "PLAZA SAN MARTIN", "PLACERO": "ROMERO FERNANDA", "LEGAJO": "COOPERATIVA", "CGM": "TURDERA", "HORARIO": null },
+          { "PLAZA": "PLAZA DOS SANTOS LARA", "PLACERO": "ROMERO MYRIAM", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": null },
+          { "PLAZA": "PLAZA SAN FRANCISCO DE ASIS", "PLACERO": "ROMERO MYRIAM", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "LUNES A VIERNES 14 A 18 HS" },
+          { "PLAZA": "PLAZA CARLOS PELLEGRINI", "PLACERO": "ROMUALDO ROXANA", "LEGAJO": "COOPERATIVA", "CGM": "LLAVALLOL", "HORARIO": "LUNES A SABADO 8 A 12 HS" },
+          { "PLAZA": null, "PLACERO": "ROMUALDO ROXANA", "LEGAJO": "COOPERATIVA", "CGM": "TURDERA", "HORARIO": null },
+          { "PLAZA": "PLAZA BARRIO OBRERO", "PLACERO": "RUIZ DIAZ MIRIAM", "LEGAJO": "544643", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A SABADOS 7:30 A 13:30 HS" },
+          { "PLAZA": "PLAZA SANTA ROSA", "PLACERO": "RUIZ HUGO", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA EMANUEL MAIDANA", "PLACERO": "SALCEDO NATALIA", "LEGAJO": "COOPERATIVA", "CGM": "CENTENARIO", "HORARIO": null },
+          { "PLAZA": "PLAZOLETA ZAMORA", "PLACERO": "SALCEDO NATALIA", "LEGAJO": "COOPERATIVA", "CGM": "CENTENARIO", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA SANTA MARTA", "PLACERO": "SANCHEZ MONICA ISABEL", "LEGAJO": "671784", "CGM": "SANTA MARTA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA JUAN MANUEL DE ROSAS", "PLACERO": "SANCHEZ RAFAEL", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA DEL ARROYO SANTA CATALINA", "PLACERO": "SANCHEZ RAFAEL", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA DEL CAMPEON", "PLACERO": "SANTILLAN NICOLAS", "LEGAJO": "COOPERATIVA", "CGM": "BANFIELD", "HORARIO": null },
+          { "PLAZA": "PLAZA DE LAS COLECTIVIDADES", "PLACERO": "SECO MARIA", "LEGAJO": "623041", "CGM": "LLAVALLOL", "HORARIO": "LUNES A SABADO 8 A 14 HS" },
+          { "PLAZA": "PLAZA FLORENTINO AMEGHINO", "PLACERO": "SECO MARIA", "LEGAJO": "623041", "CGM": "LLAVALLOL", "HORARIO": "LUNES A SABADO 8 A 14 HS" },
+          { "PLAZA": null, "PLACERO": "SEGOVIA CUBAS NELLI", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": null },
+          { "PLAZA": "PLAZA 1 DE OCTUBRE", "PLACERO": "SEQUEIRA MARTA", "LEGAJO": "596049", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA LEVALLE", "PLACERO": "SILVA CESAR", "LEGAJO": "COOPERATIVA", "CGM": "BANFIELD", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZOLETA SIN NOMBRE 2", "PLACERO": "SOLOAGA ALBERTO", "LEGAJO": "COOPERATIVA", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA ESQUEL", "PLACERO": "SOLOAGA ALBERTO", "LEGAJO": "497875", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA 1 DE OCTUBRE", "PLACERO": "SOLOAGA ALBERTO", "LEGAJO": "497875", "CGM": "FIORITO", "HORARIO": null },
+          { "PLAZA": "PLAZA DEL CAMPEON", "PLACERO": "SOSA VANESA MARIA", "LEGAJO": "COOPERATIVA", "CGM": "BANFIELD", "HORARIO": "DOMINGOS Y FERIADOS 14 A 18 HS" },
+          { "PLAZA": "PARQUE ISABEL LA CATOLICA", "PLACERO": "SUAREZ DANIEL", "LEGAJO": "COOPERATIVA", "CGM": "PARQUE BARON", "HORARIO": null },
+          { "PLAZA": "PLAZA LA MEMORIA", "PLACERO": "TOLEDO AGUSTIN", "LEGAJO": "COOPERATIVA", "CGM": "SANTA MARTA", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA ANTARTIDA ARGENTINA", "PLACERO": "TOLEDO NELIDA", "LEGAJO": "549287", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A SABADOS 8 A 14 HS." },
+          { "PLAZA": "PLAZA LA ROTONDA", "PLACERO": "TORALES ROMERO SANDRA", "LEGAJO": "COOPERATIVA", "CGM": "SANTA CATALINA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA SAN MARTIN", "PLACERO": "TORRES  NICOLAS ALEJANDRO", "LEGAJO": "COOPERATIVA", "CGM": "SAN JOSE", "HORARIO": "LUNES A VIERNES 8 A 13 HS" },
+          { "PLAZA": "PLAZA NORMA PLA", "PLACERO": "TORRES ELIAS", "LEGAJO": "568162", "CGM": "SAN JOSE", "HORARIO": "LUNES A VIERNES 14 A 19 HS" },
+          { "PLAZA": "PLAZA 22 DE MAYO BARRIO ODISA", "PLACERO": "TREJO DANIEL", "LEGAJO": "COOPERATIVA", "CGM": "SANTA MARTA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA MARIANO MORENO", "PLACERO": "TREJO DANIEL", "LEGAJO": "COOPERATIVA", "CGM": "SANTA MARTA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA TOMAS  ESPORA", "PLACERO": "TUÑER NORA", "LEGAJO": "455402", "CGM": "TEMPERLEY", "HORARIO": "LUNES A VIERNES 8 A 16 HS" },
+          { "PLAZA": "PLAZA CACHO SANTARELLI", "PLACERO": "URIBE DIEGO", "LEGAJO": "COOPERATIVA", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZOLETA SIN NOMBRE", "PLACERO": "URIBE DIEGO", "LEGAJO": "COOPERATIVA", "CGM": "FIORITO", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA DE LA PERLA", "PLACERO": "VARGAS NESTOR", "LEGAJO": "457721", "CGM": "TEMPERLEY", "HORARIO": null },
+          { "PLAZA": "PLAZA TOMAS  ESPORA", "PLACERO": "VARRENTI CINTIA", "LEGAJO": "581769", "CGM": "TEMPERLEY", "HORARIO": "LUNES A VIERNES 8 A 16 HS" },
+          { "PLAZA": "PLAZA SIN NOMBRE", "PLACERO": "VELIZ MARISOL DAIANA", "LEGAJO": "COOPERATIVA", "CGM": "LAMADRID", "HORARIO": "LUNES A VIERNES 18 A 22 HS" },
+          { "PLAZA": "PLAZA BELISARIO ROLDAN", "PLACERO": "VICINI ANTONELA", "LEGAJO": "COOPERATIVA", "CGM": "TURDERA", "HORARIO": "LUNES A VIERNES 8 A 14 HS" },
+          { "PLAZA": "PLAZA ROBERTO SANCHEZ", "PLACERO": "VILLEGAS MACARENA", "LEGAJO": "COOPERATIVA", "CGM": "BANFIELD", "HORARIO": "DOMINGOS Y FERIADOS 10 A 14 HS" },
+          { "PLAZA": "PLAZA LA FAMILIA", "PLACERO": "VILLEGAS MACARENA", "LEGAJO": "COOPERATIVA", "CGM": "BANFIELD", "HORARIO": "LUNES A VIERNES 8 A 12 HS" },
+          { "PLAZA": "PLAZA DE ANGELIS", "PLACERO": "VILLEGAS MACARENA", "LEGAJO": "COOPERATIVA", "CGM": "BANFIELD", "HORARIO": "LUNES A VIERNES 8 A 12 HS" }
+        ];
+
+        function groupData(data) {
+            const cgmGroup = {};
+            data.forEach(item => {
+                // UNIFICACIÓN DE LLAVALLOL (Capitalize y Trim)
+                let cgm = (item.CGM || "Sin CGM Asignado").trim().toUpperCase();
+                const plaza = (item.PLAZA || "Sin Plaza Asignada").trim();
+                
+                if (!cgmGroup[cgm]) cgmGroup[cgm] = {};
+                if (!cgmGroup[cgm][plaza]) cgmGroup[cgm][plaza] = [];
+                
+                cgmGroup[cgm][plaza].push({
+                    placero: item.PLACERO || 'N/A',
+                    legajo: item.LEGAJO || 'N/A',
+                    horario: item.HORARIO || 'No especificado'
+                });
+            });
+
+            return Object.keys(cgmGroup).sort().reduce((obj, key) => { 
+                obj[key] = Object.keys(cgmGroup[key]).sort().reduce((pObj, pKey) => {
+                    pObj[pKey] = cgmGroup[key][pKey];
+                    return pObj;
+                }, {});
+                return obj;
+            }, {});
+        }
+
+        function renderDetails(groupedData) {
+            const container = document.getElementById('detalle-container');
+            let html = '';
+            for (const cgmName in groupedData) {
+                html += `<details class="cgm-details">`;
+                html += `<summary>${cgmName}</summary> <div class="pb-1">`;
+                for (const plazaName in groupedData[cgmName]) {
+                    html += `<details class="plaza-details">`;
+                    html += `<summary class="plaza-summary">${plazaName}</summary>`;
+                    html += `<div class="p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">`;
+                    groupedData[cgmName][plazaName].forEach(placero => {
+                        html += `
+                            <div class="placero-card">
+                                <span class="label-text">Agente</span>
+                                <span class="value-text mb-2">${placero.placero}</span>
+                                <div class="flex justify-between border-t border-gray-100 pt-2 mt-1">
+                                    <div><span class="label-text">Legajo</span><span class="value-text text-[10px] text-[#4AB5E0]">${placero.legajo}</span></div>
+                                    <div class="text-right"><span class="label-text">Turno</span><span class="value-text text-[9px]">${placero.horario}</span></div>
+                                </div>
+                            </div>`;
+                    });
+                    html += `</div></details>`;
+                }
+                html += `</div></details>`;
+            }
+            container.innerHTML = html;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDetails(groupData(driveData));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero Operaciones Ceamse 2025</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Font: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --azul-petroleo: #1E6F99;
+            --celeste: #34BBEB;
+            --fucsia: #DF4172;
+            --azul-medio: #35A4D4;
+            --blanco: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(90deg, #1E6F99 0%, #35A4D4 50%, #34BBEB 100%);
+            background-attachment: fixed;
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+        }
+
+        /* HEADER SÓLIDO */
+        .solid-header {
+             background-color: var(--azul-petroleo);
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Cards Interactions */
+        .kpi-card {
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--blanco);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .kpi-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
+        }
+        .kpi-description {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-logo {
+            height: 3.5rem;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        /* Chatbot Styles Adapted */
+        .preset-q-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+        }
+        .preset-q-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-color: white;
+            transform: translateY(-1px);
+        }
+        
+        /* Inputs Custom */
+        .input-glass {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .input-glass::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .input-glass:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Encabezado SÓLIDO -->
+    <header class="solid-header fixed top-0 left-0 w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-6 w-full sm:w-auto justify-center sm:justify-start">
+                    <img src="https://lomasdezamora.gov.ar/logo.webp" alt="Logo Municipio Lomas de Zamora" class="header-logo">
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-extrabold uppercase leading-none tracking-tight text-white drop-shadow-md">
+                            Tablero Operaciones Ceamse 2025
+                        </h1>
+                        <p class="text-xs sm:text-sm font-medium text-blue-100 opacity-90 tracking-wide mt-1">Informe Anual de Operaciones</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 text-blue-100">Fecha de Procesamiento</p>
+                        <p class="text-lg font-bold text-white drop-shadow-sm" id="current-date">--/--/----</p>
+                    </div>
+                    <div class="h-10 w-1 bg-white/30 rounded-full hidden sm:block"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Espaciador para el header fijo -->
+    <div class="h-28 sm:h-24"></div>
+
+    <!-- Contenedor principal -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-12">
+
+        <!-- Sección 1: Métricas Anuales -->
+        <div>
+            <h2 class="text-xl font-bold uppercase tracking-wide text-white/90 mb-4 border-l-4 border-[var(--fucsia)] pl-3">Métricas Anuales 2025</h2>
+            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <div class="glass kpi-card p-6">
+                    <div>
+                        <h2 class="kpi-label text-blue-200">Total Descargado 2025</h2>
+                        <p class="kpi-description text-white/70">Suma de todas las descargas (TN)</p>
+                    </div>
+                    <p id="kpi-total-2025" class="kpi-value text-white">...</p>
+                </div>
+
+                <div class="glass kpi-card p-6">
+                    <div>
+                        <h2 class="kpi-label text-teal-200">Promedio Mensual Total</h2>
+                        <p class="kpi-description text-white/70">Promedio de descargas (TN)</p>
+                    </div>
+                    <p id="kpi-avg-total" class="kpi-value text-white">...</p>
+                </div>
+
+                <div class="glass kpi-card p-6">
+                    <div>
+                        <h2 class="kpi-label text-green-200">Pico Máximo Mensual</h2>
+                        <p class="kpi-description text-white/70">Mes con mayor volumen</p>
+                    </div>
+                    <div>
+                        <p id="kpi-max-mes" class="kpi-value text-green-300">...</p>
+                        <p id="kpi-max-mes-sub" class="text-xs font-bold uppercase tracking-wider text-white/60 mt-1">...</p>
+                    </div>
+                </div>
+
+                <div class="glass kpi-card p-6">
+                    <div>
+                        <h2 class="kpi-label text-red-200">Pico Mínimo Mensual</h2>
+                        <p class="kpi-description text-white/70">Mes con menor volumen</p>
+                    </div>
+                    <div>
+                        <p id="kpi-min-mes" class="kpi-value text-red-300">...</p>
+                        <p id="kpi-min-mes-sub" class="text-xs font-bold uppercase tracking-wider text-white/60 mt-1">...</p>
+                    </div>
+                </div>
+
+                <!-- Segunda fila de KPIs Anuales -->
+                <div class="glass kpi-card p-6">
+                    <div>
+                        <h2 class="kpi-label text-indigo-200">Promedio Flores</h2>
+                        <p class="kpi-description text-white/70">Operaciones Covelia (TN)</p>
+                    </div>
+                    <p id="kpi-avg-flores" class="kpi-value text-white">...</p>
+                </div>
+
+                <div class="glass kpi-card p-6">
+                    <div>
+                        <h2 class="kpi-label text-purple-200">Promedio Zavaleta</h2>
+                        <p class="kpi-description text-white/70">Promedio de descargas (TN)</p>
+                    </div>
+                    <p id="kpi-avg-zavaleta" class="kpi-value text-white">...</p>
+                </div>
+
+                <div class="glass kpi-card p-6">
+                    <div>
+                        <h2 class="kpi-label text-pink-200">Promedio A. Brown</h2>
+                        <p class="kpi-description text-white/70">Promedio de descargas (TN)</p>
+                    </div>
+                    <p id="kpi-avg-brown" class="kpi-value text-white">...</p>
+                </div>
+
+                <div class="glass kpi-card p-6 bg-gradient-to-br from-yellow-500/20 to-orange-500/20">
+                    <div>
+                        <h2 class="kpi-label text-yellow-200">Gasto Total 2025</h2>
+                        <p class="kpi-description text-white/70">Costo total de operaciones (ARS)</p>
+                    </div>
+                    <p id="kpi-gasto-total" class="kpi-value text-yellow-300">...</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Sección Gráficos Anuales -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <div class="glass p-6 lg:col-span-2">
+                <h2 class="text-lg font-bold mb-4 text-white/90">Evolución Total de Toneladas Mensuales</h2>
+                <div class="relative h-72 md:h-80 w-full">
+                    <canvas id="totalMensualChart"></canvas>
+                </div>
+            </div>
+
+            <div class="glass p-6">
+                <h2 class="text-lg font-bold mb-4 text-white/90">Evolución Costo Mensual (ARS)</h2>
+                <div class="relative h-64 md:h-72 w-full">
+                    <canvas id="costoMensualChart"></canvas>
+                </div>
+            </div>
+
+            <div class="glass p-6">
+                <h2 class="text-lg font-bold mb-4 text-white/90">Comparativa por Centro (TN)</h2>
+                <div class="relative h-64 md:h-72 w-full">
+                    <canvas id="descargasPorCentroChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Sección Diciembre -->
+        <div class="pt-8">
+            <h2 class="text-xl font-bold uppercase tracking-wide text-white/90 mb-4 border-l-4 border-[var(--celeste)] pl-3">Métricas Mes de Diciembre 2025</h2>
+            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <div class="glass kpi-card p-6">
+                    <h2 class="kpi-label text-blue-200">Total Toneladas (Dic)</h2>
+                    <p class="kpi-description text-white/70">Suma de descargas</p>
+                    <p id="kpi-oct-total-tn" class="kpi-value text-white">...</p>
+                </div>
+        
+                <div class="glass kpi-card p-6">
+                    <h2 class="kpi-label text-teal-200">Promedio Diario (Dic)</h2>
+                    <p class="kpi-description text-white/70">Promedio de descargas</p>
+                    <p id="kpi-oct-avg-diario" class="kpi-value text-white">...</p>
+                </div>
+        
+                <div class="glass kpi-card p-6">
+                    <h2 class="kpi-label text-white/90">Total Viajes (Dic)</h2>
+                    <p class="kpi-description text-white/70">Cantidad de descargas</p>
+                    <p id="kpi-oct-viajes" class="kpi-value text-white/90">...</p>
+                </div>
+        
+                <div class="glass kpi-card p-6">
+                    <h2 class="kpi-label text-white/90">Patentes Únicas (Dic)</h2>
+                    <p class="kpi-description text-white/70">Vehículos operativos</p>
+                    <p id="kpi-oct-patentes" class="kpi-value text-white/90">...</p>
+                </div>
+
+                <!-- Detalle por centro Diciembre -->
+                <div class="glass kpi-card p-4 lg:col-span-4 flex flex-col sm:flex-row justify-around items-center gap-4 text-center sm:text-left">
+                    <div>
+                        <p class="text-sm font-bold text-indigo-200 uppercase">TN Flores</p>
+                        <p id="kpi-oct-flores" class="text-2xl font-bold text-white">...</p>
+                    </div>
+                    <div class="hidden sm:block w-px h-10 bg-white/20"></div>
+                    <div>
+                        <p class="text-sm font-bold text-purple-200 uppercase">TN Zavaleta</p>
+                        <p id="kpi-oct-zavaleta" class="text-2xl font-bold text-white">...</p>
+                    </div>
+                    <div class="hidden sm:block w-px h-10 bg-white/20"></div>
+                    <div>
+                        <p class="text-sm font-bold text-pink-200 uppercase">TN A. Brown</p>
+                        <p id="kpi-oct-brown" class="text-2xl font-bold text-white">...</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Sección Covelia (Bateas) -->
+        <div class="pt-8">
+            <h2 class="text-xl font-bold uppercase tracking-wide text-white/90 mb-4 border-l-4 border-white pl-3">Operaciones Bateas Covelia (Diciembre)</h2>
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- KPIs Covelia en columna izquierda -->
+                <div class="space-y-6 lg:col-span-1">
+                    <div class="glass kpi-card p-6">
+                        <h2 class="kpi-label text-blue-200">Total Toneladas</h2>
+                        <p class="kpi-description text-white/70">Bateas Diciembre</p>
+                        <p id="kpi-covelia-total-tn" class="kpi-value text-blue-300">...</p>
+                    </div>
+                    
+                    <div class="glass kpi-card p-6">
+                        <h2 class="kpi-label text-white/90">Total Descargas</h2>
+                        <p class="kpi-description text-white/70">Viajes realizados</p>
+                        <p id="kpi-covelia-total-descargas" class="kpi-value text-white">...</p>
+                    </div>
+
+                    <div class="glass kpi-card p-6">
+                        <h2 class="kpi-label text-white/90">Vehículos Únicos</h2>
+                        <p class="kpi-description text-white/70">Flota activa</p>
+                        <p id="kpi-covelia-vehiculos" class="kpi-value text-white">...</p>
+                    </div>
+                </div>
+
+                <!-- Gráfico Covelia -->
+                <div class="glass p-6 lg:col-span-2">
+                    <h2 class="text-lg font-bold mb-4 text-white/90">Descargas por Patente (Bateas Covelia)</h2>
+                    <div class="relative h-80 md:h-[28rem]">
+                        <canvas id="coveliaPatentesChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Sección Asistente IA -->
+        <div class="pt-8">
+            <div class="glass p-6 md:p-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="bg-white/20 p-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-bold uppercase tracking-wide text-white">Asistente de Logística</h2>
+                </div>
+                
+                <p class="text-white/70 mb-6 text-sm">Selecciona una pregunta predefinida o escribe tu consulta para analizar los datos con IA.</p>
+                
+                <div id="chat-preset-questions" class="flex flex-wrap gap-2 mb-6">
+                    <button class="preset-q-btn" data-question="¿Cuál fue el mes con mayor gasto y por qué?">¿Mayor gasto mensual?</button>
+                    <button class="preset-q-btn" data-question="Analiza la tendencia de descargas de Flores (Covelia).">Tendencia Flores</button>
+                    <button class="preset-q-btn" data-question="Compara el promedio de Zavaleta con el de A. Brown.">Comparar Zavaleta vs Brown</button>
+                    <button class="preset-q-btn" data-question="¿Qué pasó en Julio que fue un pico de toneladas?">¿Por qué el pico de Julio?</button>
+                </div>
+
+                <form id="chat-form" class="flex items-center space-x-2 mb-6">
+                    <input type="text" id="chat-input" placeholder="Escribe tu consulta personalizada..." class="flex-1 w-full px-5 py-3 rounded-full input-glass focus:ring-2 focus:ring-white/30 transition-all text-sm" autocomplete="off">
+                    <button type="submit" class="bg-white text-[var(--azul-petroleo)] p-3 rounded-full hover:bg-gray-100 transition duration-300 flex-shrink-0 shadow-lg font-bold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                    </button>
+                </form>
+
+                <div id="chat-response-area" class="bg-black/20 p-6 rounded-xl border border-white/10 min-h-[100px]">
+                    <p id="chat-response-text" class="text-white/90 text-sm leading-relaxed">Esperando consulta...</p>
+                    <div id="chat-loading" class="text-sm text-white/50 hidden flex items-center gap-2">
+                        <span class="animate-pulse">●</span>
+                        <span class="animate-pulse delay-75">●</span>
+                        <span class="animate-pulse delay-150">●</span>
+                        <span class="italic">Analizando datos...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-white/50 text-xs">
+             <div class="flex justify-center items-center gap-4 mb-2">
+                <span class="h-px w-8 bg-white/20"></span>
+                <p class="uppercase tracking-widest">Municipio de Lomas de Zamora</p>
+                <span class="h-px w-8 bg-white/20"></span>
+            </div>
+            <p>© 2026 · Unidad de Datos e Infraestructura</p>
+        </footer>
+
+    </div>
+
+    <!-- DATOS Y SCRIPTS -->
+    <script id="dashboard-data" type="application/json">
+{
+    "total_descargas_tn_neta": 349993.61,
+    "tn_neta_por_mes": {
+        "(1, 'Enero 2025')": 26573.69,
+        "(1, 'Enero 2026')": 21920.18,
+        "(2, 'Febrero 2025')": 22163.94,
+        "(2, 'Febrero 2026')": 21118.49,
+        "(3, 'Marzo 2025')": 24777.671,
+        "(4, 'Abril 2025')": 22057.76,
+        "(5, 'Mayo 2025')": 24582.61,
+        "(6, 'Junio 2025')": 23071.48,
+        "(7, 'Julio 2025')": 32564.68,
+        "(8, 'Agosto 2025')": 25051.98,
+        "(9, 'Septiembre 2025')": 27234.809,
+        "(10, 'Octubre 2025')": 26923.58,
+        "(11, 'Noviembre 2025')": 24171.16,
+        "(12, 'Diciembre 2025')": 27781.58
+    },
+    "descargas_por_centro_y_mes": {
+        "Almirante Brown": {
+            "(1, 'Enero 2025')": 1211.18,
+            "(1, 'Enero 2026')": 1040.28,
+            "(2, 'Febrero 2025')": 841.9399999999999,
+            "(2, 'Febrero 2026')": 944.16,
+            "(3, 'Marzo 2025')": 1019.71,
+            "(4, 'Abril 2025')": 995.68,
+            "(5, 'Mayo 2025')": 1487.22,
+            "(6, 'Junio 2025')": 1377.5,
+            "(7, 'Julio 2025')": 1783.92,
+            "(8, 'Agosto 2025')": 1433.82,
+            "(9, 'Septiembre 2025')": 1554.28,
+            "(10, 'Octubre 2025')": 1348.58,
+            "(11, 'Noviembre 2025')": 1150.52,
+            "(12, 'Diciembre 2025')": 1275.02
+        },
+        "Flores": {
+            "(1, 'Enero 2025')": 14528.32,
+            "(1, 'Enero 2026')": 13250.02,
+            "(2, 'Febrero 2025')": 13579.8,
+            "(2, 'Febrero 2026')": 13348.8,
+            "(3, 'Marzo 2025')": 15617.181,
+            "(4, 'Abril 2025')": 14921.06,
+            "(5, 'Mayo 2025')": 14994.77,
+            "(6, 'Junio 2025')": 14081.06,
+            "(7, 'Julio 2025')": 14769.42,
+            "(8, 'Agosto 2025')": 14410.98,
+            "(9, 'Septiembre 2025')": 15503.6,
+            "(10, 'Octubre 2025')": 16224.34,
+            "(11, 'Noviembre 2025')": 14665.26,
+            "(12, 'Diciembre 2025')": 17133.54
+        },
+        "Zavaleta": {
+            "(1, 'Enero 2025')": 10834.19,
+            "(1, 'Enero 2026')": 7629.88,
+            "(2, 'Febrero 2025')": 7742.2,
+            "(2, 'Febrero 2026')": 6825.53,
+            "(3, 'Marzo 2025')": 8140.78,
+            "(4, 'Abril 2025')": 6141.02,
+            "(5, 'Mayo 2025')": 8100.62,
+            "(6, 'Junio 2025')": 7612.92,
+            "(7, 'Julio 2025')": 16011.34,
+            "(8, 'Agosto 2025')": 9207.18,
+            "(9, 'Septiembre 2025')": 10176.929,
+            "(10, 'Octubre 2025')": 9350.66,
+            "(11, 'Noviembre 2025')": 8355.38,
+            "(12, 'Diciembre 2025')": 9373.02
+        }
+    },
+    "conteo_viajes_por_mes_y_centro": {
+        "Almirante Brown": {
+            "(1, 'Enero 2025')": 498,
+            "(1, 'Enero 2026')": 488,
+            "(2, 'Febrero 2025')": 404,
+            "(2, 'Febrero 2026')": 426,
+            "(3, 'Marzo 2025')": 415,
+            "(4, 'Abril 2025')": 419,
+            "(5, 'Mayo 2025')": 639,
+            "(6, 'Junio 2025')": 664,
+            "(7, 'Julio 2025')": 830,
+            "(8, 'Agosto 2025')": 650,
+            "(9, 'Septiembre 2025')": 631,
+            "(10, 'Octubre 2025')": 629,
+            "(11, 'Noviembre 2025')": 551,
+            "(12, 'Diciembre 2025')": 611
+        },
+        "Flores": {
+            "(1, 'Enero 2025')": 1968,
+            "(1, 'Enero 2026')": 1870,
+            "(2, 'Febrero 2025')": 1788,
+            "(2, 'Febrero 2026')": 1844,
+            "(3, 'Marzo 2025')": 1959,
+            "(4, 'Abril 2025')": 1909,
+            "(5, 'Mayo 2025')": 2013,
+            "(6, 'Junio 2025')": 1924,
+            "(7, 'Julio 2025')": 2049,
+            "(8, 'Agosto 2025')": 2020,
+            "(9, 'Septiembre 2025')": 2034,
+            "(10, 'Octubre 2025')": 2094,
+            "(11, 'Noviembre 2025')": 1963,
+            "(12, 'Diciembre 2025')": 2154
+        },
+        "Zavaleta": {
+            "(1, 'Enero 2025')": 1595,
+            "(1, 'Enero 2026')": 890,
+            "(2, 'Febrero 2025')": 894,
+            "(2, 'Febrero 2026')": 697,
+            "(3, 'Marzo 2025')": 1131,
+            "(4, 'Abril 2025')": 998,
+            "(5, 'Mayo 2025')": 1210,
+            "(6, 'Junio 2025')": 1230,
+            "(7, 'Julio 2025')": 2305,
+            "(8, 'Agosto 2025')": 1167,
+            "(9, 'Septiembre 2025')": 1046,
+            "(10, 'Octubre 2025')": 983,
+            "(11, 'Noviembre 2025')": 891,
+            "(12, 'Diciembre 2025')": 1047
+        }
+    },
+    "tarifas_por_mes": {
+        "Enero": 887494987.2,
+        "Febrero": 596584778.2254,
+        "Marzo": 666938313.3997,
+        "Abril": 593726740.7216,
+        "Mayo": 661687900.9351,
+        "Junio": 698639483.0496,
+        "Julio": 986108008.7136,
+        "Agosto": 758612033.4096,
+        "Septiembre": 824711443.7112,
+        "Octubre": 815286926.2416,
+        "Noviembre": 731939464.9632,
+        "Diciembre": 841268470.4016
+    },
+    "gasto_total_2025": 8815616096.2288,
+    "gasto_total_2026": 887494987.2
+}
+</script>
+
+    <script id="monthly-data" type="application/json">
+{
+    "periodo": "Febrero 2026",
+    "total_tn_ultimo_mes": 21118.489999999998,
+    "cantidad_descargas": 2967,
+    "patentes_unicas": 109,
+    "promedio_diario_tn": 754.2317857142858,
+    "tn_por_centro": {
+        "Flores": 13348.8,
+        "Zavaleta": 6825.53,
+        "Almirante Brown": 944.16
+    },
+    "tn_por_dia": {
+        "2026-02-01": 14.52,
+        "2026-02-02": 1189.98,
+        "2026-02-03": 987.64,
+        "2026-02-04": 849.62,
+        "2026-02-05": 873.2,
+        "2026-02-06": 828.34,
+        "2026-02-07": 599.92,
+        "2026-02-08": 36.099999999999994,
+        "2026-02-09": 1192.56,
+        "2026-02-10": 1000.58,
+        "2026-02-11": 861.28,
+        "2026-02-12": 895.76,
+        "2026-02-13": 813.28,
+        "2026-02-14": 576.72,
+        "2026-02-15": 21.34,
+        "2026-02-16": 757.52,
+        "2026-02-17": 663.84,
+        "2026-02-18": 1005.46,
+        "2026-02-19": 23.759999999999998,
+        "2026-02-20": 1329.15,
+        "2026-02-21": 644.54,
+        "2026-02-22": 61.14,
+        "2026-02-23": 1203.66,
+        "2026-02-24": 1314.1,
+        "2026-02-25": 961.5,
+        "2026-02-26": 930.14,
+        "2026-02-27": 915.32,
+        "2026-02-28": 567.52
+    }
+}
+</script>
+
+    <script id="covelia-data" type="application/json">
+    [
+        {"NUMPAT":"AD794XH","cantidad":122,"tn_total":1335.12},
+        {"NUMPAT":"AD740MN","cantidad":122,"tn_total":1289.68},
+        {"NUMPAT":"AD740MT","cantidad":114,"tn_total":1278.5},
+        {"NUMPAT":"AD794XB","cantidad":116,"tn_total":1263.26},
+        {"NUMPAT":"Total","cantidad":474,"tn_total":5166.56}
+    ]
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- CONFIGURACIÓN GLOBAL CHART.JS PARA TEMA OSCURO ---
+            Chart.defaults.color = '#FFFFFF';
+            Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+            Chart.defaults.scale.grid.color = 'rgba(255, 255, 255, 0.1)';
+
+            // --- Cargar y Parsear Datos ---
+            const jsonDataElement = document.getElementById('dashboard-data');
+            const data = JSON.parse(jsonDataElement.textContent);
+
+            const monthlyDataElement = document.getElementById('monthly-data');
+            let monthlyData = null; 
+            if (monthlyDataElement) { 
+                try {
+                    monthlyData = JSON.parse(monthlyDataElement.textContent);
+                } catch (e) {
+                    console.error("Error al parsear monthly-data JSON:", e);
+                }
+            }
+
+            const coveliaDataElement = document.getElementById('covelia-data');
+            let coveliaData = [];
+            if (coveliaDataElement) {
+                 coveliaData = JSON.parse(coveliaDataElement.textContent);
+            }
+
+            // --- Funciones de Formateo ---
+            const formatNumberTN = (value, compact = false) => {
+                const num = parseFloat(value);
+                if (isNaN(num)) return '...';
+                
+                const options = {
+                    maximumFractionDigits: compact ? 0 : 2,
+                    minimumFractionDigits: compact ? 0 : 2,
+                };
+                return num.toLocaleString('es-AR', options) + ' TN';
+            };
+
+            const formatCurrencyARS = (value, compact = false) => {
+                const num = parseFloat(value);
+                if (isNaN(num)) return '...';
+                const options = {
+                    style: 'currency',
+                    currency: 'ARS',
+                    maximumFractionDigits: 0,
+                    minimumFractionDigits: 0,
+                };
+                if (compact) options.notation = 'compact';
+                return num.toLocaleString('es-AR', options);
+            };
+
+            const formatNumberSimple = (value) => {
+                const num = parseInt(value, 10);
+                if (isNaN(num)) return 'N/A';
+                return num.toLocaleString('es-AR');
+            };
+
+            const formatGenerationDate = () => {
+                 try {
+                    const date = new Date(); 
+                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    return `${date.toLocaleDateString('es-AR', options)}`;
+                } catch (e) {
+                    return 'Hoy';
+                }
+            };
+            
+            // --- Procesamiento de Datos Auxiliar ---
+            const parseMonthlyData = (monthData) => {
+                const entries = Object.entries(monthData);
+                const labels = entries.map(([key, value]) => key.match(/'(.*?)'/)[1]);
+                const values = entries.map(([key, value]) => parseFloat(value));
+                return { labels, values };
+            };
+
+            const calculateAverage = (centerData) => {
+                if (!centerData) return 0;
+                const { values } = parseMonthlyData(centerData);
+                if (values.length === 0) return 0;
+                const sum = values.reduce((acc, val) => acc + val, 0);
+                return sum / values.length;
+            };
+
+            // --- 1. Actualizar Encabezado ---
+            document.getElementById('current-date').textContent = formatGenerationDate();
+
+            // --- 2. Actualizar KPIs Principales ---
+            document.getElementById('kpi-total-2025').textContent = formatNumberTN(data.total_descargas_tn_neta, true);
+
+            const avgTotal = calculateAverage(data.tn_neta_por_mes);
+            document.getElementById('kpi-avg-total').textContent = formatNumberTN(avgTotal, true);
+
+            const totalMonthlyData = parseMonthlyData(data.tn_neta_por_mes);
+            let maxTN = -Infinity, minTN = Infinity;
+            let maxMonth = '', minMonth = '';
+
+            totalMonthlyData.values.forEach((value, index) => {
+                if (value > maxTN) { maxTN = value; maxMonth = totalMonthlyData.labels[index]; }
+                if (value < minTN) { minTN = value; minMonth = totalMonthlyData.labels[index]; }
+            });
+
+            document.getElementById('kpi-max-mes').textContent = formatNumberTN(maxTN, true);
+            document.getElementById('kpi-max-mes-sub').textContent = maxMonth;
+            document.getElementById('kpi-min-mes').textContent = formatNumberTN(minTN, true);
+            document.getElementById('kpi-min-mes-sub').textContent = minMonth;
+
+            // Promedios por Centro
+            const avgFlores = calculateAverage(data.descargas_por_centro_y_mes['Flores']);
+            const avgZavaleta = calculateAverage(data.descargas_por_centro_y_mes['Zavaleta']);
+            const avgBrown = calculateAverage(data.descargas_por_centro_y_mes['Almirante Brown']);
+
+            document.getElementById('kpi-avg-flores').textContent = formatNumberTN(avgFlores, true);
+            document.getElementById('kpi-avg-zavaleta').textContent = formatNumberTN(avgZavaleta, true);
+            document.getElementById('kpi-avg-brown').textContent = formatNumberTN(avgBrown, true);
+
+            // Gasto Total
+            const tarifas = data.tarifas_por_mes;
+            let totalGasto2025 = 0;
+            const costosMensuales = [];
+            
+            totalMonthlyData.labels.forEach((mes, index) => {
+                const toneladas = totalMonthlyData.values[index];
+                const tarifa = tarifas[mes]; 
+                if (toneladas && tarifa) {
+                    const costo = toneladas * tarifa;
+                    costosMensuales.push(costo);
+                    totalGasto2025 += costo;
+                } else {
+                    costosMensuales.push(0); 
+                }
+            });
+
+            document.getElementById('kpi-gasto-total').textContent = formatCurrencyARS(totalGasto2025, true);
+
+            // --- 2.7. Actualizar KPIs Mensuales (Diciembre) ---
+            if (monthlyData) {
+                document.getElementById('kpi-oct-total-tn').textContent = formatNumberTN(monthlyData.total_tn_ultimo_mes, true);
+                document.getElementById('kpi-oct-avg-diario').textContent = formatNumberTN(monthlyData.promedio_diario_tn, true);
+                document.getElementById('kpi-oct-viajes').textContent = formatNumberSimple(monthlyData.cantidad_descargas);
+                
+                const patentesEl = document.getElementById('kpi-oct-patentes');
+                if (monthlyData.patentes_unicas) {
+                    patentesEl.textContent = formatNumberSimple(monthlyData.patentes_unicas);
+                } else {
+                    patentesEl.textContent = "N/A";
+                }
+                
+                document.getElementById('kpi-oct-flores').textContent = formatNumberTN(monthlyData.tn_por_centro.Flores, true);
+                document.getElementById('kpi-oct-zavaleta').textContent = formatNumberTN(monthlyData.tn_por_centro.Zavaleta, true);
+                document.getElementById('kpi-oct-brown').textContent = formatNumberTN(monthlyData.tn_por_centro['Almirante Brown'], true);
+            }
+
+            // --- 2.8. Actualizar Covelia ---
+            let coveliaVehiculos = [];
+            if (coveliaData.length > 0) {
+                coveliaVehiculos = coveliaData.filter(item => item.NUMPAT !== 'Total');
+                const coveliaTotal = coveliaData.find(item => item.NUMPAT === 'Total');
+    
+                if (coveliaTotal) {
+                    const totalTNEl = document.getElementById('kpi-covelia-total-tn');
+                    if (totalTNEl) totalTNEl.textContent = formatNumberTN(coveliaTotal.tn_total, true);
+                    
+                    const totalDescargasEl = document.getElementById('kpi-covelia-total-descargas');
+                    if (totalDescargasEl) totalDescargasEl.textContent = formatNumberSimple(coveliaTotal.cantidad);
+                }
+                const vehiculosEl = document.getElementById('kpi-covelia-vehiculos');
+                if (vehiculosEl) vehiculosEl.textContent = formatNumberSimple(coveliaVehiculos.length);
+            }
+
+            // --- 3. Configuración de Gráficos ---
+
+            // Gráfico 1: Total Toneladas
+            const mensualCtx = document.getElementById('totalMensualChart');
+            if (mensualCtx) {
+                new Chart(mensualCtx, {
+                    type: 'line',
+                    data: {
+                        labels: totalMonthlyData.labels,
+                        datasets: [{
+                            label: 'Total Toneladas',
+                            data: totalMonthlyData.values,
+                            backgroundColor: 'rgba(52, 187, 235, 0.2)', // Celeste
+                            borderColor: '#34BBEB',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#FFFFFF'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { 
+                                mode: 'index',
+                                intersect: false,
+                                backgroundColor: 'rgba(0,0,0,0.8)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff'
+                            }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
+            
+            // Gráfico 2: Costo Mensual
+            const costoMensualCtx = document.getElementById('costoMensualChart');
+            if (costoMensualCtx) {
+                new Chart(costoMensualCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: totalMonthlyData.labels,
+                        datasets: [{
+                            label: 'Costo (ARS)',
+                            data: costosMensuales,
+                            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                            hoverBackgroundColor: '#FFFFFF',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                        },
+                        scales: {
+                            y: { beginAtZero: false, grid: { display: false } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // Gráfico 3: Centros
+            const centroCtx = document.getElementById('descargasPorCentroChart');
+            if (centroCtx) {
+                const { values: brownValues } = parseMonthlyData(data.descargas_por_centro_y_mes['Almirante Brown']);
+                const { values: floresValues } = parseMonthlyData(data.descargas_por_centro_y_mes['Flores']);
+                const { values: zavaletaValues } = parseMonthlyData(data.descargas_por_centro_y_mes['Zavaleta']);
+
+                new Chart(centroCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: totalMonthlyData.labels,
+                        datasets: [
+                            {
+                                label: 'Flores',
+                                data: floresValues,
+                                backgroundColor: '#6366F1', // Indigo
+                            },
+                            {
+                                label: 'Zavaleta',
+                                data: zavaletaValues,
+                                backgroundColor: '#A855F7', // Purple
+                            },
+                             {
+                                label: 'A. Brown',
+                                data: brownValues,
+                                backgroundColor: '#EC4899', // Pink
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { x: { stacked: true }, y: { stacked: true } }
+                    }
+                });
+            }
+
+            // Gráfico 4: Covelia
+            const coveliaCtx = document.getElementById('coveliaPatentesChart');
+            if (coveliaCtx && coveliaVehiculos.length > 0) {
+                const coveliaLabels = coveliaVehiculos.map(item => item.NUMPAT);
+                const coveliaValues = coveliaVehiculos.map(item => item.tn_total);
+    
+                new Chart(coveliaCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: coveliaLabels,
+                        datasets: [{
+                            label: 'Toneladas',
+                            data: coveliaValues,
+                            backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                            hoverBackgroundColor: '#FFFFFF',
+                            borderRadius: 4
+                        }]
+                    },
+                     options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            // --- 4. Lógica del Asistente de IA (Mantenida) ---
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const chatLoading = document.getElementById('chat-loading');
+            const chatResponseText = document.getElementById('chat-response-text');
+
+            const API_KEY = ""; 
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+            const SYSTEM_PROMPT = "Eres un asistente experto en logística y operaciones del Municipio de Lomas de Zamora. Responde de forma breve y ejecutiva.";
+
+            let chatHistory = []; 
+
+            async function sendQueryToBot(userMessage) {
+                if (!userMessage) return;
+                chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+                chatLoading.classList.remove('hidden');
+                chatLoading.classList.add('flex');
+                chatResponseText.classList.add('hidden');
+                
+                try {
+                    const botMessage = await callGeminiAPI(chatHistory);
+                    chatHistory.push({ role: "model", parts: [{ text: botMessage }] });
+                    chatResponseText.innerHTML = botMessage.replace(/\n/g, '<br>');
+                } catch (error) {
+                    chatResponseText.innerHTML = "Error de conexión con el asistente.";
+                } finally {
+                    chatLoading.classList.add('hidden'); 
+                    chatLoading.classList.remove('flex');
+                    chatResponseText.classList.remove('hidden'); 
+                }
+            }
+
+            async function callGeminiAPI(history) {
+                const payload = {
+                    contents: history,
+                    systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
+                };
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                return result.candidates?.[0]?.content?.parts?.[0]?.text || "Sin respuesta.";
+            }
+
+            chatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const msg = chatInput.value.trim();
+                if(msg) { sendQueryToBot(msg); chatInput.value = ''; }
+            });
+
+            document.querySelectorAll('.preset-q-btn').forEach(btn => {
+                btn.addEventListener('click', () => sendQueryToBot(btn.getAttribute('data-question')));
+            });
+
+        });
+    </script>
+</body>
+</html>

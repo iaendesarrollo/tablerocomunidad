@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Gestión Unificado - SP y OC</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Font: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* PALETA OBLIGATORIA SISTEMA FONDO OSCURO SGR */
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            display: flex;
+            font-weight: 400;
+        }
+
+        /* SISTEMA DE COMPONENTES */
+        .radius-sys {
+            border-radius: 12px !important;
+        }
+
+        /* TIPOGRAFÍA */
+        h1 { font-weight: 800; text-transform: uppercase; }
+        h2 { font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .text-desc { font-weight: 400; }
+        .text-num { font-weight: 700; }
+
+        /* CARDS */
+        .card-grafica {
+            background-color: var(--glass-claro);
+            color: var(--azul-inst);
+            box-shadow: none;
+            border: none;
+        }
+
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            box-shadow: none;
+            border: none;
+            border-left: 8px solid var(--acento);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card-informativa:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        /* Ícono monocromático en transparencia (dentro de card informativa) */
+        .card-icon {
+            position: absolute;
+            right: -10%;
+            bottom: -20%;
+            height: 140%;
+            width: auto;
+            color: var(--azul-inst);
+            opacity: 0.05;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* SIDEBAR (Adaptado a SGR) */
+        #sidebar {
+            width: 280px;
+            background-color: var(--bg-main);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 50;
+            border-right: 1px solid rgba(255,255,255,0.15);
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-btn {
+            width: 100%;
+            text-align: left;
+            padding: 1rem 1.5rem;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+            color: rgba(255,255,255,0.7);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--blanco);
+        }
+
+        .nav-btn.active {
+            background-color: var(--acento);
+            border-left-color: var(--blanco);
+            color: var(--blanco);
+        }
+
+        /* MAIN CONTENT */
+        #main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
+            }
+            #main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+        }
+
+        /* UTILS */
+        .font-mono-nums { font-variant-numeric: tabular-nums; }
+        
+        /* SCROLLBARS */
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--acento); border-radius: 4px; }
+        
+        .table-container::-webkit-scrollbar-track { background: var(--blanco); }
+        .table-container::-webkit-scrollbar-thumb { background: rgba(25, 86, 124, 0.2); }
+        .table-container::-webkit-scrollbar-thumb:hover { background: rgba(25, 86, 124, 0.4); }
+        
+        /* TABLE STYLES SGR */
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background-color: var(--blanco);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            color: var(--azul-inst);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid rgba(25, 86, 124, 0.2);
+        }
+        td {
+            padding: 1rem;
+            font-size: 0.875rem;
+            border-bottom: 1px solid rgba(25, 86, 124, 0.1);
+            color: var(--azul-inst);
+            vertical-align: middle;
+        }
+        tr:last-child td { border-bottom: none; }
+
+        /* HEADER LOGO */
+        .sidebar-logo {
+            height: 3.5rem;
+            width: auto;
+            object-fit: contain;
+            margin-bottom: 2rem;
+            margin-left: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <nav id="sidebar">
+        <img src="https://lomasdezamora.gov.ar/logo.webp" alt="Logo Municipio" class="sidebar-logo">
+        
+        <div class="px-6 mb-6">
+            <h2 class="text-xs font-bold text-[var(--acento)] uppercase tracking-widest mb-1">Tablero de Gestión</h2>
+            <p class="text-xs text-[var(--blanco)] opacity-70">Ejercicio Operativo 2026</p>
+        </div>
+
+        <div class="space-y-1 mt-8">
+            <button onclick="switchView('sp')" id="btn-sp" class="nav-btn active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Solicitudes (SP)
+            </button>
+            <button onclick="switchView('oc')" id="btn-oc" class="nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                Órdenes Compra (OC)
+            </button>
+        </div>
+
+        <div class="absolute bottom-6 left-0 w-full px-6">
+             <div class="p-4 bg-white/5 rounded-xl border border-white/10">
+                <p class="text-[10px] text-[var(--acento)] uppercase font-bold mb-1 tracking-widest">Estado del Sistema</p>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-[#6EE7B7] rounded-full animate-pulse"></div>
+                    <span class="text-xs text-[var(--blanco)] opacity-90">Actualizado</span>
+                </div>
+             </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main id="main-content">
+        
+        <!-- HEADER MOBILE -->
+        <div class="md:hidden flex justify-between items-center mb-6">
+            <h1 class="text-xl font-bold uppercase tracking-widest">Gestión Interna</h1>
+            <button onclick="document.getElementById('sidebar').classList.toggle('open')" class="text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VISTA SP: Solicitudes de Pedido            -->
+        <!-- ========================================== -->
+        <div id="view-sp" class="fade-in max-w-7xl">
+            <div class="flex justify-between items-end mb-8 border-b border-[var(--blanco)] border-opacity-30 pb-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold uppercase text-[var(--blanco)] tracking-tight">Solicitudes de Pedido (SP)</h1>
+                    <p class="text-sm font-bold text-[var(--acento)] uppercase tracking-widest mt-1">Detalle de Gestión 2026</p>
+                </div>
+                <div class="text-right hidden sm:block">
+                    <span class="bg-[var(--acento)] text-[var(--blanco)] px-3 py-1 rounded text-xs font-bold uppercase tracking-widest">Vista Activa</span>
+                </div>
+            </div>
+
+            <div class="space-y-8">
+                <!-- SP: KPIs -->
+                <section class="grid grid-cols-1 md:grid-cols-2 gap-6" id="sp-kpi-container"></section>
+
+                <!-- SP: Chart -->
+                <section>
+                    <h2 class="text-sm font-bold uppercase tracking-widest text-[var(--blanco)] mb-3">Gasto Total por Secretaría</h2>
+                    <div class="card-grafica radius-sys p-6 h-[400px]">
+                        <canvas id="chartOficinas"></canvas>
+                    </div>
+                </section>
+
+                <!-- SP: Tables -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <section>
+                        <h2 class="text-sm font-bold uppercase tracking-widest text-[var(--blanco)] mb-3">Top Insumos (Monto)</h2>
+                        <div class="card-informativa radius-sys p-0 flex flex-col" style="border-left: none;">
+                            <div class="table-container">
+                                <table>
+                                    <thead><tr><th>Detalle</th><th class="text-right">Monto</th></tr></thead>
+                                    <tbody id="sp-tabla-monto"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <section>
+                        <h2 class="text-sm font-bold uppercase tracking-widest text-[var(--blanco)] mb-3">Top Frecuencia (Cantidad)</h2>
+                        <div class="card-informativa radius-sys p-0 flex flex-col" style="border-left: none;">
+                            <div class="table-container">
+                                <table>
+                                    <thead><tr><th>Detalle</th><th class="text-right">Cant.</th></tr></thead>
+                                    <tbody id="sp-tabla-cant"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VISTA OC: Órdenes de Compra                -->
+        <!-- ========================================== -->
+        <div id="view-oc" class="hidden fade-in max-w-7xl">
+            <div class="flex justify-between items-end mb-8 border-b border-[var(--blanco)] border-opacity-30 pb-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold uppercase text-[var(--blanco)] tracking-tight">Órdenes de Compra (OC)</h1>
+                    <p class="text-sm font-bold text-[var(--acento)] uppercase tracking-widest mt-1">Comparativa 2025 - 2026</p>
+                </div>
+                <div class="text-right hidden sm:block">
+                    <span class="bg-[var(--acento)] text-[var(--blanco)] px-3 py-1 rounded text-xs font-bold uppercase tracking-widest">Vista Activa</span>
+                </div>
+            </div>
+
+            <!-- OC: KPIs Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                
+                <!-- KPI 2026 -->
+                <div class="card-informativa radius-sys p-8 relative overflow-hidden group">
+                    <svg class="card-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                    <div class="relative z-10">
+                        <h3 class="text-xs font-bold text-[var(--acento)] uppercase tracking-[0.2em] mb-4">Ejercicio Operativo 2026</h3>
+                        <div class="mb-6">
+                            <p class="text-xs text-[var(--azul-inst)] opacity-70 uppercase mb-1 font-bold">Monto Total Adjudicado</p>
+                            <h2 class="text-4xl lg:text-5xl font-extrabold text-[var(--azul-inst)] font-mono-nums" id="oc-monto-26">---</h2>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="bg-[var(--glass-claro)] px-4 py-2 rounded-lg border border-[var(--azul-inst)] border-opacity-10">
+                                <p class="text-[10px] text-[var(--azul-inst)] font-bold uppercase tracking-widest">Total Registros</p>
+                                <p class="text-xl font-bold text-num text-[var(--acento)]" id="oc-cant-26">---</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI 2025 -->
+                <div class="card-informativa radius-sys p-8 relative overflow-hidden group">
+                    <svg class="card-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+                    <div class="relative z-10">
+                        <h3 class="text-xs font-bold text-[var(--azul-inst)] uppercase tracking-[0.2em] mb-4 opacity-70">Ejercicio Histórico 2025</h3>
+                        <div class="mb-6">
+                            <p class="text-xs text-[var(--azul-inst)] opacity-70 uppercase mb-1 font-bold">Monto Total Adjudicado</p>
+                            <h2 class="text-4xl lg:text-5xl font-extrabold text-[var(--azul-inst)] font-mono-nums opacity-90" id="oc-monto-25">---</h2>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="bg-[var(--glass-claro)] px-4 py-2 rounded-lg border border-[var(--azul-inst)] border-opacity-10">
+                                <p class="text-[10px] text-[var(--azul-inst)] font-bold uppercase tracking-widest">Total Registros</p>
+                                <p class="text-xl font-bold text-num text-[var(--azul-inst)]" id="oc-cant-25">---</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DETALLE 2026 -->
+            <div class="mb-12">
+                <h3 class="text-lg font-bold text-[var(--blanco)] mb-4 uppercase tracking-widest flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-[var(--acento)] inline-block"></span>
+                    Desglose de Gasto 2026
+                </h3>
+                <hr class="border-t border-[var(--blanco)] opacity-20 mb-6">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Chart Proveedores 2026 -->
+                    <section>
+                        <h4 class="text-sm font-bold text-[var(--blanco)] uppercase tracking-widest mb-3">Top 10 Proveedores</h4>
+                        <div class="card-grafica radius-sys p-6 h-[350px]">
+                            <canvas id="chartProv26"></canvas>
+                        </div>
+                    </section>
+                    
+                    <!-- Tabla Descripciones 2026 -->
+                    <section>
+                        <h4 class="text-sm font-bold text-[var(--blanco)] uppercase tracking-widest mb-3">Top 10 Descripciones</h4>
+                        <div class="card-informativa radius-sys p-0 flex flex-col" style="border-left: none;">
+                            <div class="table-container">
+                                <table>
+                                    <thead><tr><th>Descripción de Compra</th><th class="text-right">Monto</th></tr></thead>
+                                    <tbody id="oc-desc-26-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- DETALLE 2025 -->
+            <div class="mb-12">
+                <h3 class="text-lg font-bold text-[var(--blanco)] mb-4 uppercase tracking-widest flex items-center gap-2 opacity-80">
+                    <span class="w-3 h-3 rounded-full bg-[var(--blanco)] inline-block"></span>
+                    Desglose Histórico 2025
+                </h3>
+                <hr class="border-t border-[var(--blanco)] opacity-20 mb-6">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                     <!-- Chart Proveedores 2025 -->
+                     <section>
+                        <h4 class="text-sm font-bold text-[var(--blanco)] uppercase tracking-widest mb-3 opacity-90">Top 10 Proveedores</h4>
+                        <div class="card-grafica radius-sys p-6 h-[350px]">
+                            <canvas id="chartProv25"></canvas>
+                        </div>
+                    </section>
+                    
+                    <!-- Tabla Descripciones 2025 -->
+                    <section>
+                        <h4 class="text-sm font-bold text-[var(--blanco)] uppercase tracking-widest mb-3 opacity-90">Top 10 Descripciones</h4>
+                        <div class="card-informativa radius-sys p-0 flex flex-col" style="border-left: none;">
+                            <div class="table-container">
+                                <table>
+                                    <thead><tr><th>Descripción de Compra</th><th class="text-right">Monto</th></tr></thead>
+                                    <tbody id="oc-desc-25-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- DATOS Y LÓGICA DE RENDERIZADO -->
+    <script>
+        // --- DATA SP (Mantenida intacta para Python) ---
+        const spData = {
+    "kpi": {
+        "validos": 997,
+        "anulados": 0,
+        "total": 52009413830.68001
+    },
+    "oficinas": [
+        {
+            "Oficina": "SECRETARIA DE DESARROLLO SOCIAL",
+            "Total": 13188959990.21
+        },
+        {
+            "Oficina": "SECRETARÍA DE OBRAS PUBLICAS",
+            "Total": 12928036586.949999
+        },
+        {
+            "Oficina": "SECRETARIA DE SALUD",
+            "Total": 7786403811.14
+        },
+        {
+            "Oficina": "SECRETARIA DE SEGURIDAD Y JUSTICIA",
+            "Total": 4184640848.18
+        },
+        {
+            "Oficina": "SECRETARIA DE EDUCACION, PRODUCCION Y TRABAJO",
+            "Total": 3258823608.83
+        },
+        {
+            "Oficina": "SECRETARIA DE SERVICIOS PUBLICOS",
+            "Total": 2655641039.0
+        },
+        {
+            "Oficina": "SECRETARIA GENERAL",
+            "Total": 2221775717.37
+        },
+        {
+            "Oficina": "JEFATURA DE GABINETE",
+            "Total": 1950446203.23
+        },
+        {
+            "Oficina": "SECRETARIA DE AMBIENTE",
+            "Total": 1784416579.57
+        },
+        {
+            "Oficina": "SECRETARIA DE GOBIERNO",
+            "Total": 986264986.7
+        },
+        {
+            "Oficina": "SECRETARIA DE ECONOMIA Y FINANZAS",
+            "Total": 410809892.45
+        },
+        {
+            "Oficina": "SECRETARIA PRIVADA",
+            "Total": 319552464.15
+        },
+        {
+            "Oficina": "SECRETARIA DE RELACIONES CON LA COMUNIDAD",
+            "Total": 150122902.8
+        },
+        {
+            "Oficina": "SECRETARIA DE HABITAT E INTEGRACION COMUNITARIA",
+            "Total": 144197166.0
+        },
+        {
+            "Oficina": "DCCION EJECUTIVA DE DEPORTES",
+            "Total": 23326514.1
+        },
+        {
+            "Oficina": "SECRETARIA DE MUJERES, GENEROS Y DIVERSIDAD",
+            "Total": 15995520.0
+        }
+    ],
+    "monto": [
+        {
+            "Detalle": "MES MANTENIMIENTO, RECONVERSION Y AMPLIACION DEL PARQUE LUMINICO",
+            "Total": 4966256487.69
+        },
+        {
+            "Detalle": "MES MANTENIMIENTO DE OBRADOR",
+            "Total": 3099412752.2
+        },
+        {
+            "Detalle": "M2 CARTEL DE OBRA",
+            "Total": 2494429637.31
+        },
+        {
+            "Detalle": "UNID. DESAYUNO/MERIENDA-ZONA 1",
+            "Total": 2142148280.0
+        },
+        {
+            "Detalle": "UNID. RACIONES DE ALIMENTO",
+            "Total": 2109504000.0
+        },
+        {
+            "Detalle": "UNID. VIANDAS P/PERSONAL AUTORIZADO",
+            "Total": 1858500000.0
+        },
+        {
+            "Detalle": "UNID. REMERAS DE ALGODÓN PEINADO COLOR AZUL - C/ ESCUDO",
+            "Total": 1236400000.0
+        },
+        {
+            "Detalle": "UNID. MODULO EXTRAORDINARIO - MESA - ZONA 1",
+            "Total": 1195302295.0
+        },
+        {
+            "Detalle": "UNID. CUERPO SEMAFORICO COMPLETO TECNOLOGIA LED  1X300 + 2X200",
+            "Total": 1143464300.0
+        },
+        {
+            "Detalle": "UNID. REPARACION VEHICULO",
+            "Total": 975552818.0
+        },
+        {
+            "Detalle": "M2 PINTURA VIAL CALIENTE",
+            "Total": 920000000.0
+        },
+        {
+            "Detalle": "SERV LICENCIA SOFTWARE - GESTION INTEGRAL DE DATOS MUNICIPALES",
+            "Total": 840000000.0
+        },
+        {
+            "Detalle": "GL. SERVICIOS TECNICOS Y PROFESIONALES",
+            "Total": 802260436.8
+        },
+        {
+            "Detalle": "UNID. BOLSA TIPO CONSORCIO - COLOR NEGRO- 80 X 100 CM- 40 MICRON",
+            "Total": 733200000.0
+        },
+        {
+            "Detalle": "SERV MANTENIMIENTO GENERAL",
+            "Total": 692569394.0
+        }
+    ],
+    "cantidad": [
+        {
+            "Detalle": "UNID. REPARACION VEHICULO",
+            "Cantidad_Registros": 133
+        },
+        {
+            "Detalle": "SERV SERVICIO DE INTERNET",
+            "Cantidad_Registros": 91
+        },
+        {
+            "Detalle": "SERV BANNER EN PAG. WEB",
+            "Cantidad_Registros": 47
+        },
+        {
+            "Detalle": "SERV SERVICIO DE RETIRO,TRASLADO,TRAT.DE RESIDUOS PATOGENICOS",
+            "Cantidad_Registros": 18
+        },
+        {
+            "Detalle": "GL. CONTRATACION ARTISTAS",
+            "Cantidad_Registros": 17
+        },
+        {
+            "Detalle": "SERV SERVICIO INTERNET CORPORATIVO (DEDICADO)",
+            "Cantidad_Registros": 16
+        },
+        {
+            "Detalle": "GL. SERVICIOS TECNICOS Y PROFESIONALES",
+            "Cantidad_Registros": 11
+        },
+        {
+            "Detalle": "SERV SERVICIO LIMPIEZA Y MANTENIMIENTO DE AIRES ACONDICIONADOS",
+            "Cantidad_Registros": 9
+        },
+        {
+            "Detalle": "UNID. RESMA DE PAPEL TAMAÑO OFICIO LEGAL",
+            "Cantidad_Registros": 9
+        },
+        {
+            "Detalle": "M2 CARTEL DE OBRA",
+            "Cantidad_Registros": 8
+        },
+        {
+            "Detalle": "UNID. PUBLICIDAD TELEVISIVA",
+            "Cantidad_Registros": 8
+        },
+        {
+            "Detalle": "UNID. PUBLICIDAD EN RADIO AM",
+            "Cantidad_Registros": 8
+        },
+        {
+            "Detalle": "UNID. REGISTRO DE FIRMAS DEL PERSONAL DOCENTE",
+            "Cantidad_Registros": 8
+        },
+        {
+            "Detalle": "SERV SERVICIO DE LAVADO Y PLANCHADO  DE ROPA",
+            "Cantidad_Registros": 8
+        },
+        {
+            "Detalle": "SERV SERVICIO DE TELEPEAJE",
+            "Cantidad_Registros": 8
+        }
+    ]
+};
+
+        // --- DATA OC (Mantenida intacta para Python) ---
+        const ocData = {
+    "kpi": {
+        "2026": {
+            "total": 22544356825.2,
+            "cant": 311
+        },
+        "2025": {
+            "total": 232342157255.58002,
+            "cant": 2348
+        }
+    },
+    "details": {
+        "2026": {
+            "desc": [
+                {
+                    "Total": 4966256487.69,
+                    "Descripcion": "MANTENIMIENTO, RECONVERSION Y AMPLIACION DEL PARQUE LUMINICO"
+                },
+                {
+                    "Total": 2041342000.0,
+                    "Descripcion": "RACIONES DE ALIMENTO"
+                },
+                {
+                    "Total": 990347254.0,
+                    "Descripcion": "DESAYUNO/MERIENDA-ZONA 4"
+                },
+                {
+                    "Total": 752582325.0,
+                    "Descripcion": "OXIGENO LIQUIDO MEDICINAL"
+                },
+                {
+                    "Total": 629800000.0,
+                    "Descripcion": "CAMPERA IMPERMEABLE"
+                },
+                {
+                    "Total": 600000000.0,
+                    "Descripcion": "EXPTE 4068-77204-S-2025"
+                },
+                {
+                    "Total": 515098737.89,
+                    "Descripcion": "LIMPIEZA DE TERRENO Y NIVELACION SIN APORTE DE TIERRA"
+                },
+                {
+                    "Total": 500971510.0,
+                    "Descripcion": "MODULO EXTRAORDINARIO - MESA - ZONA 4"
+                },
+                {
+                    "Total": 500002500.0,
+                    "Descripcion": "CONTRATACION SERVICIO DE CAMION DESOBSTRUCTOR"
+                },
+                {
+                    "Total": 443140000.0,
+                    "Descripcion": "SERVICIO ALIMENTARIO"
+                }
+            ],
+            "prov": [
+                {
+                    "Proveedor": "SERVILUM  S.A.",
+                    "Total": 5558755127.2699995
+                },
+                {
+                    "Proveedor": "REAL DE CATORCE SA",
+                    "Total": 2041342000.0
+                },
+                {
+                    "Proveedor": "CARRILLO",
+                    "Total": 1519966922.0
+                },
+                {
+                    "Proveedor": "GASPARI",
+                    "Total": 899595000.0
+                },
+                {
+                    "Proveedor": "MANTENIMIENTOS AMBIENTALES  S. A.",
+                    "Total": 854889624.0
+                },
+                {
+                    "Proveedor": "OXY NET SA",
+                    "Total": 752582325.0
+                },
+                {
+                    "Proveedor": "CENTURION AGURIS S.R.L.",
+                    "Total": 681734424.0
+                },
+                {
+                    "Proveedor": "DISTRIBUIDORA COFEX SRL",
+                    "Total": 624112836.0
+                },
+                {
+                    "Proveedor": "ALTIMA S A",
+                    "Total": 600000000.0
+                },
+                {
+                    "Proveedor": "PANILA SUR S. A.",
+                    "Total": 498590033.0
+                }
+            ]
+        },
+        "2025": {
+            "desc": [
+                {
+                    "Total": 30100807712.61,
+                    "Descripcion": "RECOLECCION DE RESIDUOS SOLIDOS"
+                },
+                {
+                    "Total": 16742158555.539999,
+                    "Descripcion": "DEMOLICION DE LOSAS Y TRANSPORTE A DISTANCIA MEDIA 15 KM"
+                },
+                {
+                    "Total": 13439424717.0,
+                    "Descripcion": "DESAYUNO/MERIENDA PATOLOGIAS ESPECIFICAS ZONA 4"
+                },
+                {
+                    "Total": 9502831288.44,
+                    "Descripcion": "MANTENIMIENTO, RECONVERSION Y AMPLIACION DEL PARQUE LUMINICO"
+                },
+                {
+                    "Total": 6984114944.809999,
+                    "Descripcion": "REDETERMINACION DE PRECIOS"
+                },
+                {
+                    "Total": 6350132760.0,
+                    "Descripcion": "SERVICIO INTEGRAL DE CLINICA MEDICA"
+                },
+                {
+                    "Total": 5609403459.02,
+                    "Descripcion": "CARTEL DE OBRA"
+                },
+                {
+                    "Total": 5489830458.0,
+                    "Descripcion": "DESAYUNO/MERIENDA PATOLOGIAS ESPECIFICAS ZONA 3"
+                },
+                {
+                    "Total": 5484577288.0,
+                    "Descripcion": "SERVICIO INTEGRAL DE ATENCION PEDIATRICA"
+                },
+                {
+                    "Total": 5100844446.34,
+                    "Descripcion": "LIMPIEZA DE TERRENO Y NIVELACION SIN APORTE DE TIERRA"
+                }
+            ],
+            "prov": [
+                {
+                    "Proveedor": "COVELIA S.A.",
+                    "Total": 32810403168.61
+                },
+                {
+                    "Proveedor": "CARRILLO",
+                    "Total": 17762637135.0
+                },
+                {
+                    "Proveedor": "SERVILUM  S.A.",
+                    "Total": 13678571341.16
+                },
+                {
+                    "Proveedor": "BRIALES S A",
+                    "Total": 10651201343.13
+                },
+                {
+                    "Proveedor": "DISTRIBUIDORA COFEX SRL",
+                    "Total": 7292713702.16
+                },
+                {
+                    "Proveedor": "IGARRETA S A C I",
+                    "Total": 5944554200.0
+                },
+                {
+                    "Proveedor": "TPS CONSTRUCTORA S. A.",
+                    "Total": 4759226358.25
+                },
+                {
+                    "Proveedor": "PANILA SUR S. A.",
+                    "Total": 4568393719.0
+                },
+                {
+                    "Proveedor": "ALVAGAMA S.A.",
+                    "Total": 4473896150.0
+                },
+                {
+                    "Proveedor": "NUTRISIMA S.A.",
+                    "Total": 4332063058.0
+                }
+            ]
+        }
+    }
+};
+
+        // --- UTILS ---
+        const formatCurrency = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(v);
+        const formatMillions = (v) => `$ ${(v / 1000000).toFixed(2)} M`;
+        const formatBillions = (v) => `$ ${(v / 1000000000).toFixed(2)} MM`;
+
+        // Defaults Globales Chart.js SGR UI
+        Chart.defaults.color = '#19567C';
+        Chart.defaults.font.family = "'Montserrat', sans-serif";
+        Chart.defaults.font.weight = "400";
+
+        // --- INIT SP VIEW ---
+        function initSP() {
+            // KPIs
+            document.getElementById('sp-kpi-container').innerHTML = `
+                <div class="card-informativa radius-sys p-6 flex flex-col justify-between">
+                    <svg class="card-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <div class="relative z-10">
+                        <p class="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Monto Total SP</p>
+                        <h3 class="text-num text-4xl lg:text-5xl mt-2">${formatMillions(spData.kpi.total)}</h3>
+                        <p class="text-desc text-[10px] uppercase mt-2 opacity-60 font-bold">${formatCurrency(spData.kpi.total)} TOTAL</p>
+                    </div>
+                </div>
+                <div class="card-informativa radius-sys p-6 flex flex-col justify-between">
+                    <svg class="card-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                    <div class="relative z-10">
+                        <p class="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Registros Válidos</p>
+                        <h3 class="text-num text-4xl lg:text-5xl mt-2">${spData.kpi.validos}</h3>
+                        <p class="text-desc text-[10px] uppercase mt-2 opacity-60 font-bold">Solicitudes Aprobadas</p>
+                    </div>
+                </div>
+            `;
+
+            // Chart
+            const ctx = document.getElementById('chartOficinas').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: spData.oficinas.map(o => o.Oficina.replace(/SECRETAR[ÍI]A/g, 'SEC.')),
+                    datasets: [{
+                        data: spData.oficinas.map(o => o.Total),
+                        backgroundColor: '#19567C', // Azul Institucional
+                        hoverBackgroundColor: '#4AB5E0', // Acento
+                        borderWidth: 0,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: {display: false},
+                        tooltip: {
+                            backgroundColor: '#19567C',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#FFFFFF',
+                            borderColor: '#E2F1F7',
+                            borderWidth: 1,
+                            callbacks: {label: c => ' ' + formatCurrency(c.raw)}
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            ticks: { callback: v => '$'+(v/1000000).toFixed(0)+'M', font: {size: 10} }, 
+                            grid: { color: 'rgba(25, 86, 124, 0.1)' } 
+                        },
+                        y: { 
+                            ticks: { font: {size: 10, family: "'Montserrat', sans-serif", weight: '700'} }, 
+                            grid: { display: false } 
+                        }
+                    }
+                }
+            });
+
+            // Tables (Sin clases inline, estilos nativos por CSS)
+            const tbMonto = document.getElementById('sp-tabla-monto');
+            spData.monto.forEach(i => {
+                tbMonto.innerHTML += `<tr>
+                    <td class="font-bold text-xs">${i.Detalle}</td>
+                    <td class="text-right font-mono-nums font-bold">${formatCurrency(i.Total)}</td>
+                </tr>`;
+            });
+            const tbCant = document.getElementById('sp-tabla-cant');
+            spData.cantidad.forEach(i => {
+                tbCant.innerHTML += `<tr>
+                    <td class="font-bold text-xs">${i.Detalle}</td>
+                    <td class="text-right font-mono-nums font-bold text-[var(--acento)]">${i.Cantidad_Registros}</td>
+                </tr>`;
+            });
+        }
+
+        // --- INIT OC VIEW ---
+        let ocChartsInitialized = false;
+
+        function initOC() {
+            // KPIs
+            document.getElementById('oc-monto-26').textContent = formatMillions(ocData.kpi[2026].total);
+            document.getElementById('oc-cant-26').textContent = ocData.kpi[2026].cant;
+            document.getElementById('oc-monto-25').textContent = formatBillions(ocData.kpi[2025].total);
+            document.getElementById('oc-cant-25').textContent = ocData.kpi[2025].cant;
+
+            // Render Tables
+            const tb26 = document.getElementById('oc-desc-26-body');
+            tb26.innerHTML = '';
+            ocData.details[2026].desc.forEach(d => {
+                tb26.innerHTML += `<tr>
+                    <td class="font-bold text-xs">${d.Descripcion}</td>
+                    <td class="text-right font-mono-nums font-bold">${formatCurrency(d.Total)}</td>
+                </tr>`;
+            });
+
+            const tb25 = document.getElementById('oc-desc-25-body');
+            tb25.innerHTML = '';
+            ocData.details[2025].desc.forEach(d => {
+                tb25.innerHTML += `<tr>
+                    <td class="font-bold text-xs">${d.Descripcion}</td>
+                    <td class="text-right font-mono-nums font-bold opacity-80">${formatBillions(d.Total)}</td>
+                </tr>`;
+            });
+
+            // Render Charts (Only once)
+            if (!ocChartsInitialized) {
+                // SGR UI Colors: 2026 uses Acento (#4AB5E0), 2025 uses Base Institucional (#19567C)
+                renderProvChart('chartProv26', ocData.details[2026].prov, '#4AB5E0');
+                renderProvChart('chartProv25', ocData.details[2025].prov, '#19567C');
+                ocChartsInitialized = true;
+            }
+        }
+
+        function renderProvChart(canvasId, data, color) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.Proveedor.substring(0, 15) + (d.Proveedor.length>15?'...':'')),
+                    datasets: [{
+                        data: data.map(d => d.Total),
+                        backgroundColor: color, 
+                        borderWidth: 0,
+                        borderRadius: 6,
+                        barThickness: 'flex',
+                        maxBarThickness: 30
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false }, 
+                        tooltip: {
+                            backgroundColor: '#19567C',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#FFFFFF',
+                            borderColor: '#E2F1F7',
+                            borderWidth: 1,
+                            callbacks: {label: c => ' ' + formatCurrency(c.raw)}
+                        } 
+                    },
+                    scales: {
+                        x: { 
+                            ticks: { callback: v => '$'+(v/1000000).toFixed(0)+'M', font: {size: 10} }, 
+                            grid: {color: 'rgba(25, 86, 124, 0.1)'} 
+                        },
+                        y: { 
+                            ticks: { font: {size: 10, family: "'Montserrat', sans-serif", weight: '700'} }, 
+                            grid: {display: false} 
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- SWITCHER ---
+        function switchView(view) {
+            const spView = document.getElementById('view-sp');
+            const ocView = document.getElementById('view-oc');
+            const btnSp = document.getElementById('btn-sp');
+            const btnOc = document.getElementById('btn-oc');
+
+            if (view === 'sp') {
+                spView.classList.remove('hidden');
+                ocView.classList.add('hidden');
+                btnSp.classList.add('active');
+                btnOc.classList.remove('active');
+            } else {
+                spView.classList.add('hidden');
+                ocView.classList.remove('hidden');
+                btnSp.classList.remove('active');
+                btnOc.classList.add('active');
+                // Trigger charts update if needed (canvas size fix)
+                window.dispatchEvent(new Event('resize'));
+            }
+        }
+
+        // --- STARTUP ---
+        initSP();
+        initOC();
+
+    </script>
+</body>
+</html>
