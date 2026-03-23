@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tablero de Control - Covelia Lomas</title>
+    <title>Tablero de Control Operativo - Covelia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -36,7 +34,7 @@
             padding: 1.5rem 0; 
         }
 
-        /* Estilo de Tarjetas */
+        /* Estilo de Tarjetas UX/UI */
         .card-informativa { 
             background-color: var(--blanco); 
             color: var(--azul-inst); 
@@ -57,69 +55,14 @@
             background-color: var(--glass-claro); 
             color: var(--azul-inst); 
             border-radius: var(--radius-sys); 
-            padding: 1.5rem; 
-        }
-
-        /* Modal del Mapa */
-        #map-modal { 
-            display: none; 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(0,0,0,0.85); 
-            z-index: 9999; 
             padding: 2rem; 
-            justify-content: center; 
-            align-items: center; 
         }
-        #map-container { 
-            width: 95%; 
-            height: 90%; 
-            background: white; 
-            border-radius: 12px; 
-            position: relative; 
-            overflow: hidden; 
-        }
-        #map { 
-            width: 100%; 
-            height: 100%; 
-            /* Filtro de escala de grises solicitado */
-            filter: grayscale(100%) brightness(0.9) contrast(1.2); 
-        }
-        
-        .close-map { 
-            position: absolute; 
-            top: 1rem; 
-            right: 1rem; 
-            z-index: 10001; 
-            background: var(--magenta); 
-            color: white; 
-            border: none; 
-            padding: 0.5rem 1.5rem; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        /* Botón Mapa */
-        .btn-view-map { 
-            background-color: var(--acento); 
-            color: white; 
-            padding: 0.75rem 1.5rem; 
-            border-radius: 10px; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            transition: 0.3s; 
-            cursor: pointer;
-            border: none;
-        }
-        .btn-view-map:hover { background-color: #3A95B8; transform: translateY(-2px); }
 
         /* Tablas */
         .table-container { background-color: var(--blanco); border-radius: var(--radius-sys); overflow: hidden; color: var(--azul-inst); }
         table { width: 100%; border-collapse: collapse; }
-        th { text-transform: uppercase; font-weight: 800; font-size: 0.7rem; padding: 1rem; text-align: left; border-bottom: 2px solid rgba(25, 86, 124, 0.1); }
-        td { padding: 1rem; font-size: 0.85rem; border-bottom: 1px solid rgba(25, 86, 124, 0.05); }
+        th { text-transform: uppercase; font-weight: 800; font-size: 0.75rem; padding: 1rem; text-align: left; border-bottom: 2px solid rgba(25, 86, 124, 0.15); }
+        td { padding: 1rem; font-size: 0.875rem; border-bottom: 1px solid rgba(25, 86, 124, 0.05); }
         
         .critical-text { color: var(--magenta) !important; font-weight: 700; }
         h1 { font-weight: 800; text-transform: uppercase; letter-spacing: -0.025em; }
@@ -131,16 +74,11 @@
         <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-3xl text-white">Tablero de Control</h1>
-                <p class="text-[10px] text-[#4AB5E0] font-bold uppercase tracking-[0.2em]">Logística y Recolección</p>
+                <p class="text-[10px] text-[#4AB5E0] font-bold uppercase tracking-[0.2em]">Logística y Recolección de Residuos</p>
             </div>
-            <div class="flex items-center gap-6">
-                <button class="btn-view-map" onclick="openMap()">
-                    <i class="fas fa-map-marked-alt mr-2"></i> Ver Mapa Operativo
-                </button>
-                <div class="text-right border-l border-white/20 pl-6">
-                    <p class="text-[10px] uppercase font-bold opacity-60 text-white">Última Actualización</p>
-                    <p class="text-xl font-bold text-white">26/01/2026</p>
-                </div>
+            <div class="text-right border-l border-white/20 pl-6 text-white">
+                <p class="text-[10px] uppercase font-bold opacity-60">Última Actualización</p>
+                <p class="text-xl font-bold">19/03/2026</p>
             </div>
         </div>
     </header>
@@ -150,37 +88,37 @@
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="card-informativa">
                 <p class="text-[10px] font-bold uppercase opacity-60">Total Rutas</p>
-                <h2 class="text-5xl font-extrabold">81</h2>
+                <h2 class="text-5xl font-extrabold">85</h2>
                 <i class="fas fa-truck kpi-icon-bg"></i>
             </div>
             <div class="card-informativa">
                 <p class="text-[10px] font-bold uppercase opacity-60">% Cumplimiento</p>
-                <h2 class="text-5xl font-extrabold">96.3%</h2>
+                <h2 class="text-5xl font-extrabold">90.6%</h2>
                 <i class="fas fa-check-circle kpi-icon-bg"></i>
             </div>
             <div class="card-informativa">
-                <p class="text-[10px] font-bold uppercase opacity-60">KMs Recorridos</p>
-                <h2 class="text-5xl font-extrabold">1.480,8</h2>
+                <p class="text-[10px] font-bold uppercase opacity-60">KMs Totales</p>
+                <h2 class="text-5xl font-extrabold">1.461,1</h2>
                 <i class="fas fa-tachometer-alt kpi-icon-bg"></i>
             </div>
             <div class="card-informativa" style="border-left-color: var(--magenta);">
                 <p class="text-[10px] font-bold uppercase opacity-60">Novedades (Check)</p>
-                <h2 class="text-5xl font-extrabold critical-text">3</h2>
+                <h2 class="text-5xl font-extrabold critical-text">8</h2>
                 <i class="fas fa-exclamation-triangle kpi-icon-bg" style="color: var(--magenta);"></i>
             </div>
         </section>
 
-        <section class="card-grafica shadow-inner">
-            <h3 class="text-sm font-bold uppercase mb-6 tracking-widest"><i class="fas fa-chart-line mr-2"></i> Evolución Operativa</h3>
-            <div class="h-72">
+        <section class="card-grafica shadow-2xl">
+            <h3 class="text-sm font-extrabold uppercase mb-8 tracking-widest text-[#19567C]"><i class="fas fa-chart-line mr-2"></i> Evolución de Cumplimiento Histórico</h3>
+            <div class="h-80">
                 <canvas id="chartEvolucion"></canvas>
             </div>
         </section>
 
         <section class="table-container shadow-2xl">
             <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
-                <h3 class="text-sm font-bold uppercase text-[#19567C]"><i class="fas fa-exclamation-circle mr-2"></i> Rutas con Novedades (Check Recorrido)</h3>
-                <span class="text-[10px] font-bold text-[#19567C]/60 uppercase">Jornada Actual</span>
+                <h3 class="text-sm font-bold uppercase text-[#19567C] tracking-widest"><i class="fas fa-exclamation-circle mr-2"></i> Detalle de Alertas Detectadas</h3>
+                <span class="text-[10px] font-bold text-gray-400 uppercase italic">Solo rutas con estado crítico</span>
             </div>
             <div class="overflow-x-auto">
                 <table>
@@ -190,7 +128,7 @@
                             <th>Ruta</th>
                             <th>CGM</th>
                             <th>Estado</th>
-                            <th>Calles Faltantes</th>
+                            <th>Calles Faltantes / Motivo</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-body">
@@ -200,92 +138,57 @@
         </section>
     </main>
 
-    <div id="map-modal">
-        <div id="map-container">
-            <button class="close-map" onclick="closeMap()">Cerrar Mapa</button>
-            <div id="map"></div>
-        </div>
-    </div>
-
     <script>
-        // DATOS PROCESADOS (Inyectados dinámicamente)
-        const statusMap = {
-            "16D": "CHECK RECORRIDO",
-            "34D": "CHECK RECORRIDO",
-            "35D": "CHECK RECORRIDO"
-        };
+        // Datos filtrados del archivo CSV (Jornada 26/01/2026)
+        const novedades = [{"f": "2026-03-19", "r": "16D", "c": "Santa Catalina", "e": "CHECK RECORRIDO", "d": "Thomas Edison de Pasaje 9 a Facundo Quiroga Martel de Diagonal 62 a Zanetti Miatello de Martel a Silvero Manco Pasaje del Pueblo de Diagonal 62 a Martel Chaco de Pasaje Del Pueblo a Rosas Rosas de Rosario a Forgione Tierra del Fuego de Diagonal 62 a  Miatello Silvero Manco de Martel a Diagonal 62 Pardo de Martel a Elizalde Zanetti de Martel a Elizalde"}, {"f": "2026-03-19", "r": "34D", "c": "Santa Catalina", "e": "CHECK RECORRIDO", "d": "20 de Junio de Goodwyn a General Costa Las Flores de Goodwyn a General Costa Leonardo Da Vinci de Monte Olivo a Chacho Peñaloza Marurana de Carlos Voss a Alberto Franco 28 De Julio de Geronimo Costa a Jose Tallon Thomas Edison de Alberto Franco a Carlos Voss"}, {"f": "2026-03-19", "r": "35D", "c": "Santa Catalina", "e": "CHECK RECORRIDO", "d": "Padre Mujica de Progreso a Juan Manuel de Rosas Agustin Magaldi de Saladillo a Avenida La Noria Raul LLobera de La Rioja a Avenida La Noria San Juan de Progreso a La Rioja Saladillo de La Torre a Raul LLobera Cordoba de Progreso a La Rioja Lorea de La Torre a 7 De Mayo San Martin de Los Pinos a Elizalde"}, {"f": "2026-03-19", "r": "54D", "c": "Banfield", "e": "CHECK RECORRIDO", "d": "Yapeyu de Pedernera a Fonrouge Buen Orden de Pedernera a Fonrouge Derqui de Lamadrid a Pintos 11 De Septiembre de Pintos a Lamadrid"}, {"f": "2026-03-19", "r": "55D", "c": "San Jose", "e": "CHECK RECORRIDO", "d": "Ezequiel Paz de Ituzaingó a Cerrito Carhue de Ituzaingó a Cerrito Charcas de Ituzaingó a Cerrito Oruro de Ituzaingó a Cerrito Boston de Ituzaingó a Cerrito Gandhi de Ituzaingó a Cerrito Luis Saenz Peña de Gandhi a Ezequiel Paz"}, {"f": "2026-03-19", "r": "60D", "c": "San Jose", "e": "CHECK RECORRIDO", "d": "La Tortaza de El Hornero a Juan De Garay El Benteveo de El Hornero a Juan De Garay"}, {"f": "2026-03-19", "r": "Carga Lateral Lomitas - Nocturno", "c": "", "e": "CHECK RECORRIDO", "d": "No Realizado"}, {"f": "2026-03-19", "r": "Refuerzo Anexo", "c": "", "e": "CHECK RECORRIDO", "d": "No Realizado"}];
 
-        const novedadesData = [
-            {fecha: "2026-01-26", ruta: "16D", cgm: "Santa Catalina", estado: "CHECK RECORRIDO", detalle: "Pasaje 15, Julio Centari, Tierra del Fuego, entre otros..."},
-            {fecha: "2026-01-26", ruta: "34D", cgm: "Santa Catalina", estado: "CHECK RECORRIDO", detalle: "Pasaje Sur, Dario Santillan, Lola Mora, Andrea Maya..."},
-            {fecha: "2026-01-26", ruta: "35D", cgm: "Santa Catalina", estado: "CHECK RECORRIDO", detalle: "Lorea, 7 de mayo, Pons, Sandoval, San Juan..."}
-        ];
-
-        // 1. Poblado de Tabla (Solo CHECK RECORRIDO)
+        // 1. Poblado de Tabla
         const tbody = document.getElementById('tabla-body');
-        novedadesData.forEach(item => {
+        novedades.forEach(n => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${item.fecha}</td>
-                <td class="font-extrabold">${item.ruta}</td>
-                <td>${item.cgm}</td>
-                <td class="critical-text">${item.estado}</td>
-                <td class="text-[11px] italic opacity-80">${item.detalle}</td>
+                <td>${n.f}</td>
+                <td class="font-extrabold">${n.r}</td>
+                <td>${n.c}</td>
+                <td class="critical-text">${n.e}</td>
+                <td class="text-[11px] italic opacity-80">${n.d}</td>
             `;
             tbody.appendChild(tr);
         });
 
-        // 2. Gráfico de Evolución
-        new Chart(document.getElementById('chartEvolucion'), {
+        // 2. Gráfico de Barras con Chart.js
+        const ctx = document.getElementById('chartEvolucion').getContext('2d');
+        new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ["12/01", "13/01", "14/01", "15/01", "16/01", "19/01", "20/01", "21/01", "22/01"],
+                labels: ["10/03", "11/03", "12/03", "13/03", "14/03", "16/03", "17/03", "18/03", "19/03"],
                 datasets: [
-                    { label: 'CUMPLIMENTADO', data: [76, 69, 76, 77, 77, 77, 77, 78, 78], backgroundColor: '#4AB5E0', borderRadius: 5 },
-                    { label: 'CHECK RECORRIDO', data: [5, 12, 5, 4, 4, 4, 4, 3, 3], backgroundColor: '#19567C', borderRadius: 5 }
+                    { 
+                        label: 'CUMPLIMENTADO', 
+                        data: [79, 78, 77, 77, 77, 79, 78, 78, 77], 
+                        backgroundColor: '#4AB5E0',
+                        borderRadius: 6 
+                    },
+                    { 
+                        label: 'CHECK RECORRIDO', 
+                        data: [6, 7, 8, 8, 8, 6, 7, 7, 8], 
+                        backgroundColor: '#19567C',
+                        borderRadius: 6 
+                    }
                 ]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { font: { family: 'Montserrat', weight: 'bold' }, color: '#19567C' } } }
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: 'Montserrat', weight: 'bold' }, color: '#19567C' } }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#19567C' } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#19567C' } }
+                }
             }
         });
-
-        // 3. Lógica del Mapa (Leaflet)
-        let mapInstance;
-        function openMap() {
-            document.getElementById('map-modal').style.display = 'flex';
-            if (!mapInstance) {
-                mapInstance = L.map('map').setView([-34.706, -58.391], 12);
-                
-                // Fondo en escala de grises (Tiles claros)
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; CartoDB'
-                }).addTo(mapInstance);
-
-                // Estilo Dinámico de Rutas
-                // Nota: Aquí se inyectaría el contenido de RutasCovelia.geojson en la variable geoJSONData
-                L.geoJSON(geoJSONData, { 
-                    style: function(f) {
-                        const status = statusMap[f.properties.RUTA] || 'CUMPLIMENTADO';
-                        const esCheck = status === 'CHECK RECORRIDO';
-                        return { 
-                            color: esCheck ? '#D34872' : '#4AB5E0', 
-                            weight: esCheck ? 5 : 2, 
-                            opacity: 0.9, 
-                            fillOpacity: esCheck ? 0.6 : 0.2 
-                        };
-                    },
-                    onEachFeature: (f, l) => {
-                        l.bindPopup(`<b>Ruta: ${f.properties.RUTA}</b><br>Estado: ${statusMap[f.properties.RUTA] || 'CUMPLIMENTADO'}`);
-                    }
-                }).addTo(mapInstance);
-            } else {
-                mapInstance.invalidateSize();
-            }
-        }
-
-        function closeMap() { document.getElementById('map-modal').style.display = 'none'; }
     </script>
 </body>
 </html>
