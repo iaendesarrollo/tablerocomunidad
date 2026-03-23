@@ -183,37 +183,37 @@
     <script>
         // MANTENIMIENTO DE ESTRUCTURA DE DATOS PARA ACTUALIZACIÓN PYTHON
         const camionesData = {
-    "Fecha": "2026-03-02",
+    "Fecha": "2026-03-20",
     "Operativos": 13,
     "No_Operativo": 7
 };
         const maquinariaData = {
-    "Fecha": "2026-03-02",
-    "Operativos": 2,
+    "Fecha": "2026-03-20",
+    "Operativos": 3,
     "No_Operativo": 5
 };
         
         const salidaDiariaRaw = {
     "resumen_maq": [
         {
-            "Fecha": "2026-03-02",
+            "Fecha": "2026-03-20",
             "Area": "SS PLANIFICACION HIDRICA",
-            "Operativos": 2,
+            "Operativos": 3,
             "No_Operativo": 5
         }
     ],
     "resumen_cam": [
         {
-            "Fecha": "2026-03-02",
+            "Fecha": "2026-03-20",
             "Area": "SS PLANIFICACION HIDRICA",
-            "Operativos": 5,
-            "No_Operativo": 4
+            "Operativos": 4,
+            "No_Operativo": 5
         },
         {
-            "Fecha": "2026-03-02",
+            "Fecha": "2026-03-20",
             "Area": "SS REDES Y SERV. CONCESIONADOS",
-            "Operativos": 8,
-            "No_Operativo": 3
+            "Operativos": 9,
+            "No_Operativo": 2
         }
     ]
 };
@@ -221,31 +221,31 @@
         const noOperativosRaw = {
     "no_operativos_ultimo_dia_maq": [
         {
-            "Fecha": "02/03/2026",
+            "Fecha": "20/03/2026",
             "Dominio": "BWI65",
             "Tipo": "MINI CARGADORA",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "02/03/2026",
+            "Fecha": "20/03/2026",
             "Dominio": "CJZ34",
             "Tipo": "RETROEXCAVADORA",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "02/03/2026",
+            "Fecha": "20/03/2026",
             "Dominio": "CXJ80",
             "Tipo": "MOTONIVELADORA",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "02/03/2026",
+            "Fecha": "20/03/2026",
             "Dominio": "CXJ99",
             "Tipo": "MOTONIVELADORA",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "02/03/2026",
+            "Fecha": "20/03/2026",
             "Dominio": "DHV52",
             "Tipo": "MOTONIVELADORA",
             "Detalle": "TALLER"
@@ -253,43 +253,43 @@
     ],
     "no_operativos_ultimo_dia": [
         {
-            "Fecha": "02/03/2026",
+            "Fecha": "20/03/2026",
             "Dominio": "AG979EU",
             "Tipo": "DESOBSTRUCTOR",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "02/03/2026",
+            "Fecha": "20/03/2026",
             "Dominio": "BTM638",
             "Tipo": "DESOBSTRUCTOR",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "02/03/2026",
+            "Fecha": "20/03/2026",
             "Dominio": "IWL376",
             "Tipo": "VOLCADOR",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "02/03/2026",
+            "Fecha": "20/03/2026",
             "Dominio": "KRV507",
             "Tipo": "DESOBSTRUCTOR",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "02/03/2026",
+            "Fecha": "20/03/2026",
+            "Dominio": "AG863SN",
+            "Tipo": "DESOBSTRUCTOR",
+            "Detalle": "TALLER"
+        },
+        {
+            "Fecha": "20/03/2026",
             "Dominio": "AF827ZU",
             "Tipo": "HIDRANTE",
-            "Detalle": "FALLA EN BOMBA Y PERDIDA EN TAJADURA DE TANQUE"
+            "Detalle": "ESPERANDO CAMBIO DE MANGUERA"
         },
         {
-            "Fecha": "02/03/2026",
-            "Dominio": "AG863SQ",
-            "Tipo": "ATMOSFERICO",
-            "Detalle": "A LA ESPERA DE NOVEDADES "
-        },
-        {
-            "Fecha": "02/03/2026",
+            "Fecha": "20/03/2026",
             "Dominio": "OBC435",
             "Tipo": "HIDROELEVADOR",
             "Detalle": "VA A TALLER"
@@ -300,71 +300,6 @@
         const historicoData = {
     "tabla_30d": [
         {
-            "Fecha": "2026-02-02",
-            "Operativos": 10,
-            "No_Operativo": 7
-        },
-        {
-            "Fecha": "2026-02-03",
-            "Operativos": 10,
-            "No_Operativo": 7
-        },
-        {
-            "Fecha": "2026-02-04",
-            "Operativos": 11,
-            "No_Operativo": 7
-        },
-        {
-            "Fecha": "2026-02-05",
-            "Operativos": 11,
-            "No_Operativo": 7
-        },
-        {
-            "Fecha": "2026-02-06",
-            "Operativos": 11,
-            "No_Operativo": 7
-        },
-        {
-            "Fecha": "2026-02-09",
-            "Operativos": 12,
-            "No_Operativo": 6
-        },
-        {
-            "Fecha": "2026-02-10",
-            "Operativos": 11,
-            "No_Operativo": 7
-        },
-        {
-            "Fecha": "2026-02-11",
-            "Operativos": 11,
-            "No_Operativo": 7
-        },
-        {
-            "Fecha": "2026-02-12",
-            "Operativos": 11,
-            "No_Operativo": 7
-        },
-        {
-            "Fecha": "2026-02-13",
-            "Operativos": 10,
-            "No_Operativo": 7
-        },
-        {
-            "Fecha": "2026-02-18",
-            "Operativos": 11,
-            "No_Operativo": 7
-        },
-        {
-            "Fecha": "2026-02-19",
-            "Operativos": 12,
-            "No_Operativo": 7
-        },
-        {
-            "Fecha": "2026-02-20",
-            "Operativos": 13,
-            "No_Operativo": 6
-        },
-        {
             "Fecha": "2026-02-23",
             "Operativos": 12,
             "No_Operativo": 7
@@ -391,77 +326,82 @@
         },
         {
             "Fecha": "2026-03-02",
+            "Operativos": 13,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-03-03",
+            "Operativos": 13,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-03-04",
+            "Operativos": 11,
+            "No_Operativo": 8
+        },
+        {
+            "Fecha": "2026-03-05",
+            "Operativos": 11,
+            "No_Operativo": 8
+        },
+        {
+            "Fecha": "2026-03-06",
+            "Operativos": 11,
+            "No_Operativo": 8
+        },
+        {
+            "Fecha": "2026-03-09",
+            "Operativos": 10,
+            "No_Operativo": 10
+        },
+        {
+            "Fecha": "2026-03-10",
+            "Operativos": 11,
+            "No_Operativo": 9
+        },
+        {
+            "Fecha": "2026-03-11",
+            "Operativos": 14,
+            "No_Operativo": 6
+        },
+        {
+            "Fecha": "2026-03-12",
+            "Operativos": 14,
+            "No_Operativo": 6
+        },
+        {
+            "Fecha": "2026-03-13",
+            "Operativos": 14,
+            "No_Operativo": 6
+        },
+        {
+            "Fecha": "2026-03-16",
+            "Operativos": 14,
+            "No_Operativo": 6
+        },
+        {
+            "Fecha": "2026-03-17",
+            "Operativos": 14,
+            "No_Operativo": 6
+        },
+        {
+            "Fecha": "2026-03-18",
+            "Operativos": 13,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-03-19",
+            "Operativos": 13,
+            "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-03-20",
             "Operativos": 13,
             "No_Operativo": 7
         }
     ],
     "tabla_30d_maq": [
         {
-            "Fecha": "2026-02-02",
-            "Operativos": 2,
-            "No_Operativo": 6
-        },
-        {
-            "Fecha": "2026-02-03",
-            "Operativos": 2,
-            "No_Operativo": 6
-        },
-        {
-            "Fecha": "2026-02-04",
-            "Operativos": 3,
-            "No_Operativo": 5
-        },
-        {
-            "Fecha": "2026-02-05",
-            "Operativos": 2,
-            "No_Operativo": 5
-        },
-        {
-            "Fecha": "2026-02-06",
-            "Operativos": 2,
-            "No_Operativo": 5
-        },
-        {
-            "Fecha": "2026-02-09",
-            "Operativos": 2,
-            "No_Operativo": 5
-        },
-        {
-            "Fecha": "2026-02-10",
-            "Operativos": 2,
-            "No_Operativo": 5
-        },
-        {
-            "Fecha": "2026-02-11",
-            "Operativos": 2,
-            "No_Operativo": 5
-        },
-        {
-            "Fecha": "2026-02-12",
-            "Operativos": 2,
-            "No_Operativo": 5
-        },
-        {
-            "Fecha": "2026-02-13",
-            "Operativos": 2,
-            "No_Operativo": 5
-        },
-        {
-            "Fecha": "2026-02-18",
-            "Operativos": 2,
-            "No_Operativo": 5
-        },
-        {
-            "Fecha": "2026-02-19",
-            "Operativos": 2,
-            "No_Operativo": 5
-        },
-        {
-            "Fecha": "2026-02-20",
-            "Operativos": 2,
-            "No_Operativo": 5
-        },
-        {
             "Fecha": "2026-02-23",
             "Operativos": 2,
             "No_Operativo": 5
@@ -489,6 +429,76 @@
         {
             "Fecha": "2026-03-02",
             "Operativos": 2,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-03",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-04",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-05",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-06",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-09",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-10",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-11",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-12",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-13",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-16",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-17",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-18",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-19",
+            "Operativos": 3,
+            "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-03-20",
+            "Operativos": 3,
             "No_Operativo": 5
         }
     ]
