@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero Salida Diaria - Estructura Base</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* HEADER SÓLIDO */
+        .solid-header {
+             background-color: var(--bg-main);
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Tarjetas Base del Nuevo Sistema */
+        .radius-sys {
+            border-radius: 12px;
+        }
+
+        .card-grafica {
+            background-color: var(--glass-claro);
+            color: var(--azul-inst);
+            border-radius: 12px;
+            box-shadow: none;
+            position: relative;
+        }
+
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            border-radius: 12px;
+            box-shadow: none;
+            position: relative;
+            overflow: hidden; /* Para contener el ícono de fondo */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kpi-main-border {
+            border-left: 8px solid var(--acento);
+        }
+
+        /* Ícono de fondo sutil monocromático para KPIs */
+        .bg-icon {
+            position: absolute;
+            bottom: -15px;
+            right: -15px;
+            width: 90px;
+            height: 90px;
+            color: var(--azul-inst);
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+        /* Títulos de Tarjetas Generales */
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--azul-inst);
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Contenedor y Estilos de Tablas */
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            width: 100%;
+        }
+        .table-container::-webkit-scrollbar { width: 6px; }
+        .table-container::-webkit-scrollbar-thumb { background: rgba(25, 86, 124, 0.2); border-radius: 10px; }
+        
+        table {
+            width: 100%;
+            text-align: left;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background-color: var(--blanco);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: 0.75rem 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--azul-inst);
+            border-bottom: 2px solid rgba(25, 86, 124, 0.2);
+        }
+        
+        td {
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            color: var(--azul-inst);
+            border-bottom: 1px solid rgba(25, 86, 124, 0.1);
+            font-weight: 400;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: rgba(25, 86, 124, 0.02); }
+
+        /* Status Colors override para fondo blanco */
+        .text-status-green { color: var(--acento); }
+        .text-status-red { color: var(--magenta); }
+        .text-status-fucsia { color: #8B5CF6; } /* Color neutro/violeta para taller en fondo claro */
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8 antialiased">
+
+    <header class="solid-header fixed top-0 left-0 w-full z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-6 w-full sm:w-auto justify-center sm:justify-start">
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-[800] uppercase leading-none tracking-tight text-white">
+                            Tablero Salida Diaria
+                        </h1>
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-white/80 mt-1">Unidad de Datos e Infraestructura</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 text-white/80">Última Actualización</p>
+                        <p class="text-xl font-bold text-white drop-shadow-sm" id="kpi-fecha">--/--/----</p>
+                    </div>
+                    <div class="h-10 w-1 bg-white/20 rounded-full hidden sm:block"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-28 sm:h-24"></div>
+
+    <div class="max-w-7xl mx-auto space-y-8 pb-12">
+
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="kpi-container">
+            </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <section class="lg:col-span-2 card-informativa p-6">
+                <h2 class="section-title">
+                    <span class="w-3 h-3 bg-[var(--acento)] rounded-sm"></span>
+                    Estado de Flota por CGM / Área
+                </h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Asignación</th>
+                                <th class="text-center">Totales</th>
+                                <th class="text-center">Trabajando</th>
+                                <th class="text-center">Sin Salida</th>
+                                <th class="text-center">En Taller</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-salida-body">
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="card-grafica p-6">
+                <h2 class="section-title mb-6">Tendencia (30 Días)</h2>
+                <div class="h-[350px]">
+                    <canvas id="grafica30dias"></canvas>
+                </div>
+            </section>
+        </div>
+
+        <section class="card-informativa p-6" style="border-left: 8px solid var(--magenta);">
+            <h2 class="section-title text-[var(--magenta)]" style="color: var(--magenta);">
+                <span class="w-3 h-3 bg-[var(--magenta)] rounded-sm"></span>
+                Motivos de Camiones Sin Salida - Info 12hs
+            </h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dominio</th>
+                            <th>CGM / Origen</th>
+                            <th>Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-sin-salida-detalle-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="mt-8 text-center text-white/50 text-xs">
+             <div class="flex justify-center items-center gap-4 mb-2">
+                <span class="h-px w-8 bg-white/20"></span>
+                <p class="uppercase tracking-widest font-bold">Municipio de Lomas de Zamora</p>
+                <span class="h-px w-8 bg-white/20"></span>
+            </div>
+            <p class="font-normal opacity-80">© 2026 · Unidad de Datos e Infraestructura</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // Datos integrados de hoy 23/01/2026
+        const kpiReporte = {"T": 107.0, "O": 0.0, "SS": 1.0, "TL": 28.0, "F": "25/03/2026"};
+
+        const cgmData = [{"a": "Banfield", "t": 6, "w": NaN, "s": NaN, "r": 1.0}, {"a": "Higiene Urbana", "t": 10, "w": NaN, "s": NaN, "r": 3.0}, {"a": "Ingeniero Budge", "t": 5, "w": NaN, "s": NaN, "r": 2.0}, {"a": "Llavallol", "t": 7, "w": NaN, "s": NaN, "r": 2.0}, {"a": "Lomas", "t": 7, "w": NaN, "s": NaN, "r": 1.0}, {"a": "Parque Baron", "t": 4, "w": NaN, "s": NaN, "r": 1.0}, {"a": "San jose", "t": 8, "w": NaN, "s": NaN, "r": 3.0}, {"a": "Santa Catalina", "t": 10, "w": NaN, "s": NaN, "r": 3.0}, {"a": "Santa Marta", "t": 3, "w": NaN, "s": NaN, "r": NaN}, {"a": "Secretaria Serv. Publicos", "t": 10, "w": NaN, "s": 1.0, "r": 1.0}, {"a": "Subse Servicios Urbanos", "t": 9, "w": NaN, "s": NaN, "r": 4.0}, {"a": "Temperley", "t": 7, "w": NaN, "s": NaN, "r": 1.0}, {"a": "Turdera", "t": 2, "w": NaN, "s": NaN, "r": 1.0}, {"a": "Villa Albertina", "t": 7, "w": NaN, "s": NaN, "r": 3.0}, {"a": "Villa Centenario", "t": 3, "w": NaN, "s": NaN, "r": NaN}, {"a": "Villa Fiorito", "t": 6, "w": NaN, "s": NaN, "r": 1.0}, {"a": "Villa Lamadrid", "t": 3, "w": NaN, "s": NaN, "r": 1.0}];
+
+        const historicoData = [{"f": "23/02", "t": 66.0, "ss": 21.0}, {"f": "24/02", "t": 64.0, "ss": 12.0}, {"f": "25/02", "t": 62.0, "ss": 15.0}, {"f": "26/02", "t": 66.0, "ss": 15.0}, {"f": "27/02", "t": 70.0, "ss": 14.0}, {"f": "03/03", "t": 69.0, "ss": 13.0}, {"f": "04/03", "t": 66.0, "ss": 14.0}, {"f": "05/03", "t": 72.0, "ss": 7.0}, {"f": "06/03", "t": 68.0, "ss": 15.0}, {"f": "09/03", "t": 74.0, "ss": 6.0}, {"f": "10/03", "t": 74.0, "ss": 6.0}, {"f": "11/03", "t": 70.0, "ss": 9.0}, {"f": "12/03", "t": 76.0, "ss": 3.0}, {"f": "13/03", "t": 76.0, "ss": 5.0}, {"f": "16/03", "t": 76.0, "ss": 4.0}, {"f": "17/03", "t": 78.0, "ss": 4.0}, {"f": "18/03", "t": 71.0, "ss": 6.0}, {"f": "19/03", "t": 71.0, "ss": 6.0}, {"f": "20/03", "t": 71.0, "ss": 3.0}, {"f": "25/03", "t": 0.0, "ss": 1.0}];
+
+        const alertas = [{"d": "NQD533", "c": "INGENIERO BUDGE", "o": "EN TALLER"}, {"d": "JNY172", "c": "LLAVALLOL", "o": "EN TALLER"}, {"d": "PKQ113", "c": "LLAVALLOL", "o": "EN TALLER"}, {"d": "AH168ZP", "c": "PARQUE BARÓN", "o": "EN TALLER"}, {"d": "AA992VW", "c": "SAN JOSÉ", "o": "EN TALLER"}, {"d": "AE815OY", "c": "SAN JOSÉ", "o": "EN TALLER"}, {"d": "AE815OT", "c": "SANTA CATALINA", "o": "EN TALLER"}, {"d": "AA992VT", "c": "VILLA ALBERTINA", "o": "EN TALLER"}, {"d": "AC330HL", "c": "VILLA ALBERTINA", "o": "EN TALLER"}, {"d": "IWL381", "c": "VILLA ALBERTINA", "o": "EN TALLER"}, {"d": "NQD538", "c": "VILLA ALBERTINA", "o": "EN TALLER"}, {"d": "OXI683", "c": "VILLA FIORITO", "o": "EN TALLER"}, {"d": "AH168ZS", "c": "PODA Y ARBOLADO", "o": "EN TALLER"}, {"d": "OBC431", "c": "PODA Y ARBOLADO", "o": "EN TALLER"}, {"d": "OBC432", "c": "PODA Y ARBOLADO", "o": "EN TALLER"}, {"d": "AB117GL", "c": "SECRETARÍA", "o": "EN TALLER"}, {"d": "AC887TB", "c": "SECRETARÍA", "o": "EN TALLER"}, {"d": "AE487RK", "c": "SECRETARÍA", "o": "EN TALLER"}, {"d": "AB773LF", "c": "SERVICIOS URBANOS", "o": "POSIBLE BAJA"}, {"d": "AC795RH", "c": "SERVICIOS URBANOS", "o": "EN TALLER"}, {"d": "PKT070", "c": "SERVICIOS URBANOS", "o": "EN TALLER"}, {"d": "AF451FZ", "c": "BANFIELD", "o": "Chofer ausente (sin aviso)"}, {"d": "NQU853", "c": "BANFIELD", "o": "Chofer ausente (Art. 88)"}, {"d": "AH168ZO", "c": "INGENIERO BUDGE", "o": "Chofer ausente (Art. 134,2)"}, {"d": "PAZ506", "c": "INGENIERO BUDGE", "o": "Sin salida por falta de cubierta"}, {"d": "AA992VX", "c": "LOMAS", "o": "Chofer ausente (Art. 88)"}, {"d": "AH105RK", "c": "LOMAS", "o": "Chofer ausente (con ART)"}, {"d": "AF380UH", "c": "PARQUE BARÓN", "o": "Chofer ausente (Art. 96)"}, {"d": "AC601IJ", "c": "SAN JOSÉ", "o": "Chofer ausente (Art. 88)"}, {"d": "AE815OZ", "c": "SANTA CATALINA", "o": "En taller por falta de cubiertas."}, {"d": "PKQ118", "c": "SANTA CATALINA", "o": "En taller por cubierta pinchada"}, {"d": "AF235ZK", "c": "SANTA MARTA", "o": "Chofer ausente (Art. 88)"}, {"d": "AF235ZL", "c": "TEMPERLEY", "o": "Chofer ausente (Art. 88)"}, {"d": "AF451FX", "c": "TEMPERLEY", "o": "Chofer ausente (Art. 88)"}, {"d": "AB133MW", "c": "VILLA CENTENARIO", "o": "Chofer ausente (Art. 88)"}, {"d": "AB157GE", "c": "VILLA CENTENARIO", "o": "Chofer ausente (Art. 88)"}, {"d": "OXI682", "c": "VILLA FIORITO", "o": "Chofer ausente (Art. 88)"}, {"d": "PKV659", "c": "VILLA FIORITO", "o": "Sin salida. Chofer debe renovar licencia"}, {"d": "OBC434", "c": "PODA Y ARBOLADO", "o": "Chofer ausente (Art. 88)"}, {"d": "AH169AW", "c": "SECRETARÍA", "o": "Realiza funciones turno noche"}, {"d": "AE815OS", "c": "SERVICIOS URBANOS", "o": "Chofer ausente (Art. 88)"}, {"d": "MAZ629", "c": "VILLA ALBERTINA", "o": "SIN SALIDA (CHOFER CON ART.88)"}, {"d": "NQD536", "c": "SAN JOSE", "o": "SIN SALIDA (CHOFER CON ART.88)"}, {"d": "AE815OX", "c": "SANTA CATALINA", "o": "SIN SALIDA (CHOFER CON ART.88)"}, {"d": "AF366PJ", "c": "SANTA CATALINA", "o": "SIN SALIDA (CHOFER CON ART.88)"}, {"d": "AE459LE", "c": "SECRETARIA", "o": "SIN SALIDA (CHOFER CON ART.88)"}];
+
+        window.onload = () => {
+            // Header Fecha
+            document.getElementById('kpi-fecha').innerText = kpiReporte.F;
+
+            // Render KPIs
+            const kpiContainer = document.getElementById('kpi-container');
+            const metrics = [
+                { l: 'Asignados', v: kpiReporte.T, c: 'text-[var(--azul-inst)]' },
+                { l: 'Trabajando', v: kpiReporte.O, c: 'text-status-green' },
+                { l: 'Sin Salida', v: kpiReporte.SS, c: 'text-status-red' },
+                { l: 'En Taller', v: kpiReporte.TL, c: 'text-status-fucsia' }
+            ];
+
+            metrics.forEach(m => {
+                kpiContainer.innerHTML += `
+                    <div class="card-informativa kpi-main-border p-6 justify-between">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="bg-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-[var(--azul-inst)] opacity-80">${m.l}</p>
+                        <p class="text-[2.5rem] leading-[1] font-bold mt-2 ${m.c}">${m.v}</p>
+                    </div>
+                `;
+            });
+
+            // Render Tabla CGM
+            const tableBody = document.getElementById('tabla-salida-body');
+            cgmData.forEach(row => {
+                tableBody.innerHTML += `
+                    <tr>
+                        <td class="font-bold text-[var(--azul-inst)]">${row.a}</td>
+                        <td class="text-center font-bold text-[var(--azul-inst)] opacity-60">${row.t}</td>
+                        <td class="text-center text-status-green font-bold">${row.w}</td>
+                        <td class="text-center text-status-red font-bold">${row.s}</td>
+                        <td class="text-center text-status-fucsia font-bold">${row.r}</td>
+                    </tr>
+                `;
+            });
+
+            // Render Detalle Sin Salida
+            const alertaBody = document.getElementById('tabla-sin-salida-detalle-body');
+            alertas.forEach(a => {
+                alertaBody.innerHTML += `
+                    <tr>
+                        <td class="font-bold text-[var(--azul-inst)]">${a.d}</td>
+                        <td class="text-xs uppercase font-bold opacity-70">${a.c}</td>
+                        <td class="text-xs text-status-red italic">${a.o}</td>
+                    </tr>
+                `;
+            });
+
+            // Settings globales para Chart.js
+            Chart.defaults.font.family = "'Montserrat', sans-serif";
+            Chart.defaults.color = '#19567C'; // var(--azul-inst)
+
+            // Render Gráfico
+            const ctx = document.getElementById('grafica30dias').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historicoData.map(h => h.f),
+                    datasets: [{
+                        label: 'Trabajando',
+                        data: historicoData.map(h => h.t),
+                        borderColor: '#4AB5E0', // var(--acento)
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(74, 181, 224, 0.15)'
+                    }, {
+                        label: 'Sin Salida',
+                        data: historicoData.map(h => h.ss),
+                        borderColor: '#D34872', // var(--magenta)
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#19567C', font: { family: 'Montserrat', size: 10, weight: 'bold' } } } },
+                    scales: {
+                        y: { grid: { color: 'rgba(25, 86, 124, 0.1)' }, ticks: { color: '#19567C' } },
+                        x: { grid: { display: false }, ticks: { color: '#19567C' } }
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+</html>
