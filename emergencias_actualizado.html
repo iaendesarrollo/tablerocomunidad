@@ -1,0 +1,2351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Operaciones Emergencias Lomas</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Font: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Paleta Monocromática Azul */
+            --azul-oscuro: #0F4C75;
+            --azul-petroleo: #1E6F99;
+            --azul-medio: #3282B8;
+            --celeste: #34BBEB;
+            --cyan-brillante: #00E7DF;
+            --blanco: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(90deg, var(--azul-oscuro) 0%, var(--azul-petroleo) 50%, var(--azul-medio) 100%);
+            background-attachment: fixed;
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+        }
+
+        /* HEADER SÓLIDO */
+        .solid-header {
+             background-color: var(--azul-oscuro);
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-logo {
+            height: 3.5rem;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        /* Tarjetas de KPI */
+        .kpi-card {
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .kpi-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            line-height: 1.1;
+        }
+        
+        .kpi-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.95;
+            margin-bottom: 0.25rem;
+        }
+        
+        .kpi-description {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Custom Scrollbar for Table */
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+        
+        /* Badges de Códigos Médicos */
+        .badge-codigo {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Encabezado SÓLIDO -->
+    <header class="solid-header fixed top-0 left-0 w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-6 w-full sm:w-auto justify-center sm:justify-start">
+                    <img src="https://lomasdezamora.gov.ar/logo.webp" alt="Logo Municipio Lomas de Zamora" class="header-logo">
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-extrabold uppercase leading-none tracking-tight text-white drop-shadow-md">
+                            Operaciones Emergencias Lomas
+                        </h1>
+                        <p class="text-xs sm:text-sm font-medium text-blue-200 opacity-90 tracking-wide mt-1" id="fecha-actualizacion">Actualización Diaria</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-28 sm:h-24"></div>
+
+    <!-- Contenedor principal -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pb-12">
+
+        <!-- SECCIÓN 1: KPIs DIARIOS -->
+        <div>
+            <h2 class="text-xl font-bold uppercase tracking-wide text-white/90 mb-6 border-l-4 border-cyan-400 pl-3">
+                Resumen Operativo del Día
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+                <!-- KPI: Total Llamados -->
+                <div class="glass kpi-card p-6 bg-blue-900/30 border-cyan-400/40">
+                    <div>
+                        <h3 class="kpi-label text-cyan-200">Total Llamados</h3>
+                        <p class="kpi-description text-white/70">Recepciones en central</p>
+                    </div>
+                    <p class="kpi-value text-white" id="kpi-llamados">...</p>
+                </div>
+
+                <!-- KPI: Servicios Operativos -->
+                <div class="glass kpi-card p-6">
+                    <div>
+                        <h3 class="kpi-label text-blue-200">Servicios Operativos</h3>
+                        <p class="kpi-description text-white/70">Despachos efectivos</p>
+                    </div>
+                    <p class="kpi-value text-white" id="kpi-operativos">...</p>
+                </div>
+
+                <!-- KPI: Intervenciones Vía Pública -->
+                <div class="glass kpi-card p-6">
+                    <div>
+                        <h3 class="kpi-label text-sky-200">En Vía Pública</h3>
+                        <p class="kpi-description text-white/70">Incidentes externos</p>
+                    </div>
+                    <p class="kpi-value text-white" id="kpi-viapublica">...</p>
+                </div>
+
+                <!-- KPI: T. Promedio Salida -->
+                <div class="glass kpi-card p-6">
+                    <div>
+                        <h3 class="kpi-label text-white/90">T. Promedio Salida</h3>
+                        <p class="kpi-description text-white/70">Desde despacho a móvil</p>
+                    </div>
+                    <p class="text-2xl font-bold text-white tracking-wider" id="kpi-tsalida">...</p>
+                </div>
+
+                <!-- KPI: T. Promedio Arribo -->
+                <div class="glass kpi-card p-6">
+                    <div>
+                        <h3 class="kpi-label text-white/90">T. Promedio Arribo</h3>
+                        <p class="kpi-description text-white/70">Llegada al incidente</p>
+                    </div>
+                    <p class="text-2xl font-bold text-white tracking-wider" id="kpi-tarribo">...</p>
+                </div>
+            </div>
+
+            <!-- KPIs Códigos de Emergencia -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="badge-codigo border-l-4 border-l-red-500">
+                    <div>
+                        <p class="text-xs uppercase tracking-widest text-white/70 font-semibold">Código Rojo</p>
+                        <p class="text-sm text-white/50">Emergencia Riesgo de Vida</p>
+                    </div>
+                    <span class="text-3xl font-extrabold text-red-400 drop-shadow-md" id="kpi-rojo">0</span>
+                </div>
+                <div class="badge-codigo border-l-4 border-l-yellow-400">
+                    <div>
+                        <p class="text-xs uppercase tracking-widest text-white/70 font-semibold">Código Amarillo</p>
+                        <p class="text-sm text-white/50">Urgencia Médica</p>
+                    </div>
+                    <span class="text-3xl font-extrabold text-yellow-400 drop-shadow-md" id="kpi-amarillo">0</span>
+                </div>
+                <div class="badge-codigo border-l-4 border-l-green-400">
+                    <div>
+                        <p class="text-xs uppercase tracking-widest text-white/70 font-semibold">Código Verde</p>
+                        <p class="text-sm text-white/50">Consulta Menor / Traslado</p>
+                    </div>
+                    <span class="text-3xl font-extrabold text-green-400 drop-shadow-md" id="kpi-verde">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: GRÁFICOS MENSUALES -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12">
+            
+            <!-- Evolución 30 días -->
+            <div class="glass p-6 md:p-8 lg:col-span-2">
+                <h2 class="text-xl font-bold uppercase tracking-wide text-white/90 mb-4 border-l-4 border-blue-400 pl-3">
+                    Evolución Mensual (Últimos 30 días)
+                </h2>
+                <div class="flex items-center gap-4 text-xs font-semibold mb-4">
+                    <span class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-cyan-400"></div> Total Llamados</span>
+                    <span class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-blue-300"></div> Servicios Operativos</span>
+                </div>
+                <div class="relative h-72 w-full">
+                    <canvas id="mensualChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Distribución de Servicios -->
+            <div class="glass p-6 md:p-8">
+                <h2 class="text-xl font-bold uppercase tracking-wide text-white/90 mb-4 border-l-4 border-sky-300 pl-3">
+                    Top Servicios Diarios
+                </h2>
+                <div class="relative h-64 w-full flex justify-center items-center">
+                    <canvas id="serviciosPieChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: TABLA REGISTRO HISTÓRICO -->
+        <section class="glass p-6 md:p-8 mt-12">
+            <h2 class="text-xl font-bold uppercase tracking-wide text-white/90 mb-6 border-l-4 border-cyan-300 pl-3">
+                Registro Histórico Detallado (30 Días)
+            </h2>
+            
+            <div class="overflow-x-auto custom-scrollbar rounded-lg border border-white/10 bg-black/10">
+                <table class="w-full text-sm text-left text-white/90">
+                    <thead class="text-xs text-blue-200 uppercase bg-blue-900/40 border-b border-white/10 whitespace-nowrap">
+                        <tr>
+                            <th scope="col" class="px-6 py-4">Fecha</th>
+                            <th scope="col" class="px-6 py-4 text-center">Llamados</th>
+                            <th scope="col" class="px-6 py-4 text-center">S. Operativos</th>
+                            <th scope="col" class="px-6 py-4 text-center">Vía Pública</th>
+                            <th scope="col" class="px-6 py-4 text-center text-sky-200">Prom. Salida</th>
+                            <th scope="col" class="px-6 py-4 text-center text-cyan-200">Prom. Arribo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historial-body">
+                        <!-- Las filas se inyectan mediante JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-blue-200/50 text-xs">
+             <div class="flex justify-center items-center gap-4 mb-2">
+                <span class="h-px w-8 bg-blue-200/20"></span>
+                <p class="uppercase tracking-widest">Municipio de Lomas de Zamora</p>
+                <span class="h-px w-8 bg-blue-200/20"></span>
+            </div>
+            <p>© 2026 · Unidad de Datos e Infraestructura</p>
+        </footer>
+
+    </div>
+
+    <!-- DATOS: ÚLTIMO DÍA (DIARIOS) -->
+    <script id="data-ultimo-dia" type="application/json">
+{
+    "resumen": [
+        {
+            "Fecha": 1774828800000,
+            "Total_Llamados": 95,
+            "Servicios_Operativos": 72,
+            "T_Promedio_Salida": "00:04:45",
+            "T_Promedio_Arribo": "00:08:47",
+            "Intervenciones_Via_Publica": 17
+        }
+    ],
+    "codigos": [
+        {
+            "Fecha": 1774828800000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 26
+        },
+        {
+            "Fecha": 1774828800000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 48
+        },
+        {
+            "Fecha": 1774828800000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 2
+        }
+    ],
+    "servicios": [
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 55
+        },
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 9
+        },
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Traslado",
+            "Tipo_Incidente": "Traslado",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Prevención",
+            "Tipo_Incidente": "Prevención",
+            "Cantidad": 1
+        }
+    ],
+    "traslados": [
+        {
+            "Fecha": 1774828800000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Neumonía",
+            "Destino_Derivacion": "Hospital Bicentenario",
+            "Cantidad": 1
+        }
+    ],
+    "moviles": [
+        {
+            "Fecha": 1774828800000,
+            "Identificacion_Movil": "PBA 1",
+            "Base_Detalle": "CANEDO 1",
+            "Cantidad_Asistencias": 14,
+            "Nivel_Actividad": "Mayor actividad"
+        },
+        {
+            "Fecha": 1774828800000,
+            "Identificacion_Movil": 10,
+            "Base_Detalle": "LLAVALLOL",
+            "Cantidad_Asistencias": 6,
+            "Nivel_Actividad": "Menor actividad"
+        }
+    ]
+}
+</script>
+
+    <!-- DATOS: ÚLTIMOS 30 DÍAS (MENSUAL) -->
+    <script id="data-ultimos-30-dias" type="application/json">
+{
+    "resumen": [
+        {
+            "Fecha": 1774828800000,
+            "Total_Llamados": 95,
+            "Servicios_Operativos": 72,
+            "T_Promedio_Salida": "00:04:45",
+            "T_Promedio_Arribo": "00:08:47",
+            "Intervenciones_Via_Publica": 17
+        },
+        {
+            "Fecha": 1774396800000,
+            "Total_Llamados": 100,
+            "Servicios_Operativos": 78,
+            "T_Promedio_Salida": "03:05:00",
+            "T_Promedio_Arribo": "09:53:00",
+            "Intervenciones_Via_Publica": 24
+        },
+        {
+            "Fecha": 1773878400000,
+            "Total_Llamados": 81,
+            "Servicios_Operativos": 52,
+            "T_Promedio_Salida": "00:03:29",
+            "T_Promedio_Arribo": "00:08:00",
+            "Intervenciones_Via_Publica": 23
+        },
+        {
+            "Fecha": 1773792000000,
+            "Total_Llamados": 84,
+            "Servicios_Operativos": 63,
+            "T_Promedio_Salida": "00:03:50",
+            "T_Promedio_Arribo": "00:07:18",
+            "Intervenciones_Via_Publica": 16
+        },
+        {
+            "Fecha": 1773619200000,
+            "Total_Llamados": 101,
+            "Servicios_Operativos": 87,
+            "T_Promedio_Salida": "01:48:00",
+            "T_Promedio_Arribo": "07:09:00",
+            "Intervenciones_Via_Publica": 36
+        },
+        {
+            "Fecha": 1773360000000,
+            "Total_Llamados": 206,
+            "Servicios_Operativos": 175,
+            "T_Promedio_Salida": "02:27:00",
+            "T_Promedio_Arribo": "08:08:00",
+            "Intervenciones_Via_Publica": 62
+        },
+        {
+            "Fecha": 1773273600000,
+            "Total_Llamados": 89,
+            "Servicios_Operativos": 72,
+            "T_Promedio_Salida": "00:04:33",
+            "T_Promedio_Arribo": "00:09:30",
+            "Intervenciones_Via_Publica": 26
+        },
+        {
+            "Fecha": 1773187200000,
+            "Total_Llamados": 101,
+            "Servicios_Operativos": 82,
+            "T_Promedio_Salida": "00:02:41",
+            "T_Promedio_Arribo": "00:07:55",
+            "Intervenciones_Via_Publica": 20
+        },
+        {
+            "Fecha": 1773100800000,
+            "Total_Llamados": 85,
+            "Servicios_Operativos": 68,
+            "T_Promedio_Salida": "00:03:05",
+            "T_Promedio_Arribo": "00:08:28",
+            "Intervenciones_Via_Publica": 16
+        },
+        {
+            "Fecha": 1773014400000,
+            "Total_Llamados": 60,
+            "Servicios_Operativos": 55,
+            "T_Promedio_Salida": "00:00:20",
+            "T_Promedio_Arribo": "00:07:39",
+            "Intervenciones_Via_Publica": 15
+        },
+        {
+            "Fecha": 1772755200000,
+            "Total_Llamados": 82,
+            "Servicios_Operativos": 68,
+            "T_Promedio_Salida": null,
+            "T_Promedio_Arribo": null,
+            "Intervenciones_Via_Publica": 50
+        },
+        {
+            "Fecha": 1772841600000,
+            "Total_Llamados": 56,
+            "Servicios_Operativos": 51,
+            "T_Promedio_Salida": null,
+            "T_Promedio_Arribo": null,
+            "Intervenciones_Via_Publica": 50
+        },
+        {
+            "Fecha": 1772928000000,
+            "Total_Llamados": 71,
+            "Servicios_Operativos": 63,
+            "T_Promedio_Salida": null,
+            "T_Promedio_Arribo": "00:06:34",
+            "Intervenciones_Via_Publica": 50
+        },
+        {
+            "Fecha": 1772668800000,
+            "Total_Llamados": 77,
+            "Servicios_Operativos": 63,
+            "T_Promedio_Salida": "03:09:00",
+            "T_Promedio_Arribo": "07:42:00",
+            "Intervenciones_Via_Publica": 25
+        },
+        {
+            "Fecha": 1772582400000,
+            "Total_Llamados": 74,
+            "Servicios_Operativos": 64,
+            "T_Promedio_Salida": "00:02:42",
+            "T_Promedio_Arribo": "00:08:02",
+            "Intervenciones_Via_Publica": 20
+        },
+        {
+            "Fecha": 1772496000000,
+            "Total_Llamados": 56,
+            "Servicios_Operativos": 52,
+            "T_Promedio_Salida": "00:03:23",
+            "T_Promedio_Arribo": "00:11:07",
+            "Intervenciones_Via_Publica": 7
+        },
+        {
+            "Fecha": 1772409600000,
+            "Total_Llamados": 57,
+            "Servicios_Operativos": 52,
+            "T_Promedio_Salida": "00:01:13",
+            "T_Promedio_Arribo": "00:07:05",
+            "Intervenciones_Via_Publica": 22
+        },
+        {
+            "Fecha": 1772323200000,
+            "Total_Llamados": 204,
+            "Servicios_Operativos": 179,
+            "T_Promedio_Salida": "00:01:26",
+            "T_Promedio_Arribo": "00:06:53",
+            "Intervenciones_Via_Publica": 73
+        }
+    ],
+    "codigos": [
+        {
+            "Fecha": 1774828800000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 26
+        },
+        {
+            "Fecha": 1774828800000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 48
+        },
+        {
+            "Fecha": 1774828800000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1774396800000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 31
+        },
+        {
+            "Fecha": 1774396800000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 48
+        },
+        {
+            "Fecha": 1774396800000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 21
+        },
+        {
+            "Fecha": 1773878400000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 19
+        },
+        {
+            "Fecha": 1773878400000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 45
+        },
+        {
+            "Fecha": 1773878400000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1773792000000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 26
+        },
+        {
+            "Fecha": 1773792000000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 40
+        },
+        {
+            "Fecha": 1773792000000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773619200000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 24
+        },
+        {
+            "Fecha": 1773619200000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 35
+        },
+        {
+            "Fecha": 1773619200000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1773360000000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 63
+        },
+        {
+            "Fecha": 1773360000000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 58
+        },
+        {
+            "Fecha": 1773360000000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 8
+        },
+        {
+            "Fecha": 1773273600000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 17
+        },
+        {
+            "Fecha": 1773273600000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 37
+        },
+        {
+            "Fecha": 1773273600000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1773187200000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 31
+        },
+        {
+            "Fecha": 1773187200000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 43
+        },
+        {
+            "Fecha": 1773187200000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1773100800000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 29
+        },
+        {
+            "Fecha": 1773100800000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 35
+        },
+        {
+            "Fecha": 1773014400000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 21
+        },
+        {
+            "Fecha": 1773014400000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 21
+        },
+        {
+            "Fecha": 1773014400000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772755200000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 82
+        },
+        {
+            "Fecha": 1772755200000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 72
+        },
+        {
+            "Fecha": 1772755200000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 22
+        },
+        {
+            "Fecha": 1772841600000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 82
+        },
+        {
+            "Fecha": 1772841600000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 72
+        },
+        {
+            "Fecha": 1772841600000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 22
+        },
+        {
+            "Fecha": 1772928000000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 82
+        },
+        {
+            "Fecha": 1772928000000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 72
+        },
+        {
+            "Fecha": 1772928000000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 22
+        },
+        {
+            "Fecha": 1772668800000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 20
+        },
+        {
+            "Fecha": 1772668800000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 28
+        },
+        {
+            "Fecha": 1772668800000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1772582400000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 20
+        },
+        {
+            "Fecha": 1772582400000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 27
+        },
+        {
+            "Fecha": 1772582400000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772496000000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 24
+        },
+        {
+            "Fecha": 1772496000000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 22
+        },
+        {
+            "Fecha": 1772496000000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772409600000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 16
+        },
+        {
+            "Fecha": 1772409600000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 13
+        },
+        {
+            "Fecha": 1772409600000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772323200000,
+            "Codigo_Emergencia": "Rojo",
+            "Cantidad": 69
+        },
+        {
+            "Fecha": 1772323200000,
+            "Codigo_Emergencia": "Amarillo",
+            "Cantidad": 33
+        },
+        {
+            "Fecha": 1772323200000,
+            "Codigo_Emergencia": "Verde",
+            "Cantidad": 11
+        }
+    ],
+    "servicios": [
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 55
+        },
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 9
+        },
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Traslado",
+            "Tipo_Incidente": "Traslado",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1774828800000,
+            "Categoria_Servicio": "Prevención",
+            "Tipo_Incidente": "Prevención",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1774396800000,
+            "Categoria_Servicio": "Salud",
+            "Tipo_Incidente": "Control Clínico",
+            "Cantidad": 57
+        },
+        {
+            "Fecha": 1774396800000,
+            "Categoria_Servicio": "Salud",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 9
+        },
+        {
+            "Fecha": 1774396800000,
+            "Categoria_Servicio": "Accidentes",
+            "Tipo_Incidente": "Accidente de Tránsito",
+            "Cantidad": 8
+        },
+        {
+            "Fecha": 1774396800000,
+            "Categoria_Servicio": "Social",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1774396800000,
+            "Categoria_Servicio": "Educación",
+            "Tipo_Incidente": "Cuidando Escuelas",
+            "Cantidad": 13
+        },
+        {
+            "Fecha": 1774396800000,
+            "Categoria_Servicio": "Seguridad",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1774396800000,
+            "Categoria_Servicio": "Violencia",
+            "Tipo_Incidente": "Herida de Arma Blanca",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1774396800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "UTIM",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773878400000,
+            "Categoria_Servicio": "Intervención",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 35
+        },
+        {
+            "Fecha": 1773878400000,
+            "Categoria_Servicio": "Intervención",
+            "Tipo_Incidente": "Cuidando Escuelas",
+            "Cantidad": 11
+        },
+        {
+            "Fecha": 1773878400000,
+            "Categoria_Servicio": "Intervención",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 8
+        },
+        {
+            "Fecha": 1773878400000,
+            "Categoria_Servicio": "Intervención",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 6
+        },
+        {
+            "Fecha": 1773878400000,
+            "Categoria_Servicio": "Intervención",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773878400000,
+            "Categoria_Servicio": "Intervención",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 0
+        },
+        {
+            "Fecha": 1773792000000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 41
+        },
+        {
+            "Fecha": 1773792000000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Cuidando Escuelas",
+            "Cantidad": 8
+        },
+        {
+            "Fecha": 1773792000000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 7
+        },
+        {
+            "Fecha": 1773792000000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 5
+        },
+        {
+            "Fecha": 1773792000000,
+            "Categoria_Servicio": "Prevención",
+            "Tipo_Incidente": "Prevención por Incendios",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1773792000000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Heridas de Arma de Fuego",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773792000000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773619200000,
+            "Categoria_Servicio": "Emergencia Médica",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 50
+        },
+        {
+            "Fecha": 1773619200000,
+            "Categoria_Servicio": "Servicio Comunitario",
+            "Tipo_Incidente": "Cuidando Escuelas",
+            "Cantidad": 12
+        },
+        {
+            "Fecha": 1773619200000,
+            "Categoria_Servicio": "Emergencia Vial",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 11
+        },
+        {
+            "Fecha": 1773619200000,
+            "Categoria_Servicio": "Emergencia Médica",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 8
+        },
+        {
+            "Fecha": 1773619200000,
+            "Categoria_Servicio": "Seguridad Pública",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1773619200000,
+            "Categoria_Servicio": "Emergencia Médica",
+            "Tipo_Incidente": "Heridas de Arma Blanca",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773360000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 94
+        },
+        {
+            "Fecha": 1773360000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 21
+        },
+        {
+            "Fecha": 1773360000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 21
+        },
+        {
+            "Fecha": 1773360000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Cuidando Escuelas",
+            "Cantidad": 11
+        },
+        {
+            "Fecha": 1773360000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1773360000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1773360000000,
+            "Categoria_Servicio": "Prevenciones",
+            "Tipo_Incidente": "General",
+            "Cantidad": 9
+        },
+        {
+            "Fecha": 1773273600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 38
+        },
+        {
+            "Fecha": 1773273600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Cuidando Escuelas",
+            "Cantidad": 13
+        },
+        {
+            "Fecha": 1773273600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 6
+        },
+        {
+            "Fecha": 1773273600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 5
+        },
+        {
+            "Fecha": 1773273600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773273600000,
+            "Categoria_Servicio": "Traslados",
+            "Tipo_Incidente": "Traslados",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1773273600000,
+            "Categoria_Servicio": "Prevenciones",
+            "Tipo_Incidente": "Prevenciones",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1773187200000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 50
+        },
+        {
+            "Fecha": 1773187200000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 7
+        },
+        {
+            "Fecha": 1773187200000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 5
+        },
+        {
+            "Fecha": 1773187200000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 4
+        },
+        {
+            "Fecha": 1773187200000,
+            "Categoria_Servicio": "Prevención",
+            "Tipo_Incidente": "Prevención",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1773100800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 40
+        },
+        {
+            "Fecha": 1773100800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Cuidando Escuelas",
+            "Cantidad": 10
+        },
+        {
+            "Fecha": 1773100800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 9
+        },
+        {
+            "Fecha": 1773100800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 6
+        },
+        {
+            "Fecha": 1773100800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Heridas de Arma de Fuego",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773100800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773100800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773100800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Prevención por Incendios",
+            "Cantidad": 0
+        },
+        {
+            "Fecha": 1773100800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Heridas de Arma Blanca",
+            "Cantidad": 0
+        },
+        {
+            "Fecha": 1773100800000,
+            "Categoria_Servicio": "Servicio Médico",
+            "Tipo_Incidente": "UTIM",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1773100800000,
+            "Categoria_Servicio": "Prevención",
+            "Tipo_Incidente": "General",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773014400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 34
+        },
+        {
+            "Fecha": 1773014400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 6
+        },
+        {
+            "Fecha": 1773014400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 5
+        },
+        {
+            "Fecha": 1773014400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Cuidando Escuelas",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1773014400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1773014400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Heridas de Arma Blanca",
+            "Cantidad": 0
+        },
+        {
+            "Fecha": 1773014400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Heridas de Arma de Fuego",
+            "Cantidad": 0
+        },
+        {
+            "Fecha": 1773014400000,
+            "Categoria_Servicio": "Asistencia Especial",
+            "Tipo_Incidente": "UTIM",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772755200000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 101
+        },
+        {
+            "Fecha": 1772755200000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 21
+        },
+        {
+            "Fecha": 1772755200000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 20
+        },
+        {
+            "Fecha": 1772755200000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772755200000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Heridas de Arma Blanca",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772755200000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772755200000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Otros",
+            "Cantidad": 13
+        },
+        {
+            "Fecha": 1772755200000,
+            "Categoria_Servicio": "Prevenciones",
+            "Tipo_Incidente": "Prevención por Incendios",
+            "Cantidad": 4
+        },
+        {
+            "Fecha": 1772755200000,
+            "Categoria_Servicio": "Prevenciones",
+            "Tipo_Incidente": "Otros",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1772841600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 101
+        },
+        {
+            "Fecha": 1772841600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 21
+        },
+        {
+            "Fecha": 1772841600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 20
+        },
+        {
+            "Fecha": 1772841600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772841600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Heridas de Arma Blanca",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772841600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772841600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Otros",
+            "Cantidad": 13
+        },
+        {
+            "Fecha": 1772841600000,
+            "Categoria_Servicio": "Prevenciones",
+            "Tipo_Incidente": "Prevención por Incendios",
+            "Cantidad": 4
+        },
+        {
+            "Fecha": 1772841600000,
+            "Categoria_Servicio": "Prevenciones",
+            "Tipo_Incidente": "Otros",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1772928000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 101
+        },
+        {
+            "Fecha": 1772928000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 21
+        },
+        {
+            "Fecha": 1772928000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 20
+        },
+        {
+            "Fecha": 1772928000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772928000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Heridas de Arma Blanca",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772928000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772928000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Otros",
+            "Cantidad": 13
+        },
+        {
+            "Fecha": 1772928000000,
+            "Categoria_Servicio": "Prevenciones",
+            "Tipo_Incidente": "Prevención por Incendios",
+            "Cantidad": 4
+        },
+        {
+            "Fecha": 1772928000000,
+            "Categoria_Servicio": "Prevenciones",
+            "Tipo_Incidente": "Otros",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1772668800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Control Clínico",
+            "Cantidad": 46
+        },
+        {
+            "Fecha": 1772668800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Cuidando Escuelas",
+            "Cantidad": 8
+        },
+        {
+            "Fecha": 1772668800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Accidente de Tránsito",
+            "Cantidad": 4
+        },
+        {
+            "Fecha": 1772668800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 4
+        },
+        {
+            "Fecha": 1772668800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772668800000,
+            "Categoria_Servicio": "Prevención",
+            "Tipo_Incidente": "Prevención por Incendios",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772668800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Herida de Arma Blanca",
+            "Cantidad": 0
+        },
+        {
+            "Fecha": 1772668800000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Herida de Arma de Fuego",
+            "Cantidad": 0
+        },
+        {
+            "Fecha": 1772668800000,
+            "Categoria_Servicio": "Traslado",
+            "Tipo_Incidente": "Traslado",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772582400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 38
+        },
+        {
+            "Fecha": 1772582400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 10
+        },
+        {
+            "Fecha": 1772582400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 10
+        },
+        {
+            "Fecha": 1772582400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Cuidando Escuelas",
+            "Cantidad": 9
+        },
+        {
+            "Fecha": 1772582400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Heridas de Arma de Fuego",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772582400000,
+            "Categoria_Servicio": "Prevención",
+            "Tipo_Incidente": "Prevención por Incendios",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772582400000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772582400000,
+            "Categoria_Servicio": "Traslado",
+            "Tipo_Incidente": "Traslado",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772496000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 36
+        },
+        {
+            "Fecha": 1772496000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 9
+        },
+        {
+            "Fecha": 1772496000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 5
+        },
+        {
+            "Fecha": 1772496000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772496000000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Cuidando Escuelas",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772496000000,
+            "Categoria_Servicio": "Prevención",
+            "Tipo_Incidente": "Prevención por Incendios",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772409600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 28
+        },
+        {
+            "Fecha": 1772409600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 7
+        },
+        {
+            "Fecha": 1772409600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 6
+        },
+        {
+            "Fecha": 1772409600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772409600000,
+            "Categoria_Servicio": "Emergencias",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772323200000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Controles Clínicos",
+            "Cantidad": 88
+        },
+        {
+            "Fecha": 1772323200000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Salud Mental",
+            "Cantidad": 21
+        },
+        {
+            "Fecha": 1772323200000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Accidentes de Tránsito",
+            "Cantidad": 29
+        },
+        {
+            "Fecha": 1772323200000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Víctima de Ilícito",
+            "Cantidad": 3
+        },
+        {
+            "Fecha": 1772323200000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Violencia de Género",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772323200000,
+            "Categoria_Servicio": "Emergencia",
+            "Tipo_Incidente": "Heridas de Arma Blanca",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772323200000,
+            "Categoria_Servicio": "Prevención",
+            "Tipo_Incidente": "Prevención",
+            "Cantidad": 9
+        }
+    ],
+    "traslados": [
+        {
+            "Fecha": 1774828800000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Neumonía",
+            "Destino_Derivacion": "Hospital Bicentenario",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1774396800000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": null,
+            "Destino_Derivacion": null,
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773792000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Sin diagnóstico",
+            "Destino_Derivacion": "Hospital Bicentenario",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773792000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Hernia Inguinal",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773792000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Sin diagnóstico",
+            "Destino_Derivacion": "Hospital Gandulfo",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773792000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Sin diagnóstico",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773792000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Politraumatismo",
+            "Destino_Derivacion": "Hospital Iriarte",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773619200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "No especificado",
+            "Destino_Derivacion": "Hospital Gandulfo",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773619200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Síndrome Bronco Obstructivo",
+            "Destino_Derivacion": "Hospital Evita Lanús",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773619200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Neumonía",
+            "Destino_Derivacion": "Hospital Evita Lanús",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773619200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Exacerbación Asmática",
+            "Destino_Derivacion": "Hospital Alende",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773360000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Abdomen Agudo",
+            "Destino_Derivacion": "Clínica Passo",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773360000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Politraumatismo y Apendicitis",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773360000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Guardia Psiquiatra",
+            "Destino_Derivacion": "Hospital Evita",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773360000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Ingesta Medicamentosa y FX Cubito",
+            "Destino_Derivacion": "Hospital Gandulfo",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773273600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Broncoespasmo",
+            "Destino_Derivacion": "Hospital Gandulfo",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773273600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Diverticulitis",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773273600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "IAM",
+            "Destino_Derivacion": "Hospital Bicentenario",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773273600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Abdomen Agudo",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773273600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "TAC",
+            "Destino_Derivacion": "HDI Banfield",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773187200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Politrauma",
+            "Destino_Derivacion": "Hospital Alende",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1773187200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Politrauma",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773187200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Apendicitis Aguda",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1773100800000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Sin detalle especificado",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773100800000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Debut Diabético",
+            "Destino_Derivacion": "UPA Quilmes",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1773014400000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Fractura De Húmero",
+            "Destino_Derivacion": "Hospital Gandulfo",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772755200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "TEC grave",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772755200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Broncoespasmo",
+            "Destino_Derivacion": "Hospital Evita Lanús",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772755200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Diverticulitis",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772755200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Traslado General",
+            "Destino_Derivacion": "Hospital Gandulfo",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772755200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "No especificado",
+            "Destino_Derivacion": "No especificado",
+            "Cantidad": 4
+        },
+        {
+            "Fecha": 1772841600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "TEC grave",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772841600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Broncoespasmo",
+            "Destino_Derivacion": "Hospital Evita Lanús",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772841600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Diverticulitis",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772841600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Traslado General",
+            "Destino_Derivacion": "Hospital Gandulfo",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772841600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "No especificado",
+            "Destino_Derivacion": "No especificado",
+            "Cantidad": 4
+        },
+        {
+            "Fecha": 1772928000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "TEC grave",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772928000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Broncoespasmo",
+            "Destino_Derivacion": "Hospital Evita Lanús",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772928000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Diverticulitis",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772928000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Traslado General",
+            "Destino_Derivacion": "Hospital Gandulfo",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772928000000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "No especificado",
+            "Destino_Derivacion": "No especificado",
+            "Cantidad": 4
+        },
+        {
+            "Fecha": 1772668800000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": null,
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772582400000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": null,
+            "Destino_Derivacion": null,
+            "Cantidad": 2
+        },
+        {
+            "Fecha": 1772409600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Scatest",
+            "Destino_Derivacion": "Hospital Llavallol",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772409600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Taquicardia",
+            "Destino_Derivacion": "Hospital Evita",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772409600000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "TAC Encéfalo",
+            "Destino_Derivacion": "Hospital Gandulfo",
+            "Cantidad": 1
+        },
+        {
+            "Fecha": 1772323200000,
+            "Tipo_Servicio": "Traslado",
+            "Diagnostico_Motivo": "Apendicitis Aguda, Anemia Severa, Intoxicación, Pancreatitis Aguda, Aneurisma Bilateral",
+            "Destino_Derivacion": "Llavallol, Gandulfo, Alende, Evita, HDIT, Clínica 2 de Abril",
+            "Cantidad": 8
+        }
+    ],
+    "moviles": [
+        {
+            "Fecha": 1774828800000,
+            "Identificacion_Movil": "PBA 1",
+            "Base_Detalle": "CANEDO 1",
+            "Cantidad_Asistencias": 14,
+            "Nivel_Actividad": "Mayor actividad"
+        },
+        {
+            "Fecha": 1774828800000,
+            "Identificacion_Movil": 10,
+            "Base_Detalle": "LLAVALLOL",
+            "Cantidad_Asistencias": 6,
+            "Nivel_Actividad": "Menor actividad"
+        },
+        {
+            "Fecha": 1774396800000,
+            "Identificacion_Movil": "Móvil 1",
+            "Base_Detalle": "POLICLÍNICO",
+            "Cantidad_Asistencias": 13,
+            "Nivel_Actividad": "Alto"
+        },
+        {
+            "Fecha": 1774396800000,
+            "Identificacion_Movil": "Móvil 19",
+            "Base_Detalle": "SAN JOSÉ 1",
+            "Cantidad_Asistencias": 6,
+            "Nivel_Actividad": "Bajo"
+        },
+        {
+            "Fecha": 1773878400000,
+            "Identificacion_Movil": "PBA 1 (CANEDO 1)",
+            "Base_Detalle": null,
+            "Cantidad_Asistencias": 9,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1773878400000,
+            "Identificacion_Movil": "PBA 2 (HDI BANFIELD)",
+            "Base_Detalle": null,
+            "Cantidad_Asistencias": 9,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1773878400000,
+            "Identificacion_Movil": "15 (CANEDO 2)",
+            "Base_Detalle": null,
+            "Cantidad_Asistencias": 5,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1773792000000,
+            "Identificacion_Movil": 15,
+            "Base_Detalle": "CANEDO 2",
+            "Cantidad_Asistencias": 11,
+            "Nivel_Actividad": "Mayor actividad"
+        },
+        {
+            "Fecha": 1773792000000,
+            "Identificacion_Movil": 19,
+            "Base_Detalle": "SAN JOSÉ 1",
+            "Cantidad_Asistencias": 3,
+            "Nivel_Actividad": "Menor actividad"
+        },
+        {
+            "Fecha": 1773619200000,
+            "Identificacion_Movil": 22,
+            "Base_Detalle": "ALENDE 1",
+            "Cantidad_Asistencias": 13,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1773619200000,
+            "Identificacion_Movil": "PBA 2",
+            "Base_Detalle": "HDI BANFIELD",
+            "Cantidad_Asistencias": 5,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1773360000000,
+            "Identificacion_Movil": 10,
+            "Base_Detalle": "LLAVALLOL",
+            "Cantidad_Asistencias": 26,
+            "Nivel_Actividad": "Líder"
+        },
+        {
+            "Fecha": 1773360000000,
+            "Identificacion_Movil": 22,
+            "Base_Detalle": "ALENDE 1",
+            "Cantidad_Asistencias": 9,
+            "Nivel_Actividad": "Destacado"
+        },
+        {
+            "Fecha": 1773360000000,
+            "Identificacion_Movil": 1,
+            "Base_Detalle": "POLICLÍNICO",
+            "Cantidad_Asistencias": 2,
+            "Nivel_Actividad": "Bajo"
+        },
+        {
+            "Fecha": 1773273600000,
+            "Identificacion_Movil": 1,
+            "Base_Detalle": "POLICLÍNICO",
+            "Cantidad_Asistencias": 13,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1773273600000,
+            "Identificacion_Movil": 24,
+            "Base_Detalle": "SAN JOSÉ 1",
+            "Cantidad_Asistencias": 6,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1773187200000,
+            "Identificacion_Movil": "PBA 1 (CANEDO 1)",
+            "Base_Detalle": "CANEDO",
+            "Cantidad_Asistencias": 11,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1773187200000,
+            "Identificacion_Movil": "1 (POLICLÍNICO)",
+            "Base_Detalle": "POLICLÍNICO",
+            "Cantidad_Asistencias": 7,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1773100800000,
+            "Identificacion_Movil": 1,
+            "Base_Detalle": "POLICLÍNICO",
+            "Cantidad_Asistencias": 10,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1773100800000,
+            "Identificacion_Movil": 8,
+            "Base_Detalle": "A.M DE JUSTO",
+            "Cantidad_Asistencias": 5,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1773014400000,
+            "Identificacion_Movil": 10,
+            "Base_Detalle": "LLAVALLOL",
+            "Cantidad_Asistencias": 11,
+            "Nivel_Actividad": "Mayor Actividad"
+        },
+        {
+            "Fecha": 1773014400000,
+            "Identificacion_Movil": 1,
+            "Base_Detalle": "POLICLÍNICO",
+            "Cantidad_Asistencias": 2,
+            "Nivel_Actividad": "Menor Actividad"
+        },
+        {
+            "Fecha": 1772928000000,
+            "Identificacion_Movil": "PBA 1 (CANEDO 1)",
+            "Base_Detalle": null,
+            "Cantidad_Asistencias": 15,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1772928000000,
+            "Identificacion_Movil": 24,
+            "Base_Detalle": "A.M DE JUSTO",
+            "Cantidad_Asistencias": 3,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1772668800000,
+            "Identificacion_Movil": 8,
+            "Base_Detalle": "CANEDO 2",
+            "Cantidad_Asistencias": 14,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1772668800000,
+            "Identificacion_Movil": 1,
+            "Base_Detalle": "POLICLÍNICO",
+            "Cantidad_Asistencias": 4,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1772582400000,
+            "Identificacion_Movil": 24,
+            "Base_Detalle": "SAN JOSÉ 1",
+            "Cantidad_Asistencias": 12,
+            "Nivel_Actividad": "Alto"
+        },
+        {
+            "Fecha": 1772582400000,
+            "Identificacion_Movil": 1,
+            "Base_Detalle": "POLICLÍNICO",
+            "Cantidad_Asistencias": 7,
+            "Nivel_Actividad": "Bajo"
+        },
+        {
+            "Fecha": 1772496000000,
+            "Identificacion_Movil": "ALENDE 1-23",
+            "Base_Detalle": null,
+            "Cantidad_Asistencias": 13,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1772496000000,
+            "Identificacion_Movil": "POLICLINICO-1",
+            "Base_Detalle": null,
+            "Cantidad_Asistencias": 6,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1772409600000,
+            "Identificacion_Movil": "CANEDO 2- MOVIL 8",
+            "Base_Detalle": "CANEDO 2",
+            "Cantidad_Asistencias": 11,
+            "Nivel_Actividad": "Alto"
+        },
+        {
+            "Fecha": 1772409600000,
+            "Identificacion_Movil": "POLICLINICO- MOVIL 1",
+            "Base_Detalle": "POLICLINICO",
+            "Cantidad_Asistencias": 3,
+            "Nivel_Actividad": "Bajo"
+        },
+        {
+            "Fecha": 1772236800000,
+            "Identificacion_Movil": "CANEDO 1",
+            "Base_Detalle": "PBA 1",
+            "Cantidad_Asistencias": 15,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1772323200000,
+            "Identificacion_Movil": "LLAVALLOL",
+            "Base_Detalle": 10,
+            "Cantidad_Asistencias": 11,
+            "Nivel_Actividad": null
+        },
+        {
+            "Fecha": 1772323200000,
+            "Identificacion_Movil": "CANEDO 1",
+            "Base_Detalle": "PBA 1",
+            "Cantidad_Asistencias": 33,
+            "Nivel_Actividad": null
+        }
+    ]
+}
+</script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- Configuración Global Chart.js ---
+            Chart.defaults.color = '#E2E8F0';
+            Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+            Chart.defaults.scale.grid.color = 'rgba(255, 255, 255, 0.05)';
+            Chart.defaults.font.family = 'Montserrat';
+
+            // --- Extraer Datos ---
+            const dataDia = JSON.parse(document.getElementById('data-ultimo-dia').textContent);
+            const dataMes = JSON.parse(document.getElementById('data-ultimos-30-dias').textContent);
+
+            // Funciones de formato
+            const formatFecha = (timestamp) => {
+                const date = new Date(timestamp);
+                return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            };
+            const formatFechaCorta = (timestamp) => {
+                const date = new Date(timestamp);
+                return date.toLocaleDateString('es-AR', { day: '2-digit', month: 'short' });
+            };
+
+            // --- 1. Llenar KPIs Diarios ---
+            if(dataDia.resumen && dataDia.resumen.length > 0) {
+                const resumenDiario = dataDia.resumen[0];
+                
+                // Set Header Date
+                document.getElementById('fecha-actualizacion').textContent = `Datos al ${formatFecha(resumenDiario.Fecha)}`;
+
+                document.getElementById('kpi-llamados').textContent = resumenDiario.Total_Llamados;
+                document.getElementById('kpi-operativos').textContent = resumenDiario.Servicios_Operativos;
+                document.getElementById('kpi-viapublica').textContent = resumenDiario.Intervenciones_Via_Publica;
+                document.getElementById('kpi-tsalida').textContent = resumenDiario.T_Promedio_Salida;
+                document.getElementById('kpi-tarribo').textContent = resumenDiario.T_Promedio_Arribo;
+            }
+
+            // KPIs Códigos
+            if(dataDia.codigos) {
+                dataDia.codigos.forEach(cod => {
+                    const c = cod.Codigo_Emergencia.toLowerCase();
+                    if(c === 'rojo') document.getElementById('kpi-rojo').textContent = cod.Cantidad;
+                    if(c === 'amarillo') document.getElementById('kpi-amarillo').textContent = cod.Cantidad;
+                    if(c === 'verde') document.getElementById('kpi-verde').textContent = cod.Cantidad;
+                });
+            }
+
+            // --- 2. Gráficos ---
+
+            // Gráfico 1: Evolución 30 Días (Line)
+            // Aseguramos que los datos estén ordenados por fecha ascendente para el gráfico de línea
+            const resumenMesSorted = [...dataMes.resumen].sort((a,b) => a.Fecha - b.Fecha);
+            
+            const labelsMes = resumenMesSorted.map(item => formatFechaCorta(item.Fecha));
+            const dataLlamados = resumenMesSorted.map(item => item.Total_Llamados);
+            const dataOperativos = resumenMesSorted.map(item => item.Servicios_Operativos);
+
+            const ctxMes = document.getElementById('mensualChart').getContext('2d');
+            new Chart(ctxMes, {
+                type: 'line',
+                data: {
+                    labels: labelsMes,
+                    datasets: [
+                        {
+                            label: 'Total Llamados',
+                            data: dataLlamados,
+                            borderColor: '#22D3EE', // Cyan 400
+                            backgroundColor: 'rgba(34, 211, 238, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#FFFFFF'
+                        },
+                        {
+                            label: 'Servicios Operativos',
+                            data: dataOperativos,
+                            borderColor: '#93C5FD', // Blue 300
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#FFFFFF'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { display: false } }, // Ocultamos leyenda porque ya hay una custom en HTML
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Gráfico 2: Distribución de Servicios del Día (Doughnut)
+            if (dataDia.servicios && dataDia.servicios.length > 0) {
+                // Ordenar por cantidad y tomar el top 4
+                const topServicios = [...dataDia.servicios].sort((a,b) => b.Cantidad - a.Cantidad).slice(0, 4);
+                
+                const labelsPie = topServicios.map(s => s.Tipo_Incidente);
+                const dataPie = topServicios.map(s => s.Cantidad);
+                
+                const ctxPie = document.getElementById('serviciosPieChart').getContext('2d');
+                new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labelsPie,
+                        datasets: [{
+                            data: dataPie,
+                            backgroundColor: [
+                                '#38BDF8', // Sky 400
+                                '#818CF8', // Indigo 400
+                                '#2DD4BF', // Teal 400
+                                '#94A3B8'  // Slate 400
+                            ],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '65%',
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: { color: 'rgba(255,255,255,0.8)', font: {size: 11}, boxWidth: 12 }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // --- 3. Llenar Tabla Histórica (Mensual) ---
+            const tbody = document.getElementById('historial-body');
+            
+            // Usamos los datos originales (asumiendo que vienen ordenados descendentemente del back)
+            // o los forzamos a descendente para que lo más reciente esté arriba
+            const tablaOrdenada = [...dataMes.resumen].sort((a,b) => b.Fecha - a.Fecha);
+
+            tablaOrdenada.forEach(registro => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-white/5 hover:bg-white/10 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-bold whitespace-nowrap text-white">${formatFecha(registro.Fecha)}</td>
+                    <td class="px-6 py-4 text-center font-medium">${registro.Total_Llamados}</td>
+                    <td class="px-6 py-4 text-center font-medium">${registro.Servicios_Operativos}</td>
+                    <td class="px-6 py-4 text-center font-medium">${registro.Intervenciones_Via_Publica}</td>
+                    <td class="px-6 py-4 text-center text-sky-200 font-mono text-xs">${registro.T_Promedio_Salida}</td>
+                    <td class="px-6 py-4 text-center text-cyan-200 font-mono text-xs">${registro.T_Promedio_Arribo}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+        });
+    </script>
+</body>
+</html>
