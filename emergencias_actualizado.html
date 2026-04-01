@@ -5,11 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro Operaciones Emergencias Lomas</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Font: Montserrat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -115,12 +112,10 @@
 </head>
 <body class="antialiased">
 
-    <!-- Encabezado SÓLIDO -->
     <header class="solid-header fixed top-0 left-0 w-full z-50 transition-all duration-300">
         <div class="container mx-auto px-4 py-3">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-6 w-full sm:w-auto justify-center sm:justify-start">
-                    <img src="https://lomasdezamora.gov.ar/logo.webp" alt="Logo Municipio Lomas de Zamora" class="header-logo">
                     <div>
                         <h1 class="text-xl sm:text-2xl font-extrabold uppercase leading-none tracking-tight text-white drop-shadow-md">
                             Operaciones Emergencias Lomas
@@ -134,17 +129,14 @@
 
     <div class="h-28 sm:h-24"></div>
 
-    <!-- Contenedor principal -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pb-12">
 
-        <!-- SECCIÓN 1: KPIs DIARIOS -->
         <div>
             <h2 class="text-xl font-bold uppercase tracking-wide text-white/90 mb-6 border-l-4 border-cyan-400 pl-3">
                 Resumen Operativo del Día
             </h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
-                <!-- KPI: Total Llamados -->
                 <div class="glass kpi-card p-6 bg-blue-900/30 border-cyan-400/40">
                     <div>
                         <h3 class="kpi-label text-cyan-200">Total Llamados</h3>
@@ -153,7 +145,6 @@
                     <p class="kpi-value text-white" id="kpi-llamados">...</p>
                 </div>
 
-                <!-- KPI: Servicios Operativos -->
                 <div class="glass kpi-card p-6">
                     <div>
                         <h3 class="kpi-label text-blue-200">Servicios Operativos</h3>
@@ -162,7 +153,6 @@
                     <p class="kpi-value text-white" id="kpi-operativos">...</p>
                 </div>
 
-                <!-- KPI: Intervenciones Vía Pública -->
                 <div class="glass kpi-card p-6">
                     <div>
                         <h3 class="kpi-label text-sky-200">En Vía Pública</h3>
@@ -171,7 +161,6 @@
                     <p class="kpi-value text-white" id="kpi-viapublica">...</p>
                 </div>
 
-                <!-- KPI: T. Promedio Salida -->
                 <div class="glass kpi-card p-6">
                     <div>
                         <h3 class="kpi-label text-white/90">T. Promedio Salida</h3>
@@ -180,7 +169,6 @@
                     <p class="text-2xl font-bold text-white tracking-wider" id="kpi-tsalida">...</p>
                 </div>
 
-                <!-- KPI: T. Promedio Arribo -->
                 <div class="glass kpi-card p-6">
                     <div>
                         <h3 class="kpi-label text-white/90">T. Promedio Arribo</h3>
@@ -190,7 +178,6 @@
                 </div>
             </div>
 
-            <!-- KPIs Códigos de Emergencia -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="badge-codigo border-l-4 border-l-red-500">
                     <div>
@@ -216,10 +203,8 @@
             </div>
         </div>
 
-        <!-- SECCIÓN 2: GRÁFICOS MENSUALES -->
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12">
             
-            <!-- Evolución 30 días -->
             <div class="glass p-6 md:p-8 lg:col-span-2">
                 <h2 class="text-xl font-bold uppercase tracking-wide text-white/90 mb-4 border-l-4 border-blue-400 pl-3">
                     Evolución Mensual (Últimos 30 días)
@@ -233,7 +218,6 @@
                 </div>
             </div>
 
-            <!-- Distribución de Servicios -->
             <div class="glass p-6 md:p-8">
                 <h2 class="text-xl font-bold uppercase tracking-wide text-white/90 mb-4 border-l-4 border-sky-300 pl-3">
                     Top Servicios Diarios
@@ -244,7 +228,6 @@
             </div>
         </section>
 
-        <!-- SECCIÓN 3: TABLA REGISTRO HISTÓRICO -->
         <section class="glass p-6 md:p-8 mt-12">
             <h2 class="text-xl font-bold uppercase tracking-wide text-white/90 mb-6 border-l-4 border-cyan-300 pl-3">
                 Registro Histórico Detallado (30 Días)
@@ -263,13 +246,11 @@
                         </tr>
                     </thead>
                     <tbody id="historial-body">
-                        <!-- Las filas se inyectan mediante JS -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Footer -->
         <footer class="mt-12 text-center text-blue-200/50 text-xs">
              <div class="flex justify-center items-center gap-4 mb-2">
                 <span class="h-px w-8 bg-blue-200/20"></span>
@@ -281,7 +262,6 @@
 
     </div>
 
-    <!-- DATOS: ÚLTIMO DÍA (DIARIOS) -->
     <script id="data-ultimo-dia" type="application/json">
 {
     "resumen": [
@@ -397,7 +377,6 @@
 }
 </script>
 
-    <!-- DATOS: ÚLTIMOS 30 DÍAS (MENSUAL) -->
     <script id="data-ultimos-30-dias" type="application/json">
 {
     "resumen": [
@@ -2321,7 +2300,7 @@
                 const resumenDiario = dataDia.resumen[0];
                 
                 // Set Header Date
-                document.getElementById('fecha-actualizacion').textContent = `Datos al ${formatFecha(resumenDiario.Fecha)}`;
+                document.getElementById('fecha-actualizacion').textContent = `Datos al ${formatFecha(Date.now())}`;
 
                 document.getElementById('kpi-llamados').textContent = resumenDiario.Total_Llamados;
                 document.getElementById('kpi-operativos').textContent = resumenDiario.Servicios_Operativos;
