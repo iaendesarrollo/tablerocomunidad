@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Mensual SGR - Jefatura de Gabinete</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* PALETA OBLIGATORIA SISTEMA FONDO OSCURO */
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            font-weight: 400; /* Texto cuerpo: Regular */
+        }
+
+        /* SISTEMA DE COMPONENTES */
+        .radius-sys {
+            border-radius: 12px !important;
+        }
+
+        /* TIPOGRAFÍA */
+        h1 {
+            font-weight: 800; /* ExtraBold */
+            text-transform: uppercase;
+        }
+        h2 {
+            font-weight: 700; /* Bold */
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .text-desc {
+            font-weight: 400; /* No usar negrita en descriptivos */
+        }
+        .text-num {
+            font-weight: 700; /* Resultados numéricos: Bold */
+        }
+
+        /* CARDS */
+        .card-grafica {
+            background-color: var(--glass-claro);
+            color: var(--azul-inst);
+            box-shadow: none; /* No usar sombras intensas */
+            border: none; /* No usar bordes gruesos externos */
+        }
+
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            box-shadow: none;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Borde lateral solo para KPIs de Resumen de Gestiones */
+        #kpi-container .card-informativa {
+            border-left: 8px solid var(--acento);
+        }
+
+        /* Ícono monocromático en transparencia (dentro de card informativa) */
+        .card-icon {
+            position: absolute;
+            right: -10%;
+            bottom: -20%;
+            height: 140%;
+            width: auto;
+            color: var(--azul-inst);
+            opacity: 0.05;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* BOTONES */
+        .btn-primario {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            transition: background-color 0.2s ease;
+        }
+        .btn-primario:hover {
+            background-color: var(--glass-claro); /* Variación tonal leve */
+        }
+
+        .btn-destacado {
+            background-color: var(--acento);
+            color: var(--blanco);
+            transition: background-color 0.2s ease;
+        }
+        .btn-destacado:hover {
+            background-color: #3A95B8; /* Variación tonal leve */
+        }
+
+        /* HEADER */
+        .solid-header {
+             background-color: var(--bg-main);
+             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* TABS LOGIC */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TABLAS (Dentro de cards informativas) */
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            border-bottom: 2px solid rgba(25, 86, 124, 0.2);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            color: var(--azul-inst);
+        }
+        td {
+            padding: 1rem;
+            font-size: 0.875rem;
+            border-bottom: 1px solid rgba(25, 86, 124, 0.1);
+            color: var(--azul-inst);
+        }
+        tr:last-child td { border-bottom: none; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--acento); border-radius: 4px; }
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8">
+
+    <header class="solid-header fixed top-0 left-0 w-full z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                
+                <div class="flex items-center gap-6 w-full sm:w-auto justify-center sm:justify-start">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--blanco)]">
+                            Informe Mensual SGR
+                        </h1>
+                        <p class="text-xs sm:text-sm font-bold tracking-widest uppercase mt-1 text-[var(--acento)]">
+                            JEFATURA DE GABINETE
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4 w-full sm:w-auto justify-center sm:justify-end">
+                    <div class="hidden md:block text-right">
+                        <p class="text-[var(--blanco)] opacity-70 text-[10px] font-bold uppercase tracking-widest">Generado el</p>
+                        <p id="fecha-generacion" class="text-[var(--blanco)] text-sm font-bold"></p>
+                    </div>
+                    <div class="h-10 w-px bg-[var(--blanco)] opacity-30 hidden sm:block"></div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <div class="h-32 sm:h-24"></div>
+
+    <div class="max-w-7xl mx-auto pb-12">
+
+        <div class="flex justify-end items-center mb-10">
+            <div class="flex items-center gap-3 bg-[var(--blanco)] radius-sys px-4 py-2">
+                <label for="cgmFilter" class="text-xs text-num uppercase tracking-wider text-[var(--azul-inst)] hidden sm:block">Filtro CGM:</label>
+                <select id="cgmFilter" class="bg-transparent text-[var(--azul-inst)] text-num text-sm focus:outline-none cursor-pointer">
+                    <option value="TODOS">Todas las Zonas</option>
+                    </select>
+            </div>
+        </div>
+
+        <section class="mb-14">
+            <h2 class="text-xl text-[var(--blanco)] mb-2">RESUMEN DE GESTIONES</h2>
+            <hr class="border-t border-[var(--blanco)] opacity-30 mb-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="kpi-container">
+                
+                <div class="card-informativa radius-sys p-6">
+                    <svg class="card-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
+                    <div class="relative z-10">
+                        <p class="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Gestiones Ingresadas</p>
+                        <h3 id="kpi-total" class="text-num text-4xl mt-2">0</h3>
+                        <p id="kpi-total-sub" class="text-desc text-[10px] uppercase mt-2 opacity-60">Todas las zonas</p>
+                    </div>
+                </div>
+                
+                <div class="card-informativa radius-sys p-6">
+                    <svg class="card-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                    <div class="relative z-10">
+                        <p class="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Gestiones Resueltas</p>
+                        <h3 id="kpi-solucionados" class="text-num text-4xl mt-2">0</h3>
+                        <p id="kpi-mes-resueltas" class="text-desc text-[10px] uppercase mt-2 opacity-60">Mes Actual</p>
+                    </div>
+                </div>
+
+                <div class="card-informativa radius-sys p-6">
+                    <svg class="card-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clip-rule="evenodd"></path></svg>
+                    <div class="relative z-10">
+                        <p class="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Nivel de Resolución</p>
+                        <h3 id="kpi-porcentaje" class="text-num text-4xl mt-2">0%</h3>
+                        <p id="kpi-estado-texto" class="text-num text-[10px] uppercase mt-2 text-[var(--acento)]">ÓPTIMO</p>
+                    </div>
+                </div>
+
+                <div class="card-informativa radius-sys p-6">
+                    <svg class="card-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path></svg>
+                    <div class="relative z-10">
+                        <p class="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Consultas Recibidas</p>
+                        <h3 class="text-num text-4xl mt-2">1.245</h3>
+                        <p id="kpi-mes-consultas" class="text-desc text-[10px] uppercase mt-2 opacity-60">Estimado Mes</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="flex flex-wrap gap-3 mb-12">
+            <button onclick="switchTab('tab-general')" id="btn-tab-general" class="btn-destacado radius-sys px-6 py-3 text-num text-sm uppercase tracking-wide">VISIÓN GENERAL</button>
+            <button onclick="switchTab('tab-tipos')" id="btn-tab-tipos" class="btn-primario radius-sys px-6 py-3 text-num text-sm uppercase tracking-wide">ANÁLISIS POR TIPO</button>
+            <button onclick="switchTab('tab-territorio')" id="btn-tab-territorio" class="btn-primario radius-sys px-6 py-3 text-num text-sm uppercase tracking-wide">ANÁLISIS TERRITORIAL</button>
+        </section>
+
+        <div id="tab-general" class="tab-content active">
+            <h2 class="text-xl text-[var(--blanco)] mb-2">DISTRIBUCIÓN Y EVOLUCIÓN</h2>
+            <hr class="border-t border-[var(--blanco)] opacity-30 mb-8">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <p class="text-[var(--blanco)] font-bold text-sm uppercase tracking-widest mb-3">Evolución Mensual (Mes ant. vs actual)</p>
+                    <div class="card-grafica radius-sys p-6 h-[320px]">
+                        <canvas id="chartEvolucion"></canvas>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-[var(--blanco)] font-bold text-sm uppercase tracking-widest mb-3">Boca de Origen (Agrupado)</p>
+                    <div class="card-grafica radius-sys p-6 h-[320px]">
+                        <canvas id="chartOrigen"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <p class="text-[var(--blanco)] font-bold text-sm uppercase tracking-widest mb-3">Estado General de las Gestiones</p>
+                <div class="card-grafica radius-sys p-6 h-[250px]">
+                    <canvas id="chartEstado"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-tipos" class="tab-content">
+            <h2 class="text-xl text-[var(--blanco)] mb-2">ANÁLISIS POR TIPO Y ÁREA</h2>
+            <hr class="border-t border-[var(--blanco)] opacity-30 mb-8">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <div class="lg:col-span-2">
+                    <p class="text-[var(--blanco)] font-bold text-sm uppercase tracking-widest mb-3">Áreas con mayor demanda</p>
+                    <div class="card-grafica radius-sys p-6 h-[400px]">
+                        <canvas id="chartTiposTop"></canvas>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <p class="text-[var(--blanco)] font-bold text-sm uppercase tracking-widest mb-3">Subtipos Frecuentes</p>
+                    <div class="card-informativa radius-sys p-0 overflow-hidden h-[400px] flex flex-col">
+                        <div class="overflow-y-auto flex-grow">
+                            <table>
+                                <tbody id="tbody-subtipos">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <p class="text-[var(--blanco)] font-bold text-sm uppercase tracking-widest mb-3">Resolución Inferior al 50%</p>
+                    <div class="card-informativa radius-sys p-0 overflow-hidden">
+                        <table>
+                            <thead><tr><th>Área / Tipo</th><th class="text-right">Ingresos</th><th class="text-right">% Res.</th></tr></thead>
+                            <tbody id="tbody-res-baja"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-[var(--blanco)] font-bold text-sm uppercase tracking-widest mb-3">Resolución Superior al 80%</p>
+                    <div class="card-informativa radius-sys p-0 overflow-hidden">
+                        <table>
+                            <thead><tr><th>Área / Tipo</th><th class="text-right">Ingresos</th><th class="text-right">% Res.</th></tr></thead>
+                            <tbody id="tbody-res-alta"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-territorio" class="tab-content">
+            <h2 class="text-xl text-[var(--blanco)] mb-2">DINÁMICA TERRITORIAL POR CGM</h2>
+            <hr class="border-t border-[var(--blanco)] opacity-30 mb-8">
+            
+            <div class="mb-8">
+                <p class="text-[var(--blanco)] font-bold text-sm uppercase tracking-widest mb-3">Ingresos y Resolución por CGM</p>
+                <div class="card-grafica radius-sys p-6 h-[400px]">
+                    <canvas id="chartZonificacion"></canvas>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-[var(--blanco)] font-bold text-sm uppercase tracking-widest mb-3">Demanda Destacada Territorial</p>
+                <div class="card-informativa radius-sys p-0 overflow-x-auto">
+                    <table class="whitespace-nowrap">
+                        <thead>
+                            <tr>
+                                <th>Zonificación (CGM)</th>
+                                <th>Subtipo Más Frecuente</th>
+                                <th>Principal Demanda Pendiente</th>
+                                <th class="text-right">Total CGM</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-territorio-subtipos">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-16 text-center text-[var(--blanco)] text-desc text-xs opacity-60">
+             <div class="flex justify-center items-center gap-4 mb-2">
+                <span class="h-px w-8 bg-[var(--blanco)] opacity-30"></span>
+                <p class="uppercase tracking-widest font-normal">Municipio de Lomas de Zamora</p>
+                <span class="h-px w-8 bg-[var(--blanco)] opacity-30"></span>
+            </div>
+            <p>© 2026 · Unidad de Datos e Infraestructura</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // --- DATA SGR ---
+        const sgrData = {
+    "totales": {
+        "March 2026": 25180
+    },
+    "origen": {
+        "0800": 2728,
+        "atencion_vecinal_azara": 196,
+        "centro_de_atencion_vecinal": 2699,
+        "mail": 73,
+        "operativos": 26,
+        "redes": 151,
+        "relevamiento": 6938,
+        "seleccione": 3,
+        "sitio_web": 1223,
+        "unidad_gabinete": 9,
+        "unidad_intendente": 529,
+        "whatsapp": 6913,
+        "whatsapp_cgm": 3691
+    },
+    "estado": {
+        "Desconocido": 1,
+        "Duplicado": 287,
+        "En Abordaje": 1609,
+        "Error en datos": 176,
+        "Error en derivación": 126,
+        "Fuera de alcance municipal": 177,
+        "Nuevo": 1630,
+        "Pendiente de resolución": 35,
+        "Reiterado": 384,
+        "Solucionado": 20429,
+        "Tratado sin resolver": 326
+    },
+    "zonificacion_total": {
+        "ALBERTINA": 1081,
+        "BANFIELD": 3514,
+        "BUDGE": 970,
+        "CENTENARIO": 1375,
+        "FIORITO": 973,
+        "LAMADRID": 618,
+        "LLAVALLOL": 1789,
+        "LOMAS": 3740,
+        "PARQUE BARON": 1480,
+        "SAN JOSE": 1806,
+        "SANTA CATALINA": 3261,
+        "SANTA MARTA": 1102,
+        "TEMPERLEY": 2602,
+        "TURDERA": 868,
+        "ZONA NO RECONOCIDA": 1
+    },
+    "zonificacion_solucionado": {
+        "ALBERTINA": 717,
+        "BANFIELD": 3018,
+        "BUDGE": 732,
+        "CENTENARIO": 1047,
+        "FIORITO": 696,
+        "LAMADRID": 392,
+        "LLAVALLOL": 1365,
+        "LOMAS": 3059,
+        "PARQUE BARON": 1216,
+        "SAN JOSE": 1443,
+        "SANTA CATALINA": 3040,
+        "SANTA MARTA": 766,
+        "TEMPERLEY": 2153,
+        "TURDERA": 785
+    },
+    "tipos_data": [
+        {
+            "tipo": "Administrativa, Legal y Técnica",
+            "sol": 0,
+            "tot": 2
+        },
+        {
+            "tipo": "Alumbrado Público",
+            "sol": 3171,
+            "tot": 3337
+        },
+        {
+            "tipo": "Ambiente",
+            "sol": 63,
+            "tot": 199
+        },
+        {
+            "tipo": "Arbolado",
+            "sol": 513,
+            "tot": 886
+        },
+        {
+            "tipo": "Asuntos Hidricos",
+            "sol": 295,
+            "tot": 810
+        },
+        {
+            "tipo": "Automotores",
+            "sol": 136,
+            "tot": 156
+        },
+        {
+            "tipo": "Cementerio",
+            "sol": 39,
+            "tot": 40
+        },
+        {
+            "tipo": "Cultura",
+            "sol": 105,
+            "tot": 108
+        },
+        {
+            "tipo": "Defensa Civil",
+            "sol": 1006,
+            "tot": 1107
+        },
+        {
+            "tipo": "Deportes",
+            "sol": 0,
+            "tot": 109
+        },
+        {
+            "tipo": "Desarrollo Social",
+            "sol": 218,
+            "tot": 455
+        },
+        {
+            "tipo": "Educacion",
+            "sol": 115,
+            "tot": 165
+        },
+        {
+            "tipo": "Empresa de Servicios Públicos",
+            "sol": 109,
+            "tot": 316
+        },
+        {
+            "tipo": "General",
+            "sol": 161,
+            "tot": 301
+        },
+        {
+            "tipo": "Habilitaciones",
+            "sol": 62,
+            "tot": 99
+        },
+        {
+            "tipo": "Hacienda",
+            "sol": 192,
+            "tot": 200
+        },
+        {
+            "tipo": "Hábitat e Integración Comunitaria",
+            "sol": 42,
+            "tot": 62
+        },
+        {
+            "tipo": "IMDIPAM",
+            "sol": 161,
+            "tot": 169
+        },
+        {
+            "tipo": "IMPTCE",
+            "sol": 0,
+            "tot": 64
+        },
+        {
+            "tipo": "Inspecciones",
+            "sol": 250,
+            "tot": 301
+        },
+        {
+            "tipo": "Licencias de Conducir",
+            "sol": 5,
+            "tot": 11
+        },
+        {
+            "tipo": "Mantenimiento y Obras Públicas",
+            "sol": 4,
+            "tot": 311
+        },
+        {
+            "tipo": "Mujeres, Género y Diversidad",
+            "sol": 9,
+            "tot": 16
+        },
+        {
+            "tipo": "Obras Particulares",
+            "sol": 66,
+            "tot": 156
+        },
+        {
+            "tipo": "Privada",
+            "sol": 0,
+            "tot": 2
+        },
+        {
+            "tipo": "Relaciones con la Comunidad",
+            "sol": 61,
+            "tot": 306
+        },
+        {
+            "tipo": "Salud",
+            "sol": 1157,
+            "tot": 2070
+        },
+        {
+            "tipo": "Seguridad",
+            "sol": 178,
+            "tot": 202
+        },
+        {
+            "tipo": "Seguridad Vial",
+            "sol": 7,
+            "tot": 301
+        },
+        {
+            "tipo": "Servicios Públicos",
+            "sol": 11475,
+            "tot": 11934
+        },
+        {
+            "tipo": "Transporte",
+            "sol": 19,
+            "tot": 65
+        },
+        {
+            "tipo": "Tribunal de Faltas",
+            "sol": 691,
+            "tot": 756
+        },
+        {
+            "tipo": "Tránsito",
+            "sol": 119,
+            "tot": 163
+        }
+    ],
+    "subtipos_top": [
+        {
+            "subtipo": "Retiro de montículos de basura o tierra",
+            "tipo": "Servicios Públicos",
+            "cant": 3582
+        },
+        {
+            "subtipo": "Retiro de ramas y troncos de poda domiciliaria",
+            "tipo": "Servicios Públicos",
+            "cant": 3260
+        },
+        {
+            "subtipo": "Luminaria LED no enciende",
+            "tipo": "Alumbrado Público",
+            "cant": 2789
+        },
+        {
+            "subtipo": "Turnos",
+            "tipo": "Salud",
+            "cant": 1578
+        },
+        {
+            "subtipo": "Retiro de ramas y troncos de poda en vía pública",
+            "tipo": "Servicios Públicos",
+            "cant": 1374
+        },
+        {
+            "subtipo": "Retiro de escombros 1m3",
+            "tipo": "Servicios Públicos",
+            "cant": 1257
+        },
+        {
+            "subtipo": "Falta de recolección de residuos domiciliarios",
+            "tipo": "Servicios Públicos",
+            "cant": 925
+        },
+        {
+            "subtipo": "Falta de barrido y limpieza de calles",
+            "tipo": "Servicios Públicos",
+            "cant": 748
+        },
+        {
+            "subtipo": "Asesoramiento multas",
+            "tipo": "Tribunal de Faltas",
+            "cant": 646
+        },
+        {
+            "subtipo": "Limpieza de basural crónico",
+            "tipo": "Servicios Públicos",
+            "cant": 560
+        }
+    ],
+    "territorio_dinamica": [
+        {
+            "cgm": "LOMAS",
+            "frec": "Luminaria LED no enciende",
+            "pend": "Despeje lumínico"
+        },
+        {
+            "cgm": "BANFIELD",
+            "frec": "Retiro de ramas / Poda",
+            "pend": "Arreglo de veredas / raíces"
+        },
+        {
+            "cgm": "SANTA CATALINA",
+            "frec": "Limpieza basural crónico",
+            "pend": "Mantenimiento calles de tierra"
+        },
+        {
+            "cgm": "TEMPERLEY",
+            "frec": "Luminaria LED no enciende",
+            "pend": "Bacheo menor"
+        },
+        {
+            "cgm": "LLAVALLOL",
+            "frec": "Sumidero tapado",
+            "pend": "Poda de despeje"
+        }
+    ]
+};
+
+        // --- COLORES CSS VARIABLES ---
+        const sysColors = {
+            azulInst: '#19567C',
+            acento: '#4AB5E0',
+            magenta: '#D34872'
+        };
+
+        // --- INICIALIZACIÓN ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initDate();
+            initFilter();
+            updateKPIs("TODOS");
+            renderCharts();
+            renderTables();
+        });
+
+        function initDate() {
+            const dateEl = document.getElementById('fecha-generacion');
+            if(dateEl) {
+                const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                // Formateamos la fecha a formato local
+                dateEl.textContent = new Date().toLocaleDateString('es-AR', options).toUpperCase();
+            }
+        }
+
+        // --- GESTIÓN DE BLOQUES (TABS) ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.btn-destacado').forEach(el => {
+                el.classList.remove('btn-destacado');
+                el.classList.add('btn-primario');
+            });
+            
+            const selectedTab = document.getElementById(tabId);
+            const selectedBtn = document.getElementById('btn-' + tabId);
+            
+            selectedTab.classList.add('active');
+            selectedBtn.classList.remove('btn-primario');
+            selectedBtn.classList.add('btn-destacado');
+        }
+
+        // --- LÓGICA DE KPIs Y FILTROS ---
+        function initFilter() {
+            const select = document.getElementById('cgmFilter');
+            Object.keys(sgrData.zonificacion_total).sort().forEach(cgm => {
+                const opt = document.createElement('option');
+                opt.value = cgm;
+                opt.textContent = cgm;
+                select.appendChild(opt);
+            });
+            select.addEventListener('change', (e) => updateKPIs(e.target.value));
+        }
+
+        function updateKPIs(cgm) {
+            const elTotal = document.getElementById('kpi-total');
+            const elTotalSub = document.getElementById('kpi-total-sub');
+            const elSol = document.getElementById('kpi-solucionados');
+            const elPorc = document.getElementById('kpi-porcentaje');
+            const elEstado = document.getElementById('kpi-estado-texto');
+            
+            // Textos de meses que antes estaban en duro
+            const elMesResueltas = document.getElementById('kpi-mes-resueltas');
+            const elMesConsultas = document.getElementById('kpi-mes-consultas');
+
+            let tot = 0, sol = 0;
+            
+            // Obtenemos el último mes del JSON de forma dinámica
+            const mesesDisponibles = Object.keys(sgrData.totales);
+            const mesActual = mesesDisponibles[mesesDisponibles.length - 1];
+
+            if (cgm === "TODOS") {
+                tot = sgrData.totales[mesActual] || 0;
+                sol = sgrData.estado["Solucionado"] || 0;
+                elTotalSub.textContent = "Todas las zonas";
+                
+                // Actualiza los subtítulos de los KPI con el nombre del mes
+                if(elMesResueltas) elMesResueltas.textContent = mesActual;
+                if(elMesConsultas) elMesConsultas.textContent = "Estimado " + mesActual;
+                
+            } else {
+                tot = sgrData.zonificacion_total[cgm] || 0;
+                sol = sgrData.zonificacion_solucionado[cgm] || 0;
+                elTotalSub.textContent = `Zona: ${cgm}`;
+            }
+
+            const pct = tot > 0 ? ((sol / tot) * 100).toFixed(1) : 0;
+
+            elTotal.textContent = new Intl.NumberFormat('es-AR').format(tot);
+            elSol.textContent = new Intl.NumberFormat('es-AR').format(sol);
+            elPorc.textContent = `${pct}%`;
+
+            // Lógica estricta de color
+            if (pct < 50) {
+                elEstado.textContent = "CRÍTICO";
+                elEstado.style.color = sysColors.magenta;
+            } else {
+                elEstado.textContent = "ÓPTIMO";
+                elEstado.style.color = sysColors.acento;
+            }
+        }
+
+        // --- RENDERIZADO DE GRÁFICOS (Chart.js) ---
+        Chart.defaults.color = sysColors.azulInst; // Texto azul institucional en cards glass
+        Chart.defaults.font.family = "'Montserrat', sans-serif";
+        Chart.defaults.font.weight = "400"; // Texto descriptivo regular
+
+        function renderCharts() {
+            // Options comunes (Ocultar gridlines fuertes)
+            const commonScales = {
+                x: { grid: { color: 'rgba(25, 86, 124, 0.1)' } },
+                y: { grid: { color: 'rgba(25, 86, 124, 0.1)' } }
+            };
+
+            // 1. Evolución Dinámica
+            const mesesDisponibles = Object.keys(sgrData.totales);
+            const mesActual = mesesDisponibles[mesesDisponibles.length - 1];
+            // Si hay más de un mes, toma el anterior para comparar, si no, repite el actual
+            const mesAnterior = mesesDisponibles.length > 1 ? mesesDisponibles[mesesDisponibles.length - 2] : mesActual;
+
+            new Chart(document.getElementById('chartEvolucion').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: [mesAnterior, mesActual], // Nombres de los meses automáticos
+                    datasets: [{
+                        label: 'Gestiones',
+                        data: [sgrData.totales[mesAnterior], sgrData.totales[mesActual]], // Valores automáticos
+                        backgroundColor: [sysColors.azulInst, sysColors.acento],
+                        borderRadius: 8
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false} }, scales: commonScales }
+            });
+
+            // 2. Origen (Agrupación para no superar 6 cat y ranking horizontal)
+            const origenesRaw = Object.entries(sgrData.origen).sort((a,b) => b[1] - a[1]);
+            const top5Origen = origenesRaw.slice(0, 5);
+            const otrosOrigenSum = origenesRaw.slice(5).reduce((acc, curr) => acc + curr[1], 0);
+            if (otrosOrigenSum > 0) top5Origen.push(["Otros", otrosOrigenSum]);
+
+            new Chart(document.getElementById('chartOrigen').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: top5Origen.map(item => item[0]),
+                    datasets: [{
+                        data: top5Origen.map(item => item[1]),
+                        backgroundColor: sysColors.acento,
+                        borderRadius: 6
+                    }]
+                },
+                options: { 
+                    indexAxis: 'y', 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 3. Estado
+            new Chart(document.getElementById('chartEstado').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(sgrData.estado),
+                    datasets: [{
+                        data: Object.values(sgrData.estado),
+                        // Destacamos Solucionado con acento, el resto azul institucional
+                        backgroundColor: Object.keys(sgrData.estado).map(k => k === 'Solucionado' ? sysColors.acento : sysColors.azulInst),
+                        borderRadius: 6
+                    }]
+                },
+                options: { 
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: {display: false} },
+                    scales: { x: { grid: { display: false } }, y: { grid: { display: false } } }
+                }
+            });
+
+            // 4. Tipos Top (Horizontal Bar)
+            const tiposSorted = [...sgrData.tipos_data].sort((a,b) => b.tot - a.tot).slice(0, 8);
+            new Chart(document.getElementById('chartTiposTop').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: tiposSorted.map(t => t.tipo),
+                    datasets: [{
+                        data: tiposSorted.map(t => t.tot),
+                        backgroundColor: sysColors.azulInst, // Base institucional
+                        hoverBackgroundColor: sysColors.acento, // Hover variación
+                        borderRadius: 6
+                    }]
+                },
+                options: { 
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: {display: false} },
+                    scales: { x: { grid: { display: false } }, y: { grid: { display: false } } }
+                }
+            });
+
+            // 5. Zonificación (Stacked, sin tortas fragmentadas, sin bordes)
+            const cgms = Object.keys(sgrData.zonificacion_total).sort();
+            const solZon = cgms.map(c => sgrData.zonificacion_solucionado[c]);
+            const penZon = cgms.map(c => sgrData.zonificacion_total[c] - sgrData.zonificacion_solucionado[c]);
+
+            new Chart(document.getElementById('chartZonificacion').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: cgms,
+                    datasets: [
+                        { label: 'Solucionado', data: solZon, backgroundColor: sysColors.acento, borderWidth: 0 },
+                        { label: 'Pendiente/Otros', data: penZon, backgroundColor: sysColors.azulInst, borderWidth: 0 }
+                    ]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { 
+                        x: { stacked: true, grid: { display: false } }, 
+                        y: { stacked: true, grid: { color: 'rgba(25, 86, 124, 0.1)' } } 
+                    }
+                }
+            });
+        }
+
+        // --- RENDERIZADO DE TABLAS ---
+        function renderTables() {
+            // Tabla Subtipos
+            const tbSub = document.getElementById('tbody-subtipos');
+            // Asegurar que se limpia por si acaso antes de renderizar
+            tbSub.innerHTML = "";
+            sgrData.subtipos_top.forEach((s, i) => {
+                tbSub.innerHTML += `<tr>
+                    <td class="text-desc">${i+1}. ${s.subtipo}</td>
+                    <td class="text-num text-right">${s.cant}</td>
+                </tr>`;
+            });
+
+            // Tablas Resolución
+            const tbBaja = document.getElementById('tbody-res-baja');
+            const tbAlta = document.getElementById('tbody-res-alta');
+            tbBaja.innerHTML = "";
+            tbAlta.innerHTML = "";
+            
+            sgrData.tipos_data.forEach(t => {
+                const pct = t.tot > 0 ? (t.sol / t.tot) * 100 : 0;
+                
+                // Color strict: Magenta solo para alertas (<50%)
+                const colorClass = pct < 50 ? `style="color: ${sysColors.magenta};"` : `style="color: ${sysColors.acento};"`;
+
+                const row = `<tr>
+                    <td class="text-desc">${t.tipo}</td>
+                    <td class="text-num text-right">${t.tot}</td>
+                    <td class="text-num text-right" ${colorClass}>${pct.toFixed(1)}%</td>
+                </tr>`;
+                
+                if(pct < 50) tbBaja.innerHTML += row;
+                if(pct >= 80) tbAlta.innerHTML += row;
+            });
+
+            // Tabla Territorio
+            const tbTerr = document.getElementById('tbody-territorio-subtipos');
+            tbTerr.innerHTML = "";
+            sgrData.territorio_dinamica.forEach(t => {
+                // Validación para evitar NaN si la zona no existe en los totales
+                const totalZona = sgrData.zonificacion_total[t.cgm] || 0;
+                
+                tbTerr.innerHTML += `<tr>
+                    <td class="text-num" style="color: ${sysColors.acento}">${t.cgm}</td>
+                    <td class="text-desc">${t.frec}</td>
+                    <td class="text-desc opacity-70">${t.pend}</td>
+                    <td class="text-num text-right">${totalZona}</td>
+                </tr>`;
+            });
+        }
+    </script>
+</body>
+</html>
