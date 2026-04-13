@@ -183,26 +183,26 @@
     <script>
         // MANTENIMIENTO DE ESTRUCTURA DE DATOS PARA ACTUALIZACIÓN PYTHON
         const camionesData = {
-    "Fecha": "2026-04-10",
-    "Operativos": 11,
-    "No_Operativo": 7
+    "Fecha": "2026-04-13",
+    "Operativos": 10,
+    "No_Operativo": 9
 };
         const maquinariaData = {
-    "Fecha": "2026-04-10",
-    "Operativos": 3,
-    "No_Operativo": 5
+    "Fecha": "2026-04-13",
+    "Operativos": 2,
+    "No_Operativo": 6
 };
         
         const salidaDiariaRaw = {
     "resumen_maq": [
         {
-            "Fecha": "2026-04-10",
+            "Fecha": "2026-04-13",
             "Area": " OBRAS PUBLICAS",
-            "Operativos": 1,
-            "No_Operativo": 0
+            "Operativos": 0,
+            "No_Operativo": 1
         },
         {
-            "Fecha": "2026-04-10",
+            "Fecha": "2026-04-13",
             "Area": "SS PLANIFICACION HIDRICA",
             "Operativos": 2,
             "No_Operativo": 5
@@ -210,16 +210,16 @@
     ],
     "resumen_cam": [
         {
-            "Fecha": "2026-04-10",
+            "Fecha": "2026-04-13",
             "Area": "SS PLANIFICACION HIDRICA",
-            "Operativos": 3,
+            "Operativos": 4,
             "No_Operativo": 4
         },
         {
-            "Fecha": "2026-04-10",
+            "Fecha": "2026-04-13",
             "Area": "SS REDES Y SERV. CONCESIONADOS",
-            "Operativos": 8,
-            "No_Operativo": 3
+            "Operativos": 6,
+            "No_Operativo": 5
         }
     ]
 };
@@ -227,31 +227,37 @@
         const noOperativosRaw = {
     "no_operativos_ultimo_dia_maq": [
         {
-            "Fecha": "10/04/2026",
+            "Fecha": "13/04/2026",
+            "Dominio": "FBB04",
+            "Tipo": "RETROEXCAVADORA",
+            "Detalle": "FALTA DE PERSONAL"
+        },
+        {
+            "Fecha": "13/04/2026",
             "Dominio": "BWI65",
             "Tipo": "MINI CARGADORA",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "10/04/2026",
+            "Fecha": "13/04/2026",
             "Dominio": "CJZ34",
             "Tipo": "RETROEXCAVADORA",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "10/04/2026",
+            "Fecha": "13/04/2026",
             "Dominio": "CXJ80",
             "Tipo": "MOTONIVELADORA",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "10/04/2026",
+            "Fecha": "13/04/2026",
             "Dominio": "CXJ99",
             "Tipo": "MOTONIVELADORA",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "10/04/2026",
+            "Fecha": "13/04/2026",
             "Dominio": "DHV52",
             "Tipo": "MOTONIVELADORA",
             "Detalle": "TALLER"
@@ -259,67 +265,64 @@
     ],
     "no_operativos_ultimo_dia": [
         {
-            "Fecha": "10/04/2026",
+            "Fecha": "13/04/2026",
             "Dominio": "AG979EU",
             "Tipo": "DESOBSTRUCTOR",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "10/04/2026",
+            "Fecha": "13/04/2026",
             "Dominio": "BTM638",
             "Tipo": "DESOBSTRUCTOR",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "10/04/2026",
+            "Fecha": "13/04/2026",
             "Dominio": "IWL376",
             "Tipo": "VOLCADOR",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "10/04/2026",
+            "Fecha": "13/04/2026",
             "Dominio": "KRV507",
             "Tipo": "DESOBSTRUCTOR",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "10/04/2026",
+            "Fecha": "13/04/2026",
             "Dominio": "AF827ZU",
             "Tipo": "HIDRANTE",
-            "Detalle": "ESPERANDO CAMBIO DE MANGUERA"
+            "Detalle": "ESPERANDO CAMBIO DE MANGUERA Y  ARREGLO DE BOMBA"
         },
         {
-            "Fecha": "10/04/2026",
+            "Fecha": "13/04/2026",
+            "Dominio": "AF872ZV",
+            "Tipo": "HIDRANTE",
+            "Detalle": "TALLER"
+        },
+        {
+            "Fecha": "13/04/2026",
             "Dominio": "AH077AR",
             "Tipo": "HIDRANTE",
             "Detalle": "MANGUERA ROTA"
         },
         {
-            "Fecha": "10/04/2026",
+            "Fecha": "13/04/2026",
             "Dominio": "NVR680",
             "Tipo": "ALMEJA",
             "Detalle": "TALLER,PERDIDA DE LIQUIDO"
+        },
+        {
+            "Fecha": "13/04/2026",
+            "Dominio": "OBC435",
+            "Tipo": "HIDROELEVADOR",
+            "Detalle": "AGENTES AUSENTES POR ARTICULO"
         }
     ]
 };
 
         const historicoData = {
     "tabla_30d": [
-        {
-            "Fecha": "2026-03-11",
-            "Operativos": 14,
-            "No_Operativo": 6
-        },
-        {
-            "Fecha": "2026-03-12",
-            "Operativos": 14,
-            "No_Operativo": 6
-        },
-        {
-            "Fecha": "2026-03-13",
-            "Operativos": 14,
-            "No_Operativo": 6
-        },
         {
             "Fecha": "2026-03-16",
             "Operativos": 14,
@@ -399,24 +402,14 @@
             "Fecha": "2026-04-10",
             "Operativos": 11,
             "No_Operativo": 7
+        },
+        {
+            "Fecha": "2026-04-13",
+            "Operativos": 10,
+            "No_Operativo": 9
         }
     ],
     "tabla_30d_maq": [
-        {
-            "Fecha": "2026-03-11",
-            "Operativos": 3,
-            "No_Operativo": 5
-        },
-        {
-            "Fecha": "2026-03-12",
-            "Operativos": 3,
-            "No_Operativo": 5
-        },
-        {
-            "Fecha": "2026-03-13",
-            "Operativos": 3,
-            "No_Operativo": 5
-        },
         {
             "Fecha": "2026-03-16",
             "Operativos": 3,
@@ -496,6 +489,11 @@
             "Fecha": "2026-04-10",
             "Operativos": 3,
             "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-04-13",
+            "Operativos": 2,
+            "No_Operativo": 6
         }
     ]
 };
