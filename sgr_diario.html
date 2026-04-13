@@ -8,6 +8,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    
+    <!-- Leaflet para el Mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
@@ -84,21 +90,11 @@
             font-size: 0.85rem;
         }
 
-        .heatmap-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-            gap: 6px;
-        }
-
-        .heatmap-cell {
-            aspect-ratio: 1;
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            transition: all 0.2s;
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 10px;
+            z-index: 10;
         }
 
         #loading-overlay {
@@ -213,7 +209,7 @@
         <div class="glass-card">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xs font-bold uppercase tracking-wider">Top 10 Sub Tipos</h3>
-                <span class="text-[9px] bg-white/10 px-2 py-1 rounded text-magenta">Filtro: Tipo & CGM</span>
+                <span class="text-[9px] bg-white/10 px-2 py-1 rounded text-white">Filtro: Tipo & CGM</span>
             </div>
             <div class="h-[280px]">
                 <canvas id="chart-subtipos"></canvas>
@@ -221,7 +217,7 @@
         </div>
     </div>
 
-    <!-- Tabla y Mapa de Calor -->
+    <!-- Tabla y Mapa de Calor Geoespacial -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Tabla Origen -->
         <div class="glass-card lg:col-span-1">
@@ -229,7 +225,7 @@
                 <h3 class="text-xs font-bold uppercase tracking-wider">Ingresos por Origen</h3>
                 <span class="text-[9px] bg-white/10 px-2 py-1 rounded">Filtro: CGM</span>
             </div>
-            <div class="overflow-y-auto max-h-[300px] pr-2">
+            <div class="overflow-y-auto max-h-[400px] pr-2">
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -244,14 +240,17 @@
             </div>
         </div>
 
-        <!-- Heatmap -->
+        <!-- Mapa de Calor (Geoespacial) -->
         <div class="glass-card lg:col-span-2">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xs font-bold uppercase tracking-wider">Intensidad por CGM (Mapa de Calor)</h3>
+                <h3 class="text-xs font-bold uppercase tracking-wider">Intensidad por Coordenadas (Mapa de Calor)</h3>
                 <span class="text-[9px] bg-white/10 px-2 py-1 rounded text-acento">Filtro: Fecha, Tipo & Sub Tipo</span>
             </div>
-            <div id="heatmap-grid" class="heatmap-container min-h-[200px]">
-                <!-- Se poblará dinámicamente -->
+            <div id="map-container" class="relative">
+                <div id="map"></div>
+                <div id="no-map-data" class="absolute inset-0 bg-black/40 flex items-center justify-center hidden z-[20] rounded-lg">
+                    <p class="text-xs font-bold">Sin coordenadas para estos filtros</p>
+                </div>
             </div>
         </div>
     </div>
@@ -259,27 +258,48 @@
     <script>
         let rawData = [];
         let charts = {};
+        let map = null;
+        let heatLayer = null;
 
         const sysColors = {
             acento: '#4AB5E0',
             magenta: '#D34872',
+            blanco: '#FFFFFF',
             grid: 'rgba(255, 255, 255, 0.05)',
             text: 'rgba(255, 255, 255, 0.7)'
         };
 
         window.onload = async () => {
+            initMap();
             await fetchSGRData();
             
-            // Si después de 3 segundos sigue cargando (ej. no encuentra el archivo), mostrar UI vacía
             setTimeout(() => {
                 const loader = document.getElementById('loading-overlay');
                 if(loader) loader.style.display = 'none';
             }, 3000);
         };
 
+        function initMap() {
+            // Inicialización centrada en Lomas de Zamora
+            map = L.map('map').setView([-34.74, -58.41], 12);
+            
+            // Cambiado a un estilo de mapa gris claro (CARTO Light)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
+
+            heatLayer = L.heatLayer([], {
+                radius: 18,
+                blur: 20,
+                maxZoom: 15,
+                gradient: {0.4: sysColors.acento, 0.6: '#4caf50', 0.8: '#ffeb3b', 1: sysColors.magenta}
+            }).addTo(map);
+        }
+
         async function fetchSGRData() {
             try {
-                // Buscamos el archivo en el mismo directorio (GitHub)
                 const response = await fetch('sgr.csv');
                 if(!response.ok) throw new Error("CSV no encontrado");
                 
@@ -296,42 +316,36 @@
                     }
                 });
             } catch (error) {
-                console.warn("Aviso: No se pudo cargar sgr.csv automáticamente. Esperando carga manual o en GitHub.");
-                // No ocultamos el error para que el usuario sepa, pero el HTML ya es visible si se quita el overlay
+                console.warn("Aviso: No se pudo cargar sgr.csv. Esperando carga manual.");
                 document.getElementById('loading-overlay').style.display = 'none';
             }
         }
 
         function initDashboard() {
-            // Normalización de fechas simple
             rawData.forEach(d => {
                 d.fechaDia = d.Fecha ? d.Fecha.split(' ')[0] : 'Sin Fecha';
+                d.latNum = parseFloat(d.Latitud);
+                d.lngNum = parseFloat(d.Longitud);
             });
 
             const validDates = rawData.map(d => d.fechaDia).filter(f => f !== 'Sin Fecha');
             const lastDate = [...new Set(validDates)].sort().pop();
             
-            // 1. KPIs ESTÁTICOS (Última fecha cargada)
             const latestData = rawData.filter(d => d.fechaDia === lastDate);
-            
             document.getElementById('kpi-total').innerText = latestData.length.toLocaleString();
             
             const areaCounts = getCounts(latestData, 'Tipo');
             const topArea = Object.keys(areaCounts).reduce((a, b) => areaCounts[a] > areaCounts[b] ? a : b, "-");
             document.getElementById('kpi-area').innerText = topArea;
-            document.getElementById('kpi-area').title = topArea;
 
             const subCounts = getCounts(latestData, 'Sub Tipo');
             const topSub = Object.keys(subCounts).reduce((a, b) => subCounts[a] > subCounts[b] ? a : b, "-");
             document.getElementById('kpi-subtipo').innerText = topSub;
-            document.getElementById('kpi-subtipo').title = topSub;
 
             const cgmCounts = getCounts(latestData, 'Zonificacion_CAV');
             const topCgm = Object.keys(cgmCounts).reduce((a, b) => cgmCounts[a] > cgmCounts[b] ? a : b, "-");
             document.getElementById('kpi-cgm').innerText = topCgm;
-            document.getElementById('kpi-cgm').title = topCgm;
 
-            // 2. POBLAR FILTROS
             fillSelect('filter-cgm', 'Zonificacion_CAV');
             fillSelect('filter-tipo', 'Tipo');
             fillSelect('filter-subtipo', 'Sub Tipo');
@@ -367,22 +381,18 @@
             const fSub = document.getElementById('filter-subtipo').value;
             const fFecha = document.getElementById('filter-fecha').value;
 
-            // Gráfico Líneas (Solo CGM)
             const dataLine = rawData.filter(d => fCgm === 'all' || d.Zonificacion_CAV === fCgm);
             renderLineChart(dataLine);
 
-            // Top 10 (Tipo y CGM)
             const dataBar = rawData.filter(d => 
                 (fTipo === 'all' || d.Tipo === fTipo) && 
                 (fCgm === 'all' || d.Zonificacion_CAV === fCgm)
             );
             renderBarChart(dataBar);
 
-            // Tabla Origen (CGM)
             const dataTable = rawData.filter(d => fCgm === 'all' || d.Zonificacion_CAV === fCgm);
             renderTable(dataTable);
 
-            // Heatmap (Fecha, Tipo, Subtipo)
             const dataHeat = rawData.filter(d => 
                 (fFecha === 'all' || d.fechaDia === fFecha) &&
                 (fTipo === 'all' || d.Tipo === fTipo) &&
@@ -427,7 +437,7 @@
             const counts = getCounts(data, 'Sub Tipo');
             const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 10);
             
-            const labels = sorted.map(s => s[0].length > 15 ? s[0].substring(0, 15)+'..' : s[0]);
+            const labels = sorted.map(s => s[0].length > 20 ? s[0].substring(0, 20)+'..' : s[0]);
             const values = sorted.map(s => s[1]);
 
             if(charts.bar) charts.bar.destroy();
@@ -438,7 +448,7 @@
                     labels,
                     datasets: [{
                         data: values,
-                        backgroundColor: sysColors.magenta,
+                        backgroundColor: sysColors.blanco,
                         borderRadius: 4
                     }]
                 },
@@ -468,33 +478,18 @@
         }
 
         function renderHeatmap(data) {
-            const container = document.getElementById('heatmap-grid');
-            container.innerHTML = "";
-            const counts = getCounts(data, 'Zonificacion_CAV');
-            const maxVal = Math.max(...Object.values(counts), 1);
+            const heatPoints = data
+                .filter(d => !isNaN(d.latNum) && !isNaN(d.lngNum))
+                .map(d => [d.latNum, d.lngNum, 0.5]);
 
-            Object.entries(counts).sort((a,b) => a[0].localeCompare(b[0])).forEach(([cgm, val]) => {
-                const ratio = val / maxVal;
-                let bg = 'rgba(255,255,255,0.05)';
-                if(ratio > 0.7) bg = sysColors.magenta;
-                else if(ratio > 0.2) bg = sysColors.acento;
-                else if(val > 0) bg = '#0E3A54';
-
-                const cell = document.createElement('div');
-                cell.className = "heatmap-cell p-2 group relative";
-                cell.style.backgroundColor = bg;
-                cell.innerHTML = `
-                    <span class="text-xs">${val}</span>
-                    <span class="text-[7px] opacity-60 mt-1 uppercase truncate w-full text-center">${cgm.split(' ')[0]}</span>
-                    <div class="absolute bottom-full mb-1 hidden group-hover:block bg-black text-white text-[9px] p-2 rounded whitespace-nowrap z-50">
-                        ${cgm}: ${val} casos
-                    </div>
-                `;
-                container.appendChild(cell);
-            });
-
-            if(Object.keys(counts).length === 0) {
-                container.innerHTML = "<div class='col-span-full py-10 text-center opacity-20 text-xs'>SIN DATOS PARA LOS FILTROS SELECCIONADOS</div>";
+            if (heatPoints.length > 0) {
+                document.getElementById('no-map-data').classList.add('hidden');
+                heatLayer.setLatLngs(heatPoints);
+                const bounds = L.latLngBounds(heatPoints);
+                map.fitBounds(bounds, {padding: [50, 50], maxZoom: 14});
+            } else {
+                document.getElementById('no-map-data').classList.remove('hidden');
+                heatLayer.setLatLngs([]);
             }
         }
     </script>
