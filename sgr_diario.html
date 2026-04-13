@@ -57,6 +57,18 @@
         .kpi-value {
             font-size: 1.8rem;
             font-weight: 800;
+            line-height: 1.1;
+        }
+
+        /* Ajuste específico para textos largos en KPIs */
+        .kpi-value-text {
+            font-size: 1.1rem; /* Tamaño reducido para que entre en la tarjeta */
+            font-weight: 700;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Permite hasta 2 líneas */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 2.4rem; /* Altura fija para mantener alineación */
         }
 
         .filter-select {
@@ -146,15 +158,15 @@
         </div>
         <div class="glass-card">
             <p class="kpi-title">Área Mayor Demanda</p>
-            <p id="kpi-area" class="kpi-value text-acento truncate" title="-">-</p>
+            <p id="kpi-area" class="kpi-value kpi-value-text text-acento" title="-">-</p>
         </div>
         <div class="glass-card">
             <p class="kpi-title">Principal Sub Tipo</p>
-            <p id="kpi-subtipo" class="kpi-value text-magenta truncate" title="-">-</p>
+            <p id="kpi-subtipo" class="kpi-value kpi-value-text text-magenta" title="-">-</p>
         </div>
         <div class="glass-card">
             <p class="kpi-title">CGM Mayor Demanda</p>
-            <p id="kpi-cgm" class="kpi-value text-white truncate" title="-">-</p>
+            <p id="kpi-cgm" class="kpi-value kpi-value-text text-white" title="-">-</p>
         </div>
     </section>
 
@@ -337,14 +349,17 @@
             const areaCounts = getCounts(latestData, 'Tipo');
             const topArea = Object.keys(areaCounts).reduce((a, b) => areaCounts[a] > areaCounts[b] ? a : b, "-");
             document.getElementById('kpi-area').innerText = topArea;
+            document.getElementById('kpi-area').title = topArea;
 
             const subCounts = getCounts(latestData, 'Sub Tipo');
             const topSub = Object.keys(subCounts).reduce((a, b) => subCounts[a] > subCounts[b] ? a : b, "-");
             document.getElementById('kpi-subtipo').innerText = topSub;
+            document.getElementById('kpi-subtipo').title = topSub;
 
             const cgmCounts = getCounts(latestData, 'Zonificacion_CAV');
             const topCgm = Object.keys(cgmCounts).reduce((a, b) => cgmCounts[a] > cgmCounts[b] ? a : b, "-");
             document.getElementById('kpi-cgm').innerText = topCgm;
+            document.getElementById('kpi-cgm').title = topCgm;
 
             fillSelect('filter-cgm', 'Zonificacion_CAV');
             fillSelect('filter-tipo', 'Tipo');
