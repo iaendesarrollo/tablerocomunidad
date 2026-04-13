@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGR Analisis Diario</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: rgba(226, 241, 247, 0.15);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: var(--glass-claro);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .kpi-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--acento);
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .filter-select {
+            background: rgba(25, 86, 124, 0.8);
+            border: 1px solid var(--acento);
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem;
+            width: 100%;
+            outline: none;
+            font-size: 0.8rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid var(--acento);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+        }
+
+        .heatmap-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 6px;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-left-color: var(--acento);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Overlay de Carga -->
+    <div id="loading-overlay">
+        <div class="spinner mb-4"></div>
+        <p class="font-bold tracking-widest">SGR ANALYTICS</p>
+        <p class="text-xs opacity-50 mt-2">Buscando sgr.csv...</p>
+    </div>
+
+    <!-- Header Principal -->
+    <header class="mb-8 flex flex-col md:flex-row justify-between items-end border-b border-white/10 pb-6">
+        <div>
+            <h1 class="text-4xl font-extrabold tracking-tighter leading-none mb-2">SGR <span class="text-acento">ANALISIS DIARIO</span></h1>
+        </div>
+        <div class="mt-4 md:mt-0 text-right">
+            <p class="text-[10px] uppercase font-black opacity-40 mb-1">Jefatura de Gabinete</p>
+        </div>
+    </header>
+
+    <!-- Sección de KPIs (Fijos: No afectados por filtros) -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="glass-card">
+            <p class="kpi-title">Ingresos Última Fecha</p>
+            <p id="kpi-total" class="kpi-value text-white">---</p>
+        </div>
+        <div class="glass-card">
+            <p class="kpi-title">Área Mayor Demanda</p>
+            <p id="kpi-area" class="kpi-value text-acento truncate" title="-">-</p>
+        </div>
+        <div class="glass-card">
+            <p class="kpi-title">Principal Sub Tipo</p>
+            <p id="kpi-subtipo" class="kpi-value text-magenta truncate" title="-">-</p>
+        </div>
+        <div class="glass-card">
+            <p class="kpi-title">CGM Mayor Demanda</p>
+            <p id="kpi-cgm" class="kpi-value text-white truncate" title="-">-</p>
+        </div>
+    </section>
+
+    <!-- Controles de Filtros Dinámicos -->
+    <div class="glass-card mb-8">
+        <div class="flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="text-acento"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/></svg>
+            <h2 class="text-xs font-black uppercase tracking-widest">Filtros de Análisis</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="text-[9px] uppercase font-bold opacity-60 block mb-1">Zona CGM</label>
+                <select id="filter-cgm" class="filter-select" onchange="updateDashboard()">
+                    <option value="all">Todos los CGM</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[9px] uppercase font-bold opacity-60 block mb-1">Tipo de Caso</label>
+                <select id="filter-tipo" class="filter-select" onchange="updateDashboard()">
+                    <option value="all">Todos los Tipos</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[9px] uppercase font-bold opacity-60 block mb-1">Sub Tipo</label>
+                <select id="filter-subtipo" class="filter-select" onchange="updateDashboard()">
+                    <option value="all">Todos los Sub Tipos</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[9px] uppercase font-bold opacity-60 block mb-1">Fecha</label>
+                <select id="filter-fecha" class="filter-select" onchange="updateDashboard()">
+                    <option value="all">Todas las Fechas</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visualizaciones Principales -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Gráfico Diario -->
+        <div class="glass-card">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider">Evolución de Ingresos</h3>
+                <span class="text-[9px] bg-white/10 px-2 py-1 rounded text-acento">Filtro: CGM</span>
+            </div>
+            <div class="h-[280px]">
+                <canvas id="chart-daily"></canvas>
+            </div>
+        </div>
+
+        <!-- Top 10 Subtipos -->
+        <div class="glass-card">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider">Top 10 Sub Tipos</h3>
+                <span class="text-[9px] bg-white/10 px-2 py-1 rounded text-magenta">Filtro: Tipo & CGM</span>
+            </div>
+            <div class="h-[280px]">
+                <canvas id="chart-subtipos"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla y Mapa de Calor -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Tabla Origen -->
+        <div class="glass-card lg:col-span-1">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider">Ingresos por Origen</h3>
+                <span class="text-[9px] bg-white/10 px-2 py-1 rounded">Filtro: CGM</span>
+            </div>
+            <div class="overflow-y-auto max-h-[300px] pr-2">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Canal de Origen</th>
+                            <th class="text-right">Casos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-origen-body">
+                        <tr><td colspan="2" class="text-center opacity-30 py-10">Sin datos cargados</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Heatmap -->
+        <div class="glass-card lg:col-span-2">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider">Intensidad por CGM (Mapa de Calor)</h3>
+                <span class="text-[9px] bg-white/10 px-2 py-1 rounded text-acento">Filtro: Fecha, Tipo & Sub Tipo</span>
+            </div>
+            <div id="heatmap-grid" class="heatmap-container min-h-[200px]">
+                <!-- Se poblará dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let rawData = [];
+        let charts = {};
+
+        const sysColors = {
+            acento: '#4AB5E0',
+            magenta: '#D34872',
+            grid: 'rgba(255, 255, 255, 0.05)',
+            text: 'rgba(255, 255, 255, 0.7)'
+        };
+
+        window.onload = async () => {
+            await fetchSGRData();
+            
+            // Si después de 3 segundos sigue cargando (ej. no encuentra el archivo), mostrar UI vacía
+            setTimeout(() => {
+                const loader = document.getElementById('loading-overlay');
+                if(loader) loader.style.display = 'none';
+            }, 3000);
+        };
+
+        async function fetchSGRData() {
+            try {
+                // Buscamos el archivo en el mismo directorio (GitHub)
+                const response = await fetch('sgr.csv');
+                if(!response.ok) throw new Error("CSV no encontrado");
+                
+                const csvText = await response.text();
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        rawData = results.data;
+                        if(rawData.length > 0) {
+                            initDashboard();
+                        }
+                        document.getElementById('loading-overlay').style.display = 'none';
+                    }
+                });
+            } catch (error) {
+                console.warn("Aviso: No se pudo cargar sgr.csv automáticamente. Esperando carga manual o en GitHub.");
+                // No ocultamos el error para que el usuario sepa, pero el HTML ya es visible si se quita el overlay
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        }
+
+        function initDashboard() {
+            // Normalización de fechas simple
+            rawData.forEach(d => {
+                d.fechaDia = d.Fecha ? d.Fecha.split(' ')[0] : 'Sin Fecha';
+            });
+
+            const validDates = rawData.map(d => d.fechaDia).filter(f => f !== 'Sin Fecha');
+            const lastDate = [...new Set(validDates)].sort().pop();
+            
+            // 1. KPIs ESTÁTICOS (Última fecha cargada)
+            const latestData = rawData.filter(d => d.fechaDia === lastDate);
+            
+            document.getElementById('kpi-total').innerText = latestData.length.toLocaleString();
+            
+            const areaCounts = getCounts(latestData, 'Tipo');
+            const topArea = Object.keys(areaCounts).reduce((a, b) => areaCounts[a] > areaCounts[b] ? a : b, "-");
+            document.getElementById('kpi-area').innerText = topArea;
+            document.getElementById('kpi-area').title = topArea;
+
+            const subCounts = getCounts(latestData, 'Sub Tipo');
+            const topSub = Object.keys(subCounts).reduce((a, b) => subCounts[a] > subCounts[b] ? a : b, "-");
+            document.getElementById('kpi-subtipo').innerText = topSub;
+            document.getElementById('kpi-subtipo').title = topSub;
+
+            const cgmCounts = getCounts(latestData, 'Zonificacion_CAV');
+            const topCgm = Object.keys(cgmCounts).reduce((a, b) => cgmCounts[a] > cgmCounts[b] ? a : b, "-");
+            document.getElementById('kpi-cgm').innerText = topCgm;
+            document.getElementById('kpi-cgm').title = topCgm;
+
+            // 2. POBLAR FILTROS
+            fillSelect('filter-cgm', 'Zonificacion_CAV');
+            fillSelect('filter-tipo', 'Tipo');
+            fillSelect('filter-subtipo', 'Sub Tipo');
+            fillSelect('filter-fecha', 'fechaDia', true);
+
+            updateDashboard();
+        }
+
+        function getCounts(arr, field) {
+            return arr.reduce((acc, curr) => {
+                const key = curr[field] || 'S/D';
+                acc[key] = (acc[key] || 0) + 1;
+                return acc;
+            }, {});
+        }
+
+        function fillSelect(id, field, sortDesc = false) {
+            const select = document.getElementById(id);
+            const items = [...new Set(rawData.map(d => d[field]))].filter(x => x).sort();
+            if(sortDesc) items.reverse();
+
+            items.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item;
+                opt.textContent = item;
+                select.appendChild(opt);
+            });
+        }
+
+        function updateDashboard() {
+            const fCgm = document.getElementById('filter-cgm').value;
+            const fTipo = document.getElementById('filter-tipo').value;
+            const fSub = document.getElementById('filter-subtipo').value;
+            const fFecha = document.getElementById('filter-fecha').value;
+
+            // Gráfico Líneas (Solo CGM)
+            const dataLine = rawData.filter(d => fCgm === 'all' || d.Zonificacion_CAV === fCgm);
+            renderLineChart(dataLine);
+
+            // Top 10 (Tipo y CGM)
+            const dataBar = rawData.filter(d => 
+                (fTipo === 'all' || d.Tipo === fTipo) && 
+                (fCgm === 'all' || d.Zonificacion_CAV === fCgm)
+            );
+            renderBarChart(dataBar);
+
+            // Tabla Origen (CGM)
+            const dataTable = rawData.filter(d => fCgm === 'all' || d.Zonificacion_CAV === fCgm);
+            renderTable(dataTable);
+
+            // Heatmap (Fecha, Tipo, Subtipo)
+            const dataHeat = rawData.filter(d => 
+                (fFecha === 'all' || d.fechaDia === fFecha) &&
+                (fTipo === 'all' || d.Tipo === fTipo) &&
+                (fSub === 'all' || d['Sub Tipo'] === fSub)
+            );
+            renderHeatmap(dataHeat);
+        }
+
+        function renderLineChart(data) {
+            const counts = getCounts(data, 'fechaDia');
+            const labels = Object.keys(counts).sort();
+            const values = labels.map(l => counts[l]);
+
+            if(charts.line) charts.line.destroy();
+            const ctx = document.getElementById('chart-daily').getContext('2d');
+            charts.line = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: values,
+                        borderColor: sysColors.acento,
+                        backgroundColor: 'rgba(74, 181, 224, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: sysColors.grid }, ticks: { color: sysColors.text, font: { size: 9 } } },
+                        x: { grid: { display: false }, ticks: { color: sysColors.text, font: { size: 9 } } }
+                    }
+                }
+            });
+        }
+
+        function renderBarChart(data) {
+            const counts = getCounts(data, 'Sub Tipo');
+            const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 10);
+            
+            const labels = sorted.map(s => s[0].length > 15 ? s[0].substring(0, 15)+'..' : s[0]);
+            const values = sorted.map(s => s[1]);
+
+            if(charts.bar) charts.bar.destroy();
+            const ctx = document.getElementById('chart-subtipos').getContext('2d');
+            charts.bar = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: sysColors.magenta,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: sysColors.grid }, ticks: { color: sysColors.text, font: { size: 9 } } },
+                        y: { grid: { display: false }, ticks: { color: sysColors.text, font: { size: 9 } } }
+                    }
+                }
+            });
+        }
+
+        function renderTable(data) {
+            const counts = getCounts(data, 'Origen');
+            const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+            const tbody = document.getElementById('table-origen-body');
+            tbody.innerHTML = sorted.map(([key, val]) => `
+                <tr>
+                    <td>${key}</td>
+                    <td class="text-right font-bold text-acento">${val}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="2" class="text-center opacity-30 py-4">Sin resultados</td></tr>';
+        }
+
+        function renderHeatmap(data) {
+            const container = document.getElementById('heatmap-grid');
+            container.innerHTML = "";
+            const counts = getCounts(data, 'Zonificacion_CAV');
+            const maxVal = Math.max(...Object.values(counts), 1);
+
+            Object.entries(counts).sort((a,b) => a[0].localeCompare(b[0])).forEach(([cgm, val]) => {
+                const ratio = val / maxVal;
+                let bg = 'rgba(255,255,255,0.05)';
+                if(ratio > 0.7) bg = sysColors.magenta;
+                else if(ratio > 0.2) bg = sysColors.acento;
+                else if(val > 0) bg = '#0E3A54';
+
+                const cell = document.createElement('div');
+                cell.className = "heatmap-cell p-2 group relative";
+                cell.style.backgroundColor = bg;
+                cell.innerHTML = `
+                    <span class="text-xs">${val}</span>
+                    <span class="text-[7px] opacity-60 mt-1 uppercase truncate w-full text-center">${cgm.split(' ')[0]}</span>
+                    <div class="absolute bottom-full mb-1 hidden group-hover:block bg-black text-white text-[9px] p-2 rounded whitespace-nowrap z-50">
+                        ${cgm}: ${val} casos
+                    </div>
+                `;
+                container.appendChild(cell);
+            });
+
+            if(Object.keys(counts).length === 0) {
+                container.innerHTML = "<div class='col-span-full py-10 text-center opacity-20 text-xs'>SIN DATOS PARA LOS FILTROS SELECCIONADOS</div>";
+            }
+        }
+    </script>
+</body>
+</html>
