@@ -199,47 +199,49 @@
         
         // 1. Datos Resumen Diario (SGR)
         const resumenDiarioData = {
-            "total_registros": 1869,
+            "total_registros": 1955,
             "top_tipo": "Servicios Públicos",
-            "top_sub_tipo": "Otras Derivaciones",
-            "top_zonificacion_cav": "BANFIELD"
+            "top_sub_tipo": "Retiro de ramas y troncos de poda domiciliaria",
+            "top_zonificacion_cav": "LOMAS"
 };
 
         // 2. Datos Seguridad y Justicia
         const rawSeguridad911 = {
-            "('Robo de vehículo', datetime.date(2026, 4, 12))": 5,
-            "('Robo en finca', datetime.date(2026, 4, 12))": 3,
-            "('Robo en vía pública', datetime.date(2026, 4, 12))": 6
+            "('Auxilio general', datetime.date(2026, 4, 13))": 1,
+            "('Robo de vehículo', datetime.date(2026, 4, 13))": 4,
+            "('Robo en finca', datetime.date(2026, 4, 13))": 3,
+            "('Robo en vía pública', datetime.date(2026, 4, 13))": 8
 };
         const rawEmergencias107 = {
-            "('Centro Médico', '12/04/2026')": 2,
-            "('Domicilio Particular', '12/04/2026')": 17,
-            "('Vía Pública', '12/04/2026')": 18,
-            "('Área Pública', '12/04/2026')": 1
+            "('Centro Médico', '13/04/2026')": 2,
+            "('Domicilio Particular', '13/04/2026')": 17,
+            "('Instituciones Educativas', '13/04/2026')": 7,
+            "('Vía Pública', '13/04/2026')": 22,
+            "('Área Pública', '13/04/2026')": 3
 };
 
         const totalSeguridad911 = Object.values(rawSeguridad911).reduce((sum, val) => sum + val, 0);
         const totalEmergencias107 = Object.values(rawEmergencias107).reduce((sum, val) => sum + val, 0);
 
         const top3Seguridad911 = {
-            "Robo en vía pública": 58,
-            "Robo de vehículo": 36,
-            "Robo en finca": 34
+            "Robo en vía pública": 66,
+            "Robo de vehículo": 40,
+            "Robo en finca": 37
 };
 
         const top3Emergencias107 = {
-            "Domicilio Particular": 207,
-            "Vía Pública": 179,
-            "Instituciones Educativas": 48
+            "Domicilio Particular": 224,
+            "Vía Pública": 201,
+            "Instituciones Educativas": 55
 };
 
         // 3. Datos Operaciones (Ceamse / Flota)
         const rawKpiData = {
-            "total_descargas_ceamse": 1243,
-            "total_tn_neta_ceamse": 9182.759999999998,
-            "proyeccion_tn_neta_ceamse": 22956.899999999998,
-            "camiones_trabajando_su": 70,
-            "camiones_op_trabajando": 10,
+            "total_descargas_ceamse": 1413,
+            "total_tn_neta_ceamse": 10569.92,
+            "proyeccion_tn_neta_ceamse": 24392.123076923075,
+            "camiones_trabajando_su": 73,
+            "camiones_op_trabajando": 9,
             "porcentaje_cumplidas_covelia": 86.90476190476191
 };
         // ============================================================================
