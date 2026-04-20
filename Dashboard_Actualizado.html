@@ -199,49 +199,67 @@
         
         // 1. Datos Resumen Diario (SGR)
         const resumenDiarioData = {
-            "total_registros": 1198,
+            "total_registros": 1658,
             "top_tipo": "Servicios Públicos",
-            "top_sub_tipo": "Otras Derivaciones",
-            "top_zonificacion_cav": "SANTA CATALINA"
+            "top_sub_tipo": "Retiro de montículos de basura o tierra",
+            "top_zonificacion_cav": "LOMAS"
 };
 
         // 2. Datos Seguridad y Justicia
         const rawSeguridad911 = {
-            "('Robo de vehículo', datetime.date(2026, 4, 16))": 6,
-            "('Robo en finca', datetime.date(2026, 4, 16))": 3,
-            "('Robo en vía pública', datetime.date(2026, 4, 16))": 7
+            "('ALARMAS (SPB Tobilleras)', datetime.date(2026, 4, 19))": 2,
+            "('Auxilio general', datetime.date(2026, 4, 19))": 10,
+            "('DESAPARICION DE PERSONAS (LOCALIZACIÓN)', datetime.date(2026, 4, 19))": 2,
+            "('Disparo de arma de fuego', datetime.date(2026, 4, 19))": 2,
+            "('EMERGENCIA DE SALUD (PRESUNCIÓN DE FALLECIMIENTO)', datetime.date(2026, 4, 19))": 1,
+            "('Emergencia sanitaria', datetime.date(2026, 4, 19))": 2,
+            "('HALLAZGO (PERSONA PERDIDA)', datetime.date(2026, 4, 19))": 1,
+            "('INTEGRIDAD A LA VIDA (AMENAZA DE MUERTE)', datetime.date(2026, 4, 19))": 1,
+            "('INTEGRIDAD A LA VIDA (SUICIDIO)', datetime.date(2026, 4, 19))": 1,
+            "('Incendio', datetime.date(2026, 4, 19))": 3,
+            "('Otros', datetime.date(2026, 4, 19))": 1,
+            "('Persona en actitud sospechosa', datetime.date(2026, 4, 19))": 2,
+            "('Robo de autoparte', datetime.date(2026, 4, 19))": 1,
+            "('Robo de vehículo', datetime.date(2026, 4, 19))": 2,
+            "('Robo en finca', datetime.date(2026, 4, 19))": 2,
+            "('Robo en vía pública', datetime.date(2026, 4, 19))": 6,
+            "('Siniestro vial', datetime.date(2026, 4, 19))": 9,
+            "('Usurpación / intrusión', datetime.date(2026, 4, 19))": 1,
+            "('VANDALISMO (PROPIEDAD PRIVADA)', datetime.date(2026, 4, 19))": 1,
+            "('Violencia', datetime.date(2026, 4, 19))": 14,
+            "('Violencia de género', datetime.date(2026, 4, 19))": 7,
+            "('Violencia infantil', datetime.date(2026, 4, 19))": 1,
+            "('Violencia intrafamiliar', datetime.date(2026, 4, 19))": 7
 };
         const rawEmergencias107 = {
-            "('Centro Médico', '16/04/2026')": 1,
-            "('Domicilio Particular', '16/04/2026')": 19,
-            "('Instituciones Educativas', '16/04/2026')": 7,
-            "('Vía Pública', '16/04/2026')": 20,
-            "('Área Pública', '16/04/2026')": 2
+            "('Domicilio Particular', '19/04/2026')": 15,
+            "('Vía Pública', '19/04/2026')": 11,
+            "('Área Pública', '19/04/2026')": 5
 };
 
         const totalSeguridad911 = Object.values(rawSeguridad911).reduce((sum, val) => sum + val, 0);
         const totalEmergencias107 = Object.values(rawEmergencias107).reduce((sum, val) => sum + val, 0);
 
         const top3Seguridad911 = {
-            "Robo en vía pública": 80,
-            "Robo de vehículo": 60,
-            "Robo en finca": 47
+            "Robo en vía pública": 95,
+            "Robo de vehículo": 72,
+            "Robo en finca": 55
 };
 
         const top3Emergencias107 = {
-            "Domicilio Particular": 273,
-            "Vía Pública": 247,
-            "Instituciones Educativas": 74
+            "Domicilio Particular": 327,
+            "Vía Pública": 299,
+            "Instituciones Educativas": 89
 };
 
         // 3. Datos Operaciones (Ceamse / Flota)
         const rawKpiData = {
-            "total_descargas_ceamse": 1839,
-            "total_tn_neta_ceamse": 13475.16,
-            "proyeccion_tn_neta_ceamse": 25265.925,
-            "camiones_trabajando_su": 71,
-            "camiones_op_trabajando": 11,
-            "porcentaje_cumplidas_covelia": 88.09523809523809
+            "total_descargas_ceamse": 2093,
+            "total_tn_neta_ceamse": 15205.5,
+            "proyeccion_tn_neta_ceamse": 24008.684210526317,
+            "camiones_trabajando_su": 70,
+            "camiones_op_trabajando": 12,
+            "porcentaje_cumplidas_covelia": 91.66666666666666
 };
         // ============================================================================
 
