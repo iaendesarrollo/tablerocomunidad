@@ -199,67 +199,66 @@
         
         // 1. Datos Resumen Diario (SGR)
         const resumenDiarioData = {
-            "total_registros": 1658,
+            "total_registros": 1890,
             "top_tipo": "Servicios Públicos",
-            "top_sub_tipo": "Retiro de montículos de basura o tierra",
+            "top_sub_tipo": "Retiro de ramas y troncos de poda domiciliaria",
             "top_zonificacion_cav": "LOMAS"
 };
 
         // 2. Datos Seguridad y Justicia
         const rawSeguridad911 = {
-            "('ALARMAS (SPB Tobilleras)', datetime.date(2026, 4, 19))": 2,
-            "('Auxilio general', datetime.date(2026, 4, 19))": 10,
-            "('DESAPARICION DE PERSONAS (LOCALIZACIÓN)', datetime.date(2026, 4, 19))": 2,
-            "('Disparo de arma de fuego', datetime.date(2026, 4, 19))": 2,
-            "('EMERGENCIA DE SALUD (PRESUNCIÓN DE FALLECIMIENTO)', datetime.date(2026, 4, 19))": 1,
-            "('Emergencia sanitaria', datetime.date(2026, 4, 19))": 2,
-            "('HALLAZGO (PERSONA PERDIDA)', datetime.date(2026, 4, 19))": 1,
-            "('INTEGRIDAD A LA VIDA (AMENAZA DE MUERTE)', datetime.date(2026, 4, 19))": 1,
-            "('INTEGRIDAD A LA VIDA (SUICIDIO)', datetime.date(2026, 4, 19))": 1,
-            "('Incendio', datetime.date(2026, 4, 19))": 3,
-            "('Otros', datetime.date(2026, 4, 19))": 1,
-            "('Persona en actitud sospechosa', datetime.date(2026, 4, 19))": 2,
-            "('Robo de autoparte', datetime.date(2026, 4, 19))": 1,
-            "('Robo de vehículo', datetime.date(2026, 4, 19))": 2,
-            "('Robo en finca', datetime.date(2026, 4, 19))": 2,
-            "('Robo en vía pública', datetime.date(2026, 4, 19))": 6,
-            "('Siniestro vial', datetime.date(2026, 4, 19))": 9,
-            "('Usurpación / intrusión', datetime.date(2026, 4, 19))": 1,
-            "('VANDALISMO (PROPIEDAD PRIVADA)', datetime.date(2026, 4, 19))": 1,
-            "('Violencia', datetime.date(2026, 4, 19))": 14,
-            "('Violencia de género', datetime.date(2026, 4, 19))": 7,
-            "('Violencia infantil', datetime.date(2026, 4, 19))": 1,
-            "('Violencia intrafamiliar', datetime.date(2026, 4, 19))": 7
+            "('ALARMAS (SPB Tobilleras)', datetime.date(2026, 4, 20))": 12,
+            "('ALARMAS (SV-SENSOR VERIFICADO)', datetime.date(2026, 4, 20))": 1,
+            "('Alarma', datetime.date(2026, 4, 20))": 9,
+            "('Auxilio general', datetime.date(2026, 4, 20))": 13,
+            "('BOTON PANICO (COLECTIVO)', datetime.date(2026, 4, 20))": 1,
+            "('Disparo de arma de fuego', datetime.date(2026, 4, 20))": 1,
+            "('EMERGENCIA DE SALUD (PRESUNCIÓN DE FALLECIMIENTO)', datetime.date(2026, 4, 20))": 2,
+            "('Emergencia sanitaria', datetime.date(2026, 4, 20))": 3,
+            "('Hallazgo vehicular', datetime.date(2026, 4, 20))": 2,
+            "('Incendio', datetime.date(2026, 4, 20))": 3,
+            "('Persona en actitud sospechosa', datetime.date(2026, 4, 20))": 3,
+            "('Robo de autoparte', datetime.date(2026, 4, 20))": 2,
+            "('Robo de motovehículo', datetime.date(2026, 4, 20))": 3,
+            "('Robo de vehículo', datetime.date(2026, 4, 20))": 5,
+            "('Robo en finca', datetime.date(2026, 4, 20))": 2,
+            "('Robo en vía pública', datetime.date(2026, 4, 20))": 3,
+            "('STARLIGHT (USO EXCLUSIVO CD) ((CD) ROBO (PROTECCIÓN LOCAL))', datetime.date(2026, 4, 20))": 1,
+            "('Siniestro vial', datetime.date(2026, 4, 20))": 12,
+            "('Violencia', datetime.date(2026, 4, 20))": 5,
+            "('Violencia de género', datetime.date(2026, 4, 20))": 4,
+            "('Violencia intrafamiliar', datetime.date(2026, 4, 20))": 3
 };
         const rawEmergencias107 = {
-            "('Domicilio Particular', '19/04/2026')": 15,
-            "('Vía Pública', '19/04/2026')": 11,
-            "('Área Pública', '19/04/2026')": 5
+            "('Domicilio Particular', '20/04/2026')": 18,
+            "('Instituciones Educativas', '20/04/2026')": 10,
+            "('Vía Pública', '20/04/2026')": 19,
+            "('Área Pública', '20/04/2026')": 3
 };
 
         const totalSeguridad911 = Object.values(rawSeguridad911).reduce((sum, val) => sum + val, 0);
         const totalEmergencias107 = Object.values(rawEmergencias107).reduce((sum, val) => sum + val, 0);
 
         const top3Seguridad911 = {
-            "Robo en vía pública": 95,
-            "Robo de vehículo": 72,
-            "Robo en finca": 55
+            "Robo en vía pública": 98,
+            "Robo de vehículo": 77,
+            "Robo en finca": 57
 };
 
         const top3Emergencias107 = {
-            "Domicilio Particular": 327,
-            "Vía Pública": 299,
-            "Instituciones Educativas": 89
+            "Domicilio Particular": 345,
+            "Vía Pública": 318,
+            "Instituciones Educativas": 99
 };
 
         // 3. Datos Operaciones (Ceamse / Flota)
         const rawKpiData = {
-            "total_descargas_ceamse": 2093,
-            "total_tn_neta_ceamse": 15205.5,
-            "proyeccion_tn_neta_ceamse": 24008.684210526317,
-            "camiones_trabajando_su": 70,
-            "camiones_op_trabajando": 12,
-            "porcentaje_cumplidas_covelia": 91.66666666666666
+            "total_descargas_ceamse": 2257,
+            "total_tn_neta_ceamse": 16657.48,
+            "proyeccion_tn_neta_ceamse": 24986.22,
+            "camiones_trabajando_su": 73,
+            "camiones_op_trabajando": 11,
+            "porcentaje_cumplidas_covelia": 94.04761904761905
 };
         // ============================================================================
 
