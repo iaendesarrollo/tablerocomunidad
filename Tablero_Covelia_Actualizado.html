@@ -78,7 +78,7 @@
             </div>
             <div class="text-right border-l border-white/20 pl-6 text-white">
                 <p class="text-[10px] uppercase font-bold opacity-60">Última Actualización</p>
-                <p class="text-xl font-bold">20/04/2026</p>
+                <p class="text-xl font-bold">21/04/2026</p>
             </div>
         </div>
     </header>
@@ -93,17 +93,17 @@
             </div>
             <div class="card-informativa">
                 <p class="text-[10px] font-bold uppercase opacity-60">% Cumplimiento</p>
-                <h2 class="text-5xl font-extrabold">94.0%</h2>
+                <h2 class="text-5xl font-extrabold">92.9%</h2>
                 <i class="fas fa-check-circle kpi-icon-bg"></i>
             </div>
             <div class="card-informativa">
                 <p class="text-[10px] font-bold uppercase opacity-60">KMs Totales</p>
-                <h2 class="text-5xl font-extrabold">1.483,2</h2>
+                <h2 class="text-5xl font-extrabold">1.447,5</h2>
                 <i class="fas fa-tachometer-alt kpi-icon-bg"></i>
             </div>
             <div class="card-informativa" style="border-left-color: var(--magenta);">
                 <p class="text-[10px] font-bold uppercase opacity-60">Novedades (Check)</p>
-                <h2 class="text-5xl font-extrabold critical-text">5</h2>
+                <h2 class="text-5xl font-extrabold critical-text">6</h2>
                 <i class="fas fa-exclamation-triangle kpi-icon-bg" style="color: var(--magenta);"></i>
             </div>
         </section>
@@ -140,7 +140,7 @@
 
     <script>
         // Datos filtrados del archivo CSV (Jornada 26/01/2026)
-        const novedades = [{"f": "2026-04-20", "r": "16D", "c": "Santa Catalina", "e": "CHECK RECORRIDO", "d": "Thomas Edison de Pasaje 9 a Facundo Quiroga Martel de Diagonal 62 a Zanetti Miatello de Martel a Silvero Manco Pasaje del Pueblo de Diagonal 62 a Martel Chaco de Pasaje Del Pueblo a Rosas Rosas de Rosario a Forgione Tierra del Fuego de Diagonal 62 a  Miatello Silvero Manco de Martel a Diagonal 62 Pardo de Martel a Elizalde Zanetti de Martel a Elizalde"}, {"f": "2026-04-20", "r": "34D", "c": "Santa Catalina", "e": "CHECK RECORRIDO", "d": "Zanetti de Martel a Elizalde 20 de Junio de Goodwyn a General Costa Las Flores de Goodwyn a General Costa Leonardo Da Vinci de Monte Olivo a Chacho Peñaloza Marurana de Carlos Voss a Alberto Franco 28 De Julio de Geronimo Costa a Jose Tallon Thomas Edison de Alberto Franco a Carlos Voss"}, {"f": "2026-04-20", "r": "35D", "c": "Santa Catalina", "e": "CHECK RECORRIDO", "d": "Padre Mujica de Progreso a Juan Manuel de Rosas Agustin Magaldi de Saladillo a Avenida La Noria Raul LLobera de La Rioja a Avenida La Noria San Juan de Progreso a La Rioja Saladillo de La Torre a Raul LLobera Cordoba de Progreso a La Rioja Lorea de La Torre a 7 De Mayo San Martin de Los Pinos a Elizalde"}, {"f": "2026-04-20", "r": "55D", "c": "San Jose", "e": "CHECK RECORRIDO", "d": "Vespucio de Dinamarca a Alemania Dinamarca de Costa Rica a Vespucio Alemania de Vespucio a Monroe"}, {"f": "2026-04-20", "r": "65D", "c": "Llavallol", "e": "CHECK RECORRIDO", "d": "Sarratea de 1 De Marzo a Mercedes Necochea de 1 De Marzo a Mercedes Doyhenard de 1 De Marzo a Melber"}];
+        const novedades = [{"f": "2026-04-21", "r": "16D", "c": "Santa Catalina", "e": "CHECK RECORRIDO", "d": "Thomas Edison de Pasaje 9 a Facundo Quiroga Martel de Diagonal 62 a Zanetti Miatello de Martel a Silvero Manco Pasaje del Pueblo de Diagonal 62 a Martel Chaco de Pasaje Del Pueblo a Rosas Rosas de Rosario a Forgione Tierra del Fuego de Diagonal 62 a  Miatello Silvero Manco de Martel a Diagonal 62 Pardo de Martel a Elizalde Zanetti de Martel a Elizalde"}, {"f": "2026-04-21", "r": "34D", "c": "Santa Catalina", "e": "CHECK RECORRIDO", "d": "Zanetti de Martel a Elizalde 20 de Junio de Goodwyn a General Costa Las Flores de Goodwyn a General Costa Leonardo Da Vinci de Monte Olivo a Chacho Peñaloza Marurana de Carlos Voss a Alberto Franco 28 De Julio de Geronimo Costa a Jose Tallon Thomas Edison de Alberto Franco a Carlos Voss"}, {"f": "2026-04-21", "r": "35D", "c": "Santa Catalina", "e": "CHECK RECORRIDO", "d": "Padre Mujica de Progreso a Juan Manuel de Rosas Agustin Magaldi de Saladillo a Avenida La Noria Raul LLobera de La Rioja a Avenida La Noria San Juan de Progreso a La Rioja Saladillo de La Torre a Raul LLobera Cordoba de Progreso a La Rioja Lorea de La Torre a 7 De Mayo San Martin de Los Pinos a Elizalde"}, {"f": "2026-04-21", "r": "54D", "c": "Banfield", "e": "CHECK RECORRIDO", "d": "Yapeyu de Pedernera a Fonrouge Derqui de Pedernera a Pintos 11 De Septiembre de Pedernera a Pintos Quintana de Matheu a Pedernera"}, {"f": "2026-04-21", "r": "60D", "c": "San Jose", "e": "CHECK RECORRIDO", "d": "El Benteveo de El Hornero a Juan De Garay La Torcaza  de El Hornero a Juan De Garay"}, {"f": "2026-04-21", "r": "62D", "c": "San Jose", "e": "CHECK RECORRIDO", "d": "Caaguazú de El Hornero a Juan De Garay La Golondrina de Lules a El Chingolo"}];
 
         // 1. Poblado de Tabla
         const tbody = document.getElementById('tabla-body');
@@ -161,17 +161,17 @@
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ["09/04", "10/04", "11/04", "14/04", "15/04", "16/04", "17/04", "18/04", "20/04"],
+                labels: ["10/04", "11/04", "14/04", "15/04", "16/04", "17/04", "18/04", "20/04", "21/04"],
                 datasets: [
                     { 
                         label: 'CUMPLIMENTADO', 
-                        data: [75, 76, 73, 74, 78, 74, 77, 77, 79], 
+                        data: [76, 73, 74, 78, 74, 77, 77, 79, 78], 
                         backgroundColor: '#4AB5E0',
                         borderRadius: 6 
                     },
                     { 
                         label: 'CHECK RECORRIDO', 
-                        data: [9, 8, 11, 10, 6, 10, 7, 7, 5], 
+                        data: [8, 11, 10, 6, 10, 7, 7, 5, 6], 
                         backgroundColor: '#19567C',
                         borderRadius: 6 
                     }
