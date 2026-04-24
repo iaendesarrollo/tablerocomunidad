@@ -183,43 +183,43 @@
     <script>
         // MANTENIMIENTO DE ESTRUCTURA DE DATOS PARA ACTUALIZACIÓN PYTHON
         const camionesData = {
-    "Fecha": "2026-04-22",
-    "Operativos": 11,
-    "No_Operativo": 8
+    "Fecha": "2026-04-24",
+    "Operativos": 7,
+    "No_Operativo": 5
 };
         const maquinariaData = {
-    "Fecha": "2026-04-22",
-    "Operativos": 2,
-    "No_Operativo": 6
+    "Fecha": "2026-04-24",
+    "Operativos": 0,
+    "No_Operativo": 4
 };
         
         const salidaDiariaRaw = {
     "resumen_maq": [
         {
-            "Fecha": "2026-04-22",
+            "Fecha": "2026-04-24",
             "Area": " OBRAS PUBLICAS",
             "Operativos": 0,
             "No_Operativo": 1
         },
         {
-            "Fecha": "2026-04-22",
+            "Fecha": "2026-04-24",
             "Area": "SS PLANIFICACION HIDRICA",
-            "Operativos": 2,
-            "No_Operativo": 5
+            "Operativos": 0,
+            "No_Operativo": 3
         }
     ],
     "resumen_cam": [
         {
-            "Fecha": "2026-04-22",
+            "Fecha": "2026-04-24",
             "Area": "SS PLANIFICACION HIDRICA",
-            "Operativos": 3,
-            "No_Operativo": 5
+            "Operativos": 0,
+            "No_Operativo": 1
         },
         {
-            "Fecha": "2026-04-22",
+            "Fecha": "2026-04-24",
             "Area": "SS REDES Y SERV. CONCESIONADOS",
-            "Operativos": 8,
-            "No_Operativo": 3
+            "Operativos": 7,
+            "No_Operativo": 4
         }
     ]
 };
@@ -227,37 +227,25 @@
         const noOperativosRaw = {
     "no_operativos_ultimo_dia_maq": [
         {
-            "Fecha": "22/04/2026",
+            "Fecha": "24/04/2026",
             "Dominio": "FBB04",
             "Tipo": "RETROEXCAVADORA",
             "Detalle": "FALTA DE PERSONAL"
         },
         {
-            "Fecha": "22/04/2026",
-            "Dominio": "BWI65",
-            "Tipo": "MINI CARGADORA",
-            "Detalle": "TALLER"
-        },
-        {
-            "Fecha": "22/04/2026",
-            "Dominio": "CJZ34",
-            "Tipo": "RETROEXCAVADORA",
-            "Detalle": "TALLER"
-        },
-        {
-            "Fecha": "22/04/2026",
+            "Fecha": "24/04/2026",
             "Dominio": "CXJ80",
             "Tipo": "MOTONIVELADORA",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "22/04/2026",
+            "Fecha": "24/04/2026",
             "Dominio": "CXJ99",
             "Tipo": "MOTONIVELADORA",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "22/04/2026",
+            "Fecha": "24/04/2026",
             "Dominio": "DHV52",
             "Tipo": "MOTONIVELADORA",
             "Detalle": "TALLER"
@@ -265,49 +253,31 @@
     ],
     "no_operativos_ultimo_dia": [
         {
-            "Fecha": "22/04/2026",
-            "Dominio": "AG979EU",
-            "Tipo": "DESOBSTRUCTOR",
-            "Detalle": "TALLER"
-        },
-        {
-            "Fecha": "22/04/2026",
-            "Dominio": "BTM638",
-            "Tipo": "DESOBSTRUCTOR",
-            "Detalle": "TALLER"
-        },
-        {
-            "Fecha": "22/04/2026",
+            "Fecha": "24/04/2026",
             "Dominio": "IWL376",
             "Tipo": "VOLCADOR",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "22/04/2026",
-            "Dominio": "KRV507",
-            "Tipo": "DESOBSTRUCTOR",
-            "Detalle": "TALLER"
-        },
-        {
-            "Fecha": "22/04/2026",
-            "Dominio": "AG863SN",
-            "Tipo": "DESOBSTRUCTOR",
-            "Detalle": "TALLER"
-        },
-        {
-            "Fecha": "22/04/2026",
+            "Fecha": "24/04/2026",
             "Dominio": "AF827ZU",
             "Tipo": "HIDRANTE",
             "Detalle": "ESPERANDO CAMBIO DE MANGUERA Y  ARREGLO DE BOMBA"
         },
         {
-            "Fecha": "22/04/2026",
+            "Fecha": "24/04/2026",
             "Dominio": "AF872ZV",
             "Tipo": "HIDRANTE",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "22/04/2026",
+            "Fecha": "24/04/2026",
+            "Dominio": "AH077AR",
+            "Tipo": "HIDRANTE",
+            "Detalle": "MANGUERA DE BOMBA ROTA,ESPERANDO A TALLER"
+        },
+        {
+            "Fecha": "24/04/2026",
             "Dominio": "NVR680",
             "Tipo": "ALMEJA",
             "Detalle": "TALLER,PERDIDA DE LIQUIDO"
@@ -411,6 +381,16 @@
             "Fecha": "2026-04-22",
             "Operativos": 11,
             "No_Operativo": 8
+        },
+        {
+            "Fecha": "2026-04-23",
+            "Operativos": 11,
+            "No_Operativo": 8
+        },
+        {
+            "Fecha": "2026-04-24",
+            "Operativos": 7,
+            "No_Operativo": 5
         }
     ],
     "tabla_30d_maq": [
@@ -508,6 +488,16 @@
             "Fecha": "2026-04-22",
             "Operativos": 2,
             "No_Operativo": 6
+        },
+        {
+            "Fecha": "2026-04-23",
+            "Operativos": 2,
+            "No_Operativo": 6
+        },
+        {
+            "Fecha": "2026-04-24",
+            "Operativos": 0,
+            "No_Operativo": 4
         }
     ]
 };
