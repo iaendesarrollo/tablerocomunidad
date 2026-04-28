@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguridad 911 - Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Fuentes: Montserrat (Regla 1 del PDF) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Iconos Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --azul-institucional: #19567C;
+            --celeste-acento: #4AB5E0;
+            --magenta-alerta: #D14370;
+            --blanco: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--azul-institucional);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        /* TÍTULO BALANCEADO (32px) */
+        .brand-title { 
+            font-size: 32px; 
+            font-weight: 900; 
+            line-height: 1.1; 
+            text-transform: uppercase;
+            color: var(--blanco);
+        }
+        
+        .brand-subtitle {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.4em;
+            color: var(--celeste-acento);
+            text-transform: uppercase;
+        }
+
+        /* Estilo de Tarjetas Institucionales (Fondo Blanco) */
+        .card-blanca {
+            background-color: var(--blanco);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border: none;
+            height: 100%;
+        }
+
+        /* Estilos de Tabla */
+        table thead th {
+            background-color: #F8FAFC;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 14px 24px;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        table tbody td {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+        }
+
+        /* Breadcrumbs */
+        .breadcrumb-item { color: rgba(255, 255, 255, 0.5); font-size: 11px; text-transform: uppercase; }
+        .breadcrumb-active { color: var(--blanco); font-weight: 700; font-size: 11px; text-transform: uppercase; }
+
+        .text-caption { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: #94a3b8; text-transform: uppercase; }
+
+        .scroll-custom::-webkit-scrollbar { width: 6px; }
+        .scroll-custom::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+    </style>
+</head>
+<body class="scroll-custom">
+
+    <!-- HEADER INSTITUCIONAL -->
+    <header class="w-full py-6 px-10 flex flex-col md:flex-row justify-between items-center border-b border-white/10 shrink-0">
+        <div class="flex flex-col text-center md:text-left">
+            <h1 class="brand-title">Emergencias 107</h1>
+            <p class="brand-subtitle mt-1">Sistema de Inteligencia y Monitoreo</p>
+        </div>
+
+        <div class="mt-4 md:mt-0 flex flex-col items-end bg-white/5 px-5 py-3 rounded-xl border border-white/10 backdrop-blur-sm">
+            <span class="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1">Fecha de actualización</span>
+            <span id="update-date-display" class="text-lg font-bold text-white">28/04/2026</span>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-1 w-full max-w-[1400px] mx-auto py-8 px-6 flex flex-col gap-10">
+        
+        <!-- Navegación -->
+        <nav class="flex items-center gap-2">
+            <span class="breadcrumb-item">Panel Central</span>
+            <span class="text-white/20">/</span>
+            <span class="breadcrumb-active">Seguridad y Justicia</span>
+        </nav>
+
+        <!-- KPIs GENERALES -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card-blanca flex flex-col justify-between min-h-[140px]">
+                <div class="flex justify-between items-start">
+                    <span class="text-caption">Acumulado Mensual</span>
+                    <i data-lucide="shield-check" class="text-[var(--azul-institucional)] h-5 w-5 opacity-20"></i>
+                </div>
+                <div class="mt-4">
+                    <h3 class="text-sm uppercase mb-1">Total Incidentes Abril</h3>
+                    <span id="total-mes" class="text-5xl font-black text-[var(--azul-institucional)] tracking-tighter">0</span>
+                </div>
+            </div>
+
+            <div class="card-blanca border-l-4 border-[var(--magenta-alerta)] flex flex-col justify-between min-h-[140px]">
+                <div class="flex justify-between items-start">
+                    <span class="text-caption">Cierre Operativo</span>
+                    <i data-lucide="activity" class="text-[var(--magenta-alerta)] h-5 w-5 opacity-20"></i>
+                </div>
+                <div class="mt-4">
+                    <h3 class="text-sm uppercase mb-1 text-[var(--magenta-alerta)]">Reportes del Día</h3>
+                    <span id="total-dia" class="text-5xl font-black text-[var(--azul-institucional)] tracking-tighter">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLA DE REGISTROS -->
+        <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-3 px-1">
+                <div class="h-4 w-1 bg-[var(--magenta-alerta)] rounded-full"></div>
+                <h2 class="text-white text-[10px] font-bold uppercase tracking-[0.3em]">Registros Detallados del Día</h2>
+            </div>
+            
+            <div class="card-blanca p-0 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr>
+                                <th>Tipología de Incidente</th>
+                                <th class="text-right">Cantidad de Casos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-registros-body">
+                            <!-- JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOP 3 ALERTAS -->
+        <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-3 px-1">
+                <div class="h-1 w-6 bg-[var(--celeste-acento)] rounded-full"></div>
+                <h2 class="text-white text-[10px] font-bold uppercase tracking-[0.3em]">Alertas Críticas del Mes</h2>
+            </div>
+            <div id="top-accidentes-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- JS -->
+            </div>
+        </div>
+
+        <!-- GRÁFICO DE EVOLUCIÓN -->
+        <div class="flex flex-col gap-4 mb-10">
+            <div class="flex items-center gap-3 px-1">
+                <div class="h-4 w-1 bg-[var(--celeste-acento)] rounded-full"></div>
+                <h2 class="text-white text-[10px] font-bold uppercase tracking-[0.3em]">Evolución Temporal de Incidentes</h2>
+            </div>
+            <div class="card-blanca min-h-[350px]">
+                <canvas id="evolucionChart"></canvas>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full py-10 bg-black/20 border-t border-white/5 text-center">
+        <p class="text-[10px] font-bold text-white/30 uppercase tracking-[0.5em]">SEGURIDAD 911 | GESTIÓN INSTITUCIONAL DE DATOS © 2026</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // Datos integrados
+        const conteoMesData = {"1775012400000":88,"1775098800000":66,"1775185200000":64,"1775271600000":64,"1775358000000":72,"1775444400000":59,"1775530800000":62,"1775617200000":86,"1775703600000":86,"1775790000000":102,"1775876400000":67,"1775962800000":70,"1776049200000":91,"1776135600000":80,"1776308400000":65,"1776394800000":97,"1776481200000":74,"1776567600000":68,"1776654000000":78,"1776740400000":51,"1776826800000":81,"1776913200000":92,"1776999600000":92,"1777086000000":76,"1777172400000":80,"1777258800000":94};
+        const detalleDiaData = {"('Domicilio Particular', '27/04/2026')":29,"('Instituciones Educativas', '27/04/2026')":15,"('V\u00eda P\u00fablica', '27/04/2026')":19,"('\u00c1rea P\u00fablica', '27/04/2026')":2};
+        const topAccidentesData = {"Domicilio Particular":457,"V\u00eda P\u00fablica":429,"Instituciones Educativas":152};
+        const evolucionData = {"1775012400000":88,"1775098800000":66,"1775185200000":64,"1775271600000":64,"1775358000000":72,"1775444400000":59,"1775530800000":62,"1775617200000":86,"1775703600000":86,"1775790000000":102,"1775876400000":67,"1775962800000":70,"1776049200000":91,"1776135600000":80,"1776308400000":65,"1776394800000":97,"1776481200000":74,"1776567600000":68,"1776654000000":78,"1776740400000":51,"1776826800000":81,"1776913200000":92,"1776999600000":92,"1777086000000":76,"1777172400000":80,"1777258800000":94};
+
+        let chartInstance = null;
+
+        function procesarTablero() {
+            // 1. Totales
+            const startAbril = 1774915200000;
+            const endAbril = 1777507200000;
+            let sumaMes = 0;
+            for (let ts in conteoMesData) {
+                if (parseInt(ts) >= startAbril && parseInt(ts) < endAbril) sumaMes += conteoMesData[ts];
+            }
+
+            let sumaDia = 0;
+            const tablaBody = document.getElementById('tabla-registros-body');
+            tablaBody.innerHTML = '';
+            for (let entry in detalleDiaData) {
+                const valor = detalleDiaData[entry];
+                sumaDia += valor;
+                const nombre = entry.split("'")[1];
+                const row = document.createElement('tr');
+                row.className = "hover:bg-slate-50 transition-colors";
+                row.innerHTML = `
+                    <td class="font-medium text-slate-700">${nombre}</td>
+                    <td class="text-right font-bold text-[var(--azul-institucional)]">${valor}</td>
+                `;
+                tablaBody.appendChild(row);
+            }
+
+            document.getElementById('total-mes').innerText = sumaMes.toLocaleString('es-AR');
+            document.getElementById('total-dia').innerText = sumaDia.toLocaleString('es-AR');
+
+            // 2. Alertas Críticas
+            const gridTop = document.getElementById('top-accidentes-grid');
+            gridTop.innerHTML = '';
+            for (let tipo in topAccidentesData) {
+                const valor = topAccidentesData[tipo];
+                const card = document.createElement('div');
+                card.className = "card-blanca";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="text-caption">Alertas Mes</span>
+                        <div class="h-1.5 w-1.5 rounded-full bg-[var(--magenta-alerta)]"></div>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-gray-500 font-medium text-[11px] uppercase tracking-wider mb-1">${tipo}</h3>
+                        <span class="text-4xl font-black text-[var(--azul-institucional)] tracking-tighter">${valor}</span>
+                    </div>
+                `;
+                gridTop.appendChild(card);
+            }
+
+            // 3. Gráfico de Evolución
+            renderizarGrafico();
+        }
+
+        function renderizarGrafico() {
+            const ctx = document.getElementById('evolucionChart').getContext('2d');
+            
+            // Ordenar datos cronológicamente
+            const sortedTimestamps = Object.keys(evolucionData).sort();
+            const labels = sortedTimestamps.map(ts => {
+                const date = new Date(parseInt(ts));
+                return `${date.getDate()}/${date.getMonth() + 1}`;
+            });
+            const dataPoints = sortedTimestamps.map(ts => evolucionData[ts]);
+
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Incidentes Diarios',
+                        data: dataPoints,
+                        borderColor: '#4AB5E0',
+                        backgroundColor: 'rgba(74, 181, 224, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#19567C',
+                        pointBorderColor: '#fff',
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { family: 'Montserrat', size: 10, weight: '600' } }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { font: { family: 'Montserrat', size: 10, weight: '600' } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#19567C',
+                            titleFont: { family: 'Montserrat', size: 12, weight: 'bold' },
+                            bodyFont: { family: 'Montserrat', size: 12 },
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false
+                        }
+                    }
+                }
+            });
+        }
+
+        window.onload = procesarTablero;
+    </script>
+</body>
+</html>
