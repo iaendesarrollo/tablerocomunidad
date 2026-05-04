@@ -5,18 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seguridad 911 - Dashboard</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Fuentes: Montserrat (Regla 1 del PDF) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Iconos Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -94,7 +90,6 @@
 </head>
 <body class="scroll-custom">
 
-    <!-- HEADER INSTITUCIONAL -->
     <header class="w-full py-6 px-10 flex flex-col md:flex-row justify-between items-center border-b border-white/10 shrink-0">
         <div class="flex flex-col text-center md:text-left">
             <h1 class="brand-title">Emergencias 107</h1>
@@ -103,21 +98,18 @@
 
         <div class="mt-4 md:mt-0 flex flex-col items-end bg-white/5 px-5 py-3 rounded-xl border border-white/10 backdrop-blur-sm">
             <span class="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1">Fecha de actualización</span>
-            <span id="update-date-display" class="text-lg font-bold text-white">30/04/2026</span>
+            <span id="update-date-display" class="text-lg font-bold text-white">04/05/2026</span>
         </div>
     </header>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <main class="flex-1 w-full max-w-[1400px] mx-auto py-8 px-6 flex flex-col gap-10">
         
-        <!-- Navegación -->
         <nav class="flex items-center gap-2">
             <span class="breadcrumb-item">Panel Central</span>
             <span class="text-white/20">/</span>
             <span class="breadcrumb-active">Seguridad y Justicia</span>
         </nav>
 
-        <!-- KPIs GENERALES -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="card-blanca flex flex-col justify-between min-h-[140px]">
                 <div class="flex justify-between items-start">
@@ -125,7 +117,7 @@
                     <i data-lucide="shield-check" class="text-[var(--azul-institucional)] h-5 w-5 opacity-20"></i>
                 </div>
                 <div class="mt-4">
-                    <h3 class="text-sm uppercase mb-1">Total Incidentes Abril</h3>
+                    <h3 class="text-sm uppercase mb-1">Total Incidentes Mes</h3>
                     <span id="total-mes" class="text-5xl font-black text-[var(--azul-institucional)] tracking-tighter">0</span>
                 </div>
             </div>
@@ -142,7 +134,6 @@
             </div>
         </div>
 
-        <!-- TABLA DE REGISTROS -->
         <div class="flex flex-col gap-4">
             <div class="flex items-center gap-3 px-1">
                 <div class="h-4 w-1 bg-[var(--magenta-alerta)] rounded-full"></div>
@@ -159,25 +150,21 @@
                             </tr>
                         </thead>
                         <tbody id="tabla-registros-body">
-                            <!-- JS -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- TOP 3 ALERTAS -->
         <div class="flex flex-col gap-4">
             <div class="flex items-center gap-3 px-1">
                 <div class="h-1 w-6 bg-[var(--celeste-acento)] rounded-full"></div>
                 <h2 class="text-white text-[10px] font-bold uppercase tracking-[0.3em]">Alertas Críticas del Mes</h2>
             </div>
             <div id="top-accidentes-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- JS -->
-            </div>
+                </div>
         </div>
 
-        <!-- GRÁFICO DE EVOLUCIÓN -->
         <div class="flex flex-col gap-4 mb-10">
             <div class="flex items-center gap-3 px-1">
                 <div class="h-4 w-1 bg-[var(--celeste-acento)] rounded-full"></div>
@@ -197,30 +184,37 @@
     <script>
         lucide.createIcons();
 
-        // Datos integrados
-        const conteoMesData = {"1775012400000":88,"1775098800000":66,"1775185200000":64,"1775271600000":64,"1775358000000":72,"1775444400000":59,"1775530800000":62,"1775617200000":86,"1775703600000":86,"1775790000000":102,"1775876400000":67,"1775962800000":70,"1776049200000":91,"1776135600000":80,"1776308400000":65,"1776394800000":97,"1776481200000":74,"1776567600000":68,"1776654000000":78,"1776740400000":51,"1776826800000":81,"1776913200000":92,"1776999600000":92,"1777086000000":76,"1777172400000":80,"1777258800000":94,"1777345200000":95,"1777431600000":95};
-        const detalleDiaData = {"('Centro M\u00e9dico', '29/04/2026')":2,"('Domicilio Particular', '29/04/2026')":18,"('Instituciones Educativas', '29/04/2026')":16,"('V\u00eda P\u00fablica', '29/04/2026')":14,"('\u00c1rea P\u00fablica', '29/04/2026')":5};
-        const topAccidentesData = {"Domicilio Particular":497,"V\u00eda P\u00fablica":457,"Instituciones Educativas":177};
-        const evolucionData = {"1775012400000":88,"1775098800000":66,"1775185200000":64,"1775271600000":64,"1775358000000":72,"1775444400000":59,"1775530800000":62,"1775617200000":86,"1775703600000":86,"1775790000000":102,"1775876400000":67,"1775962800000":70,"1776049200000":91,"1776135600000":80,"1776308400000":65,"1776394800000":97,"1776481200000":74,"1776567600000":68,"1776654000000":78,"1776740400000":51,"1776826800000":81,"1776913200000":92,"1776999600000":92,"1777086000000":76,"1777172400000":80,"1777258800000":94,"1777345200000":95,"1777431600000":95};
+        // Variables vacías preparadas para que el script de Python las reemplace
+        const conteoMesData = {"1777604400000":94,"1777690800000":78,"1777777200000":67};
+        const detalleDiaData = {"('Domicilio Particular', '03/05/2026')":16,"('V\u00eda P\u00fablica', '03/05/2026')":11,"('\u00c1rea P\u00fablica', '03/05/2026')":2};
+        const topAccidentesData = {"Domicilio Particular":59,"V\u00eda P\u00fablica":43,"\u00c1rea P\u00fablica":9};
+        const evolucionData = {"1777604400000":94,"1777690800000":78,"1777777200000":67};
 
         let chartInstance = null;
 
         function procesarTablero() {
-            // 1. Totales
-            const startAbril = 1774915200000;
-            const endAbril = 1777507200000;
+            // 1. Totales Dinámicos por Mes Actual
+            const ahora = new Date();
+            const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1).getTime();
+            const finMes = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 1).getTime();
+
             let sumaMes = 0;
-            for (let ts in conteoMesData) {
-                if (parseInt(ts) >= startAbril && parseInt(ts) < endAbril) sumaMes += conteoMesData[ts];
+            // Sumamos utilizando evolucionData (que contiene los datos del mes actual)
+            for (let ts in evolucionData) {
+                if (parseInt(ts) >= inicioMes && parseInt(ts) < finMes) {
+                    sumaMes += evolucionData[ts];
+                }
             }
 
             let sumaDia = 0;
             const tablaBody = document.getElementById('tabla-registros-body');
             tablaBody.innerHTML = '';
+            
             for (let entry in detalleDiaData) {
                 const valor = detalleDiaData[entry];
                 sumaDia += valor;
-                const nombre = entry.split("'")[1];
+                // Parseamos por si el texto viene en formato "('Nombre', datetime.date(...))"
+                const nombre = entry.includes("'") ? entry.split("'")[1] : entry;
                 const row = document.createElement('tr');
                 row.className = "hover:bg-slate-50 transition-colors";
                 row.innerHTML = `
@@ -260,7 +254,6 @@
         function renderizarGrafico() {
             const ctx = document.getElementById('evolucionChart').getContext('2d');
             
-            // Ordenar datos cronológicamente
             const sortedTimestamps = Object.keys(evolucionData).sort();
             const labels = sortedTimestamps.map(ts => {
                 const date = new Date(parseInt(ts));
