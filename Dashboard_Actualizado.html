@@ -244,11 +244,10 @@
             "('Violencia intrafamiliar', datetime.date(2026, 5, 3))": 16
 };
         const rawEmergencias107 = {
-            "('Centro Médico', '12/04/2026')": 2,
-            "('Domicilio Particular', '12/04/2026')": 17,
-            "('Vía Pública', '12/04/2026')": 18,
-            "('Área Pública', '12/04/2026')": 1
-        };
+            "('Domicilio Particular', '03/05/2026')": 16,
+            "('Vía Pública', '03/05/2026')": 11,
+            "('Área Pública', '03/05/2026')": 2
+};
 
         const totalSeguridad911 = Object.values(rawSeguridad911).reduce((sum, val) => sum + val, 0);
         const totalEmergencias107 = Object.values(rawEmergencias107).reduce((sum, val) => sum + val, 0);
@@ -260,10 +259,10 @@
 };
 
         const top3Emergencias107 = {
-            "Domicilio Particular": 207,
-            "Vía Pública": 179,
-            "Instituciones Educativas": 48
-        };
+            "Domicilio Particular": 59,
+            "Vía Pública": 43,
+            "Área Pública": 9
+};
 
         // 3. Datos Operaciones (Ceamse / Flota)
         const rawKpiData = {
