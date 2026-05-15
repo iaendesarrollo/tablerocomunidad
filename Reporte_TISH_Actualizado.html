@@ -144,9 +144,9 @@
     <script>
         const dataKPI = {
     "Total_RECAUDACION_EJERCICIO_2025": 66890988308.16,
-    "Total_RECAUDACION_EJERCICIO_2026": 21028865170.21,
-    "Total_RECAUDACION_TOTAL_2025": 74391664308.88,
-    "Total_RECAUDACION_TOTAL_2026": 29225528016.68
+    "Total_RECAUDACION_EJERCICIO_2026": 21199560646.72,
+    "Total_RECAUDACION_TOTAL_2025": 74391664308.87999,
+    "Total_RECAUDACION_TOTAL_2026": 29427043847.309998
 };
 
         const dataRubros = [
@@ -156,7 +156,7 @@
     },
     {
         "rubro": "FERIAS",
-        "total": 4530093835.349999
+        "total": 4534384324.349999
     },
     {
         "rubro": "EMPRESAS DE SERVICIOS",
@@ -164,29 +164,29 @@
     },
     {
         "rubro": "SUPERMERCADOS Y AUTOSERVICIOS",
-        "total": 3679349730.86
+        "total": 3735228717.8
     },
     {
         "rubro": "FABRICAS",
-        "total": 2889157196.17
+        "total": 2916389767.25
     }
 ];
 
         const rawCGM = {
-    "Lomas": 11122325615.75,
-    "Lamadrid": 4572766679.11,
-    "Llavallol": 3671886426.5,
-    "Banfield": 3336314439.61,
-    "Temperley": 2347633438.42,
-    "Parque Barón": 781653822.1,
-    "San José": 615140517.47,
-    "Centenario": 478236561.13,
-    "Turdera": 390971549.04,
-    "Santa Marta": 354194928.69,
-    "Fiorito": 262753344.33,
-    "Ing. Budge": 129849150.87,
-    "Albertina": 107295323.18,
-    "Santa Catalina": 42005511.44
+    "Lomas": 11167061755.94,
+    "Lamadrid": 4577774784.11,
+    "Llavallol": 3689840359.1,
+    "Banfield": 3357582515.44,
+    "Temperley": 2375734948.98,
+    "Parque Barón": 790099770.87,
+    "San José": 623468429.53,
+    "Centenario": 486087897.13,
+    "Turdera": 395193231.5,
+    "Santa Marta": 359983694.59000003,
+    "Fiorito": 276628372.33,
+    "Ing. Budge": 140469820.87,
+    "Albertina": 108433661.34,
+    "Santa Catalina": 53511760.95
 };
         
         const rawTitulares2026 = {
@@ -210,11 +210,11 @@
     "VIDRIERIA ARG.(V.A.S.A.)": 370838805.47,
     "BANCO COMAFI S.A.": 364971728.0,
     "BINGOS DEL OESTE S.A.": 351255818.0,
+    "DIA ARGENTINA S.A": 264020339.0,
     "TELEFONICA MOVILES ARGENTINA S.A": 259405960.0,
-    "COLGATE PALMOLIVE ARGENTINA S.A.": 240379017.13000003,
+    "COLGATE PALMOLIVE ARGENTINA S.A.": 242894947.34,
     "BLANCO ISABEL": 225456458.1,
-    "SUPERMERCADOS MAYORISTAS MAKRO S.A.": 213626696.0,
-    "HSBC BANK ARGENTINA SA": 212475472.0
+    "SUPERMERCADOS MAYORISTAS MAKRO S.A.": 213626696.0
 };
 
         const rawTitulares2025 = {
@@ -238,11 +238,11 @@
     "VIDRIERIA ARG.(V.A.S.A.)": 1097521433.4199998,
     "BANCO COMAFI S.A.": 930641842.0,
     "BINGOS DEL OESTE S.A.": 895968692.0,
+    "DIA ARGENTINA S.A": 557490786.01,
     "TELEFONICA MOVILES ARGENTINA S.A": 861088446.0,
     "COLGATE PALMOLIVE ARGENTINA S.A.": 509892755.40999997,
     "BLANCO ISABEL": 577191966.3000001,
-    "SUPERMERCADOS MAYORISTAS MAKRO S.A.": 537154325.0,
-    "HSBC BANK ARGENTINA SA": 541791458.0
+    "SUPERMERCADOS MAYORISTAS MAKRO S.A.": 537154325.0
 };
 
         const formatCurrency = (val) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(val);
