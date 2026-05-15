@@ -183,26 +183,20 @@
     <script>
         // MANTENIMIENTO DE ESTRUCTURA DE DATOS PARA ACTUALIZACIÓN PYTHON
         const camionesData = {
-    "Fecha": "2026-05-14",
-    "Operativos": 7,
-    "No_Operativo": 5
+    "Fecha": "2026-05-15",
+    "Operativos": 5,
+    "No_Operativo": 6
 };
         const maquinariaData = {
-    "Fecha": "2026-05-14",
+    "Fecha": "2026-05-15",
     "Operativos": 0,
-    "No_Operativo": 3
+    "No_Operativo": 1
 };
         
         const salidaDiariaRaw = {
     "resumen_maq": [
         {
-            "Fecha": "2026-05-14",
-            "Area": "SECRETARIA OP",
-            "Operativos": 0,
-            "No_Operativo": 2
-        },
-        {
-            "Fecha": "2026-05-14",
+            "Fecha": "2026-05-15",
             "Area": "SS PLANIFICACION HIDRICA",
             "Operativos": 0,
             "No_Operativo": 1
@@ -210,16 +204,10 @@
     ],
     "resumen_cam": [
         {
-            "Fecha": "2026-05-14",
-            "Area": "SECRETARIA OP",
-            "Operativos": 0,
-            "No_Operativo": 1
-        },
-        {
-            "Fecha": "2026-05-14",
+            "Fecha": "2026-05-15",
             "Area": "SS REDES Y SERV. CONCESIONADOS",
-            "Operativos": 7,
-            "No_Operativo": 4
+            "Operativos": 5,
+            "No_Operativo": 6
         }
     ]
 };
@@ -227,19 +215,7 @@
         const noOperativosRaw = {
     "no_operativos_ultimo_dia_maq": [
         {
-            "Fecha": "14/05/2026",
-            "Dominio": "CXJ80",
-            "Tipo": "MOTONIVELADORA",
-            "Detalle": "TALLER"
-        },
-        {
-            "Fecha": "14/05/2026",
-            "Dominio": "CXJ99",
-            "Tipo": "MOTONIVELADORA",
-            "Detalle": "TALLER"
-        },
-        {
-            "Fecha": "14/05/2026",
+            "Fecha": "15/05/2026",
             "Dominio": "DHV52",
             "Tipo": "MOTONIVELADORA",
             "Detalle": "TALLER"
@@ -247,45 +223,46 @@
     ],
     "no_operativos_ultimo_dia": [
         {
-            "Fecha": "14/05/2026",
-            "Dominio": "IWL376",
-            "Tipo": "VOLCADOR",
-            "Detalle": "TALLER"
-        },
-        {
-            "Fecha": "14/05/2026",
+            "Fecha": "15/05/2026",
             "Dominio": "AF827ZU",
             "Tipo": "HIDRANTE",
             "Detalle": "ESPERANDO CAMBIO DE MANGUERA Y  ARREGLO DE BOMBA"
         },
         {
-            "Fecha": "14/05/2026",
+            "Fecha": "15/05/2026",
             "Dominio": "AF827ZV",
             "Tipo": "HIDRANTE",
             "Detalle": "TALLER"
         },
         {
-            "Fecha": "14/05/2026",
+            "Fecha": "15/05/2026",
+            "Dominio": "AG981EZ",
+            "Tipo": "HIDROELEVADOR",
+            "Detalle": "TALLER "
+        },
+        {
+            "Fecha": "15/05/2026",
             "Dominio": "AH077AR",
             "Tipo": "HIDRANTE",
             "Detalle": "SIN FUNCIONAR"
         },
         {
-            "Fecha": "14/05/2026",
+            "Fecha": "15/05/2026",
             "Dominio": "NVR680",
             "Tipo": "ALMEJA",
             "Detalle": "TALLER,PERDIDA DE LIQUIDO"
+        },
+        {
+            "Fecha": "15/05/2026",
+            "Dominio": "OBC435",
+            "Tipo": "HIDROELEVADOR",
+            "Detalle": "BOMBA ROTA"
         }
     ]
 };
 
         const historicoData = {
     "tabla_30d": [
-        {
-            "Fecha": "2026-04-14",
-            "Operativos": 9,
-            "No_Operativo": 10
-        },
         {
             "Fecha": "2026-04-15",
             "Operativos": 6,
@@ -390,14 +367,14 @@
             "Fecha": "2026-05-14",
             "Operativos": 7,
             "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-05-15",
+            "Operativos": 5,
+            "No_Operativo": 6
         }
     ],
     "tabla_30d_maq": [
-        {
-            "Fecha": "2026-04-14",
-            "Operativos": 2,
-            "No_Operativo": 6
-        },
         {
             "Fecha": "2026-04-15",
             "Operativos": 2,
@@ -502,6 +479,11 @@
             "Fecha": "2026-05-14",
             "Operativos": 0,
             "No_Operativo": 3
+        },
+        {
+            "Fecha": "2026-05-15",
+            "Operativos": 0,
+            "No_Operativo": 1
         }
     ]
 };
