@@ -176,10 +176,10 @@
                 </div>
                 
                 <div class="flex items-center gap-4 w-full sm:w-auto justify-center sm:justify-end">
-                    <!-- Estado de Carga de Datos desde JSON/GitHub -->
+                    <!-- Estado de Carga de Datos Estricto GitHub -->
                     <div class="bg-black/25 px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" id="status-dot"></span>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-white/90" id="status-text">Cargando JSON...</span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" id="status-dot"></span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-white/90" id="status-text">Buscando JSONs...</span>
                     </div>
                     
                     <div class="h-10 w-px bg-[var(--blanco)] opacity-30 hidden sm:block"></div>
@@ -196,9 +196,16 @@
     <!-- Espaciador para evitar solapamiento del header fijo -->
     <div class="h-32 sm:h-24"></div>
 
-    <!-- Contenedor Principal para Carga de Datos -->
+    <!-- Contenedor Principal -->
     <main class="flex-grow max-w-[1600px] w-full mx-auto p-4 md:p-6 lg:p-8 pb-12 space-y-10">
         
+        <!-- Contenedor de Error de Red (Oculto por defecto) -->
+        <div id="error-container" class="hidden bg-red-500/20 border border-red-500 text-white p-6 rounded-lg text-center">
+            <h2 class="text-lg font-bold mb-2">Error de Sincronización</h2>
+            <p class="text-sm">No se pudieron localizar los archivos JSON en el servidor o directorio de origen.</p>
+            <p class="text-xs opacity-70 mt-2">Asegúrese de que los archivos kpi_caja_..._2.json y top10_imputacion_..._2.json estén accesibles.</p>
+        </div>
+
         <div id="contenedor-dinamico" class="space-y-10">
             
             <!-- BLOQUE 1: KPIs Principales de Tesorería -->
@@ -315,70 +322,29 @@
             <div class="space-y-4 pt-4">
                 <div class="block-title">
                     <svg class="w-5 h-5 text-[var(--acento)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    Distribución y Composición Relativa de Recursos
+                    Composición Porcentual Relativa
                     <div class="block-divider"></div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Gráfico de Composición Porcentual (Ocupa 2 columnas) -->
-                    <div class="lg:col-span-2 card-grafica radius-sys p-6">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
-                            <div>
-                                <h3 class="text-sm font-bold uppercase tracking-wide text-[var(--azul-inst)]">Composición de Ingresos (%)</h3>
-                                <p class="text-[11px] text-[var(--azul-inst)] opacity-70 uppercase tracking-widest mt-0.5">Participación porcentual de recursos de caja: Abril vs Mayo 2026</p>
-                            </div>
-                            <div class="flex items-center gap-4 text-xs font-bold text-[var(--azul-inst)]">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="w-3 h-3 rounded-sm bg-[#19567C]"></span>
-                                    <span>ABRIL</span>
-                                </div>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="w-3 h-3 rounded-sm bg-[#4AB5E0]"></span>
-                                    <span>MAYO</span>
-                                </div>
-                            </div>
+                <div class="card-grafica radius-sys p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
+                        <div>
+                            <h3 class="text-sm font-bold uppercase tracking-wide text-[var(--azul-inst)]">Participación de Recursos (%)</h3>
+                            <p class="text-[11px] text-[var(--azul-inst)] opacity-70 uppercase tracking-widest mt-0.5">Contraste de los Top 10 Ingresos entre Mes Anterior y Mes en Curso</p>
                         </div>
-                        <div class="relative w-full h-[400px]">
-                            <canvas id="composicionChart"></canvas>
+                        <div class="flex items-center gap-4 text-xs font-bold text-[var(--azul-inst)]">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-sm bg-[#19567C]"></span>
+                                <span>MES ANTERIOR</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-sm bg-[#4AB5E0]"></span>
+                                <span>MES EN CURSO</span>
+                            </div>
                         </div>
                     </div>
-
-                    <!-- Leyenda Informativa / Desglose de Distribución (Ocupa 1 columna) -->
-                    <div class="card-informativa border-magenta radius-sys p-6 flex flex-col justify-between">
-                        <div class="relative z-10 space-y-4">
-                            <div>
-                                <h4 class="text-xs font-bold uppercase tracking-widest text-[var(--magenta)] mb-1">Concentración de Caja</h4>
-                                <h3 class="text-xl font-extrabold text-[var(--azul-inst)] uppercase leading-tight">Inspección de Seguridad e Higiene</h3>
-                            </div>
-                            <p class="text-xs text-[var(--azul-inst)] opacity-80 leading-relaxed text-justify">
-                                La tasa de **Seguridad e Higiene (TISH)** representa el principal motor de flujo de caja operativa en ambos períodos, superando el **44%** de la recaudación total en Abril y ascendiendo al **46.4%** en Mayo de 2026.
-                            </p>
-                            <div class="h-px bg-[var(--azul-inst)] opacity-10 my-2"></div>
-                            <div class="space-y-3">
-                                <div>
-                                    <div class="flex justify-between text-xs font-bold uppercase text-[var(--azul-inst)]">
-                                        <span>Participación TISH (Abril)</span>
-                                        <span>44.14%</span>
-                                    </div>
-                                    <div class="w-full bg-[var(--glass-claro)] h-2 rounded-full mt-1.5 overflow-hidden">
-                                        <div class="bg-[var(--azul-inst)] h-full" style="width: 44.14%"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="flex justify-between text-xs font-bold uppercase text-[var(--magenta)]">
-                                        <span>Participación TISH (Mayo)</span>
-                                        <span>46.48%</span>
-                                    </div>
-                                    <div class="w-full bg-[var(--glass-claro)] h-2 rounded-full mt-1.5 overflow-hidden">
-                                        <div class="bg-[var(--magenta)] h-full" style="width: 46.48%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pt-4 text-[10px] uppercase font-bold tracking-widest text-[var(--azul-inst)] opacity-50 relative z-10">
-                            * Datos relativos calculados sobre ingreso total mensual
-                        </div>
-                        <svg class="card-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                    <div class="relative w-full h-[450px]">
+                        <canvas id="composicionChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -397,215 +363,70 @@
         <p>© 2026 · Unidad de Datos e Infraestructura Económica</p>
     </footer>
 
-    <!-- SCRIPT DE INICIALIZACIÓN Y ENLAZADO DINÁMICO -->
+    <!-- SCRIPT ESTRICTO DINÁMICO (SIN FALLBACKS/DATOS ESTÁTICOS) -->
     <script>
-        // --- 1. DATASETS DE RESPALDO (EMBEDDED FALLBACK) ---
-        // Se cargan inicialmente los datos provistos. Cuando GitHub actualice los archivos, 
-        // la llamada asíncrona sobreescribirá estos valores automáticamente en la UI.
-        const fallbackAcumulada = {
-            "Total Importe Caja Diaria": 79560325957.13
-        };
-
-        const fallbackMensual = {
-            "Total Importe Caja Mensual": [
-                { "Mes/Año": "01/2026", "Importe": 16159148963.49 },
-                { "Mes/Año": "02/2026", "Importe": 14162882774.07 },
-                { "Mes/Año": "03/2026", "Importe": 16823742923.24 },
-                { "Mes/Año": "04/2026", "Importe": 16911685248.02 },
-                { "Mes/Año": "05/2026", "Importe": 15502866048.31 }
-            ]
-        };
-
-        const fallbackDiaria = {
-            "Total Importe Caja Diaria": [
-                { "fecha": "2026-01-02", "Importe": 42531232.13 },
-                { "fecha": "2026-01-05", "Importe": 171748836.09 },
-                { "fecha": "2026-01-06", "Importe": 373216429.27 },
-                { "fecha": "2026-01-07", "Importe": 615336634.87 },
-                { "fecha": "2026-01-08", "Importe": 181752125.98 },
-                { "fecha": "2026-01-09", "Importe": 874874440.18 },
-                { "fecha": "2026-01-12", "Importe": 765196090.9 },
-                { "fecha": "2026-01-13", "Importe": 432391448.42 },
-                { "fecha": "2026-01-14", "Importe": 612746161.89 },
-                { "fecha": "2026-01-15", "Importe": 282191093.97 },
-                { "fecha": "2026-01-16", "Importe": 946710570.05 },
-                { "fecha": "2026-01-19", "Importe": 596967728.01 },
-                { "fecha": "2026-01-20", "Importe": 1049271535.8 },
-                { "fecha": "2026-01-21", "Importe": 995419284.38 },
-                { "fecha": "2026-01-22", "Importe": 1124946368.98 },
-                { "fecha": "2026-01-23", "Importe": 2483927289.21 },
-                { "fecha": "2026-01-26", "Importe": 831809341.28 },
-                { "fecha": "2026-01-27", "Importe": 2946747627.35 },
-                { "fecha": "2026-01-28", "Importe": 158618155.43 },
-                { "fecha": "2026-01-29", "Importe": 371665833.19 },
-                { "fecha": "2026-01-30", "Importe": 301080736.11 },
-                { "fecha": "2026-02-02", "Importe": 283542416.71 },
-                { "fecha": "2026-02-03", "Importe": 138506767.39 },
-                { "fecha": "2026-02-04", "Importe": 170836455.73 },
-                { "fecha": "2026-02-05", "Importe": 192106083.79 },
-                { "fecha": "2026-02-06", "Importe": 307200960.48 },
-                { "fecha": "2026-02-09", "Importe": 291467453.22 },
-                { "fecha": "2026-02-10", "Importe": 420470708.83 },
-                { "fecha": "2026-02-11", "Importe": 248397270.66 },
-                { "fecha": "2026-02-12", "Importe": 431580983.06 },
-                { "fecha": "2026-02-13", "Importe": 448747412.69 },
-                { "fecha": "2026-02-18", "Importe": 550107846.88 },
-                { "fecha": "2026-02-19", "Importe": 1228303462.95 },
-                { "fecha": "2026-02-20", "Importe": 1675292496.82 },
-                { "fecha": "2026-02-23", "Importe": 997752086.11 },
-                { "fecha": "2026-02-24", "Importe": 2196667479.86 },
-                { "fecha": "2026-02-25", "Importe": 3642627127.83 },
-                { "fecha": "2026-02-26", "Importe": 654611053.08 },
-                { "fecha": "2026-02-27", "Importe": 284664707.98 },
-                { "fecha": "2026-03-02", "Importe": 249845165.7 },
-                { "fecha": "2026-03-03", "Importe": 191088347.75 },
-                { "fecha": "2026-03-04", "Importe": 204889402.85 },
-                { "fecha": "2026-03-05", "Importe": 232182938.39 },
-                { "fecha": "2026-03-06", "Importe": 312176614.81 },
-                { "fecha": "2026-03-09", "Importe": 449741601.14 },
-                { "fecha": "2026-03-10", "Importe": 397031029.14 },
-                { "fecha": "2026-03-11", "Importe": 444901702.7 },
-                { "fecha": "2026-03-12", "Importe": 736593187.61 },
-                { "fecha": "2026-03-13", "Importe": 1658025626.73 },
-                { "fecha": "2026-03-16", "Importe": 513808669.22 },
-                { "fecha": "2026-03-17", "Importe": 1166423167.76 },
-                { "fecha": "2026-03-18", "Importe": 593793776.56 },
-                { "fecha": "2026-03-19", "Importe": 1195550244.04 },
-                { "fecha": "2026-03-20", "Importe": 1540341662.23 },
-                { "fecha": "2026-03-25", "Importe": 2687689537.39 },
-                { "fecha": "2026-03-26", "Importe": 2328166558.48 },
-                { "fecha": "2026-03-27", "Importe": 392297099.01 },
-                { "fecha": "2026-03-30", "Importe": 816547657.38 },
-                { "fecha": "2026-03-31", "Importe": 712648934.35 },
-                { "fecha": "2026-04-01", "Importe": 96837385.65 },
-                { "fecha": "2026-04-06", "Importe": 199774850.76 },
-                { "fecha": "2026-04-07", "Importe": 515477370.97 },
-                { "fecha": "2026-04-08", "Importe": 404145904.05 },
-                { "fecha": "2026-04-09", "Importe": 479911678.96 },
-                { "fecha": "2026-04-10", "Importe": 375839772.67 },
-                { "fecha": "2026-04-13", "Importe": 518380243.23 },
-                { "fecha": "2026-04-14", "Importe": 595068000.91 },
-                { "fecha": "2026-04-15", "Importe": 1536234429.93 },
-                { "fecha": "2026-04-16", "Importe": 989995040.04 },
-                { "fecha": "2026-04-17", "Importe": 671313554.91 },
-                { "fecha": "2026-04-20", "Importe": 941744933.33 },
-                { "fecha": "2026-04-21", "Importe": 1081015449.75 },
-                { "fecha": "2026-04-22", "Importe": 785187798.73 },
-                { "fecha": "2026-04-23", "Importe": 3724833227.06 },
-                { "fecha": "2026-04-24", "Importe": 635054795.81 },
-                { "fecha": "2026-04-27", "Importe": 322270192.35 },
-                { "fecha": "2026-04-28", "Importe": 2601183537.02 },
-                { "fecha": "2026-04-29", "Importe": 145156390.81 },
-                { "fecha": "2026-04-30", "Importe": 292260691.08 },
-                { "fecha": "2026-05-04", "Importe": 118192921.61 },
-                { "fecha": "2026-05-05", "Importe": 177621318.7 },
-                { "fecha": "2026-05-06", "Importe": 126777276.39 },
-                { "fecha": "2026-05-07", "Importe": 298468916.29 },
-                { "fecha": "2026-05-08", "Importe": 171349145.46 },
-                { "fecha": "2026-05-11", "Importe": 459005187.15 },
-                { "fecha": "2026-05-12", "Importe": 275171421.77 },
-                { "fecha": "2026-05-13", "Importe": 332956441.21 },
-                { "fecha": "2026-05-14", "Importe": 668520794.9 },
-                { "fecha": "2026-05-15", "Importe": 1774267056.67 },
-                { "fecha": "2026-05-18", "Importe": 768795846.07 },
-                { "fecha": "2026-05-19", "Importe": 827761782.04 },
-                { "fecha": "2026-05-20", "Importe": 1240224037.62 },
-                { "fecha": "2026-05-21", "Importe": 879892514.66 },
-                { "fecha": "2026-05-22", "Importe": 902691761.62 },
-                { "fecha": "2026-05-26", "Importe": 3086432234.77 },
-                { "fecha": "2026-05-27", "Importe": 3050945602.2 },
-                { "fecha": "2026-05-28", "Importe": 11343791789.18 }
-            ]
-        };
-
-        // --- 1B. DATASETS DE COMPOSICIÓN (ABRIL VS MAYO) ---
-        // Se definen los datos dinámicos provistos por el usuario
-        const fallbackComposicionMayo = [
-            { "Imputación": "INSPECCIÓN DE SEGURIDAD E HIGIENE -EJERCICIO-", "Importe": 7205213598.26, "Porcentaje": 46.47665519270519 },
-            { "Imputación": "TASA SERVICIOS GENERALES MUNICIPALES - EJERCICIO-", "Importe": 2373262725.45, "Porcentaje": 15.308541775788061 },
-            { "Imputación": "TASA DE ALUMBRADO GENERALES FACTURADO POR EDESUR", "Importe": 1819114375.63, "Porcentaje": 11.734052077604742 },
-            { "Imputación": "PARTICIPACION EDESUR", "Importe": 1154125441.53, "Porcentaje": 27.44459403786059 },
-            { "Imputación": "MULTAS POR CONTRAVENCIONES EJERCICIOS ANTERIORES", "Importe": 609424692.63, "Porcentaje": 3.93104533530066 },
-            { "Imputación": "INTERESES POR COLOCACIONES FINANCIERAS", "Importe": 370695633.76, "Porcentaje": 2.3911425965033755 },
-            { "Imputación": "TASA SERVICIOS GENERALES MUNICIPALES -ANTERIORES-", "Importe": 287485597.29, "Porcentaje": 1.8544028981101814 },
-            { "Imputación": "DERECHOS DE OFICINA DEL EJERCICIO", "Importe": 278459369.58, "Porcentaje": 1.7961799367437314 },
-            { "Imputación": "CONVENIO A.C.A.R.A.", "Importe": 198320284.04, "Porcentaje": 1.279249162200039 },
-            { "Imputación": "TASA POR SERVICIOS VARIOS EJERCICIO", "Importe": 155851432.52, "Porcentaje": 21.0053072253500486 }
-        ];
-
-        const fallbackComposicionAbril = [
-            { "Imputación": "INSPECCIÓN DE SEGURIDAD E HIGIENE -EJERCICIO-", "Importe": 7464463747.46, "Porcentaje": 44.137906057197526 },
-            { "Imputación": "TASA DE ALUMBRADO GENERALES FACTURADO POR EDESUR", "Importe": 2833303457.44, "Porcentaje": 16.753525245343127 },
-            { "Imputación": "TASA SERVICIOS GENERALES MUNICIPALES - EJERCICIO-", "Importe": 2180735761.06, "Porcentaje": 12.89484595460596 },
-            { "Imputación": "INTERESES POR COLOCACIONES FINANCIERAS", "Importe": 957289107.91, "Porcentaje": 5.66051871159368 },
-            { "Imputación": "MULTAS POR CONTRAVENCIONES EJERCICIOS ANTERIORES", "Importe": 740418544.77, "Porcentaje": 4.378147617527871 },
-            { "Imputación": "PARTICIPACION EDESUR", "Importe": 567735455.22, "Porcentaje": 3.357060203603717 },
-            { "Imputación": "DERECHOS DE OFICINA DEL EJERCICIO", "Importe": 314504091.43, "Porcentaje": 1.8596851042200053 },
-            { "Imputación": "TASA SERVICIOS GENERALES MUNICIPALES -ANTERIORES-", "Importe": 283835478.74, "Porcentaje": 1.6783394119354909 },
-            { "Imputación": "INSPECCIÓN DE SEGURIDAD E HIGIENE -ANTERIORES-", "Importe": 201947444.5, "Porcentaje": 1.194129630124495 },
-            { "Imputación": "CONVENIO A.C.A.R.A.", "Importe": 195026276.42, "Porcentaje": 1.1532042700642942 }
-        ];
-
-        // --- STREAMING_CHUNK: Instantiating standard runtime variables ---
-        // --- 2. MODELO DE DATOS ACTIVO ---
+        // --- 1. MODELO DE DATOS ACTIVO (Vacío inicialmente) ---
         let dbCajaAcumulada = null;
         let dbCajaMensual = null;
         let dbCajaDiaria = null;
-        let dbComposicionAbril = null;
-        let dbComposicionMayo = null;
+        let dbComposicionAnterior = null;
+        let dbComposicionCurso = null;
 
         let currentChartMode = 'diario'; 
         let chartInstance = null;
         let composicionChartInstance = null;
 
-        // --- 3. INICIALIZADOR ASÍNCRONO ---
+        // --- 2. INICIALIZADOR ASÍNCRONO ---
         window.onload = async function() {
             await cargarDatos();
-            renderizarTodo();
-            registrarEventos();
+            if(dbCajaAcumulada && dbCajaMensual && dbCajaDiaria && dbComposicionAnterior && dbComposicionCurso) {
+                renderizarTodo();
+                registrarEventos();
+            }
         };
 
-        // --- STREAMING_CHUNK: Fetching Github JSON with fail-safe error handling ---
-        // --- 4. FUNCIÓN DE CARGA DUAL (JSON FETCH + EMBEDDED FALLBACK) ---
+        // --- 3. FETCH STRICT: Carga Exclusiva desde JSONs Provistos ---
         async function cargarDatos() {
             const statusDot = document.getElementById('status-dot');
             const statusText = document.getElementById('status-text');
+            const errContainer = document.getElementById('error-container');
+            const dynContainer = document.getElementById('contenedor-dinamico');
 
             try {
-                // Intento de carga dinámico desde archivos JSON locales (GitHub Pages / Server)
-                const resAcum = await fetch('./kpi_caja_acumulada.json');
-                const resMens = await fetch('./kpi_caja_mensual.json');
-                const resDiar = await fetch('./kpi_caja_diaria.json');
-                const resCompAbr = await fetch('./top10_imputacion_mes_anterior.json');
-                const resCompMay = await fetch('./top10_imputacion_mesencurso.json');
+                // LLAMADAS HACIA LOS ARCHIVOS INDICADOS ESTRICTAMENTE
+                const [resAcum, resMens, resDiar, resCompAnt, resCompCur] = await Promise.all([
+                    fetch('./kpi_caja_acumulada_2.json'),
+                    fetch('./kpi_caja_mensual_2.json'),
+                    fetch('./kpi_caja_diaria_2.json'),
+                    fetch('./top10_imputacion_mes_anterior_2.json'),
+                    fetch('./top10_imputacion_mesencurso_2.json')
+                ]);
 
-                if (resAcum.ok && resMens.ok && resDiar.ok && resCompAbr.ok && resCompMay.ok) {
-                    dbCajaAcumulada = await resAcum.json();
-                    dbCajaMensual = await resMens.json();
-                    dbCajaDiaria = await resDiar.json();
-                    dbComposicionAbril = await resCompAbr.json();
-                    dbComposicionMayo = await resCompMay.json();
-                    
-                    statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
-                    statusText.textContent = "GitHub JSON Activo";
-                } else {
-                    throw new Error("HTTP error parsing JSON. Usando datos internos.");
+                if (!resAcum.ok || !resMens.ok || !resDiar.ok || !resCompAnt.ok || !resCompCur.ok) {
+                    throw new Error("No se encontraron uno o más archivos JSON estipulados.");
                 }
-            } catch (err) {
-                // Fallback automático transparente si no se encuentran los JSON
-                dbCajaAcumulada = fallbackAcumulada;
-                dbCajaMensual = fallbackMensual;
-                dbCajaDiaria = fallbackDiaria;
-                dbComposicionAbril = fallbackComposicionAbril;
-                dbComposicionMayo = fallbackComposicionMayo;
 
-                statusDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
-                statusText.textContent = "Modo Fallback Offline";
+                // ASIGNACIÓN AL MODELO DE DATOS
+                dbCajaAcumulada = await resAcum.json();
+                dbCajaMensual = await resMens.json();
+                dbCajaDiaria = await resDiar.json();
+                dbComposicionAnterior = await resCompAnt.json();
+                dbComposicionCurso = await resCompCur.json();
+                
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                statusText.textContent = "Datos GitHub Sincronizados";
+
+            } catch (err) {
+                // SI FALLA EL FETCH, LA UI MUESTRA ERROR. NO HAY FALLBACK ESTÁTICO.
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
+                statusText.textContent = "Error de Conexión";
+                errContainer.classList.remove('hidden');
+                dynContainer.classList.add('hidden'); // Ocultar UI vacía
+                console.error("Fallo de red o archivo faltante: ", err);
             }
         }
 
-        // --- STREAMING_CHUNK: Formatting financial values ---
-        // --- 5. LÓGICA DE FORMATOS ---
+        // --- 4. LÓGICA DE FORMATOS ---
         const formatMoneda = new Intl.NumberFormat('es-AR', {
             style: 'currency',
             currency: 'ARS',
@@ -638,11 +459,8 @@
             return `${meses[mes] || 'Mes'} ${anio}`;
         };
 
-        // --- STREAMING_CHUNK: Populating KPIs and tables on UI ---
-        // --- 6. RENDERIZACIÓN DE COMPONENTES ---
+        // --- 5. RENDERIZACIÓN DE COMPONENTES ---
         function renderizarTodo() {
-            if (!dbCajaAcumulada || !dbCajaMensual || !dbCajaDiaria) return;
-
             // --- KPI 1: Caja Total Acumulada ---
             const totalAcum = dbCajaAcumulada["Total Importe Caja Diaria"];
             document.getElementById('kpi-total-acumulada').textContent = formatShort(totalAcum);
@@ -669,10 +487,7 @@
             // Actualizar Fecha Operativa General en el Header
             document.getElementById('kpi-fecha').textContent = formatearFecha(ultimaCajaDiariaObj["fecha"]);
 
-            // --- Render de Tabla Reciente ---
             renderizarTablaDiaria();
-
-            // --- Render de Gráficos ---
             actualizarGrafico();
             actualizarGraficoComposicion();
         }
@@ -694,8 +509,7 @@
             });
         }
 
-        // --- STREAMING_CHUNK: Initializing evolution line/bar charts ---
-        // --- 7. LÓGICA GRÁFICA (CHART.JS) ---
+        // --- 6. LÓGICA GRÁFICA (CHART.JS) ---
         function actualizarGrafico() {
             const ctx = document.getElementById('mainCajaChart').getContext('2d');
             
@@ -785,11 +599,8 @@
             });
         }
 
-        // --- STREAMING_CHUNK: Initializing composition percentage chart ---
-        // --- 7B. GRÁFICO COMPARATIVO PORCENTUAL (ABRIL VS MAYO) ---
+        // --- 7. GRÁFICO COMPARATIVO DE COMPOSICIÓN (BARRAS PORCENTUALES) ---
         function actualizarGraficoComposicion() {
-            if (!dbComposicionAbril || !dbComposicionMayo) return;
-
             const ctxComp = document.getElementById('composicionChart').getContext('2d');
 
             if (composicionChartInstance) {
@@ -798,27 +609,26 @@
 
             // Consolidar categorías únicas presentes en ambos meses
             const mapCategorias = new Set();
-            dbComposicionAbril.forEach(item => mapCategorias.add(item["Imputación"]));
-            dbComposicionMayo.forEach(item => mapCategorias.add(item["Imputación"]));
-            
+            dbComposicionAnterior.forEach(item => mapCategorias.add(item["Imputación"]));
+            dbComposicionCurso.forEach(item => mapCategorias.add(item["Imputación"]));
             const arrayCategorias = Array.from(mapCategorias);
 
-            // Generar vectores de porcentajes correspondientes para cada categoría
-            const dataPorcentajeAbril = arrayCategorias.map(cat => {
-                const encontrado = dbComposicionAbril.find(item => item["Imputación"] === cat);
+            // Generar vectores de porcentajes
+            const dataPorcentajeAnterior = arrayCategorias.map(cat => {
+                const encontrado = dbComposicionAnterior.find(item => item["Imputación"] === cat);
                 return encontrado ? encontrado.Porcentaje : 0;
             });
 
-            const dataPorcentajeMayo = arrayCategorias.map(cat => {
-                const encontrado = dbComposicionMayo.find(item => item["Imputación"] === cat);
+            const dataPorcentajeCurso = arrayCategorias.map(cat => {
+                const encontrado = dbComposicionCurso.find(item => item["Imputación"] === cat);
                 return encontrado ? encontrado.Porcentaje : 0;
             });
 
-            // Recortar etiquetas largas para que no saturen el eje X
+            // Recortar etiquetas largas
             const labelsComprimidas = arrayCategorias.map(label => {
                 let s = label.replace(" - EJERCICIO-", "").replace(" -EJERCICIO-", "").replace(" DEL EJERCICIO", "");
-                if (s.length > 22) {
-                    return s.substring(0, 20) + "...";
+                if (s.length > 30) {
+                    return s.substring(0, 28) + "...";
                 }
                 return s;
             });
@@ -829,8 +639,8 @@
                     labels: labelsComprimidas,
                     datasets: [
                         {
-                            label: 'Abril 2026 (%)',
-                            data: dataPorcentajeAbril,
+                            label: 'Mes Anterior (%)',
+                            data: dataPorcentajeAnterior,
                             backgroundColor: '#19567C',
                             borderColor: '#19567C',
                             borderWidth: 1,
@@ -839,8 +649,8 @@
                             categoryPercentage: 0.6
                         },
                         {
-                            label: 'Mayo 2026 (%)',
-                            data: dataPorcentajeMayo,
+                            label: 'Mes en Curso (%)',
+                            data: dataPorcentajeCurso,
                             backgroundColor: '#4AB5E0',
                             borderColor: '#4AB5E0',
                             borderWidth: 1,
@@ -891,8 +701,7 @@
             });
         }
 
-        // --- STREAMING_CHUNK: Subscribing to click events ---
-        // --- 8. CAPTURA DE EVENTOS DE INTERFAZ ---
+        // --- 8. CAPTURA DE EVENTOS ---
         function registrarEventos() {
             const btnDiario = document.getElementById('btn-show-diario');
             const btnMensual = document.getElementById('btn-show-mensual');
