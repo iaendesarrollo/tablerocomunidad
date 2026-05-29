@@ -203,7 +203,7 @@
         <div id="error-container" class="hidden bg-red-500/20 border border-red-500 text-white p-6 rounded-lg text-center">
             <h2 class="text-lg font-bold mb-2">Error de Sincronización</h2>
             <p class="text-sm">No se pudieron localizar los archivos JSON en el servidor o directorio de origen.</p>
-            <p class="text-xs opacity-70 mt-2">Asegúrese de que los archivos kpi_caja_..._2.json y top10_imputacion_..._2.json estén accesibles.</p>
+            <p class="text-xs opacity-70 mt-2">Asegúrese de que los archivos kpi_caja_....json y top10_imputacion_....json estén accesibles.</p>
         </div>
 
         <div id="contenedor-dinamico" class="space-y-10">
@@ -395,11 +395,11 @@
             try {
                 // LLAMADAS HACIA LOS ARCHIVOS INDICADOS ESTRICTAMENTE
                 const [resAcum, resMens, resDiar, resCompAnt, resCompCur] = await Promise.all([
-                    fetch('./kpi_caja_acumulada_2.json'),
-                    fetch('./kpi_caja_mensual_2.json'),
-                    fetch('./kpi_caja_diaria_2.json'),
-                    fetch('./top10_imputacion_mes_anterior_2.json'),
-                    fetch('./top10_imputacion_mesencurso_2.json')
+                    fetch('./kpi_caja_acumulada.json'),
+                    fetch('./kpi_caja_mensual.json'),
+                    fetch('./kpi_caja_diaria.json'),
+                    fetch('./top10_imputacion_mes_anterior.json'),
+                    fetch('./top10_imputacion_mesencurso.json')
                 ]);
 
                 if (!resAcum.ok || !resMens.ok || !resDiar.ok || !resCompAnt.ok || !resCompCur.ok) {
