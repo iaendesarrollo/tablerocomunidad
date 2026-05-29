@@ -400,6 +400,8 @@
     <!-- SCRIPT DE INICIALIZACIÓN Y ENLAZADO DINÁMICO -->
     <script>
         // --- 1. DATASETS DE RESPALDO (EMBEDDED FALLBACK) ---
+        // Se cargan inicialmente los datos provistos. Cuando GitHub actualice los archivos, 
+        // la llamada asíncrona sobreescribirá estos valores automáticamente en la UI.
         const fallbackAcumulada = {
             "Total Importe Caja Diaria": 79560325957.13
         };
@@ -512,22 +514,23 @@
                 { "fecha": "2026-05-22", "Importe": 902691761.62 },
                 { "fecha": "2026-05-26", "Importe": 3086432234.77 },
                 { "fecha": "2026-05-27", "Importe": 3050945602.2 },
-                { "fecha": "2026-05-28", "Importe": 343791789.18 }
+                { "fecha": "2026-05-28", "Importe": 11343791789.18 }
             ]
         };
 
         // --- 1B. DATASETS DE COMPOSICIÓN (ABRIL VS MAYO) ---
+        // Se definen los datos dinámicos provistos por el usuario
         const fallbackComposicionMayo = [
             { "Imputación": "INSPECCIÓN DE SEGURIDAD E HIGIENE -EJERCICIO-", "Importe": 7205213598.26, "Porcentaje": 46.47665519270519 },
             { "Imputación": "TASA SERVICIOS GENERALES MUNICIPALES - EJERCICIO-", "Importe": 2373262725.45, "Porcentaje": 15.308541775788061 },
             { "Imputación": "TASA DE ALUMBRADO GENERALES FACTURADO POR EDESUR", "Importe": 1819114375.63, "Porcentaje": 11.734052077604742 },
-            { "Imputación": "PARTICIPACION EDESUR", "Importe": 1154125441.53, "Porcentaje": 7.44459403786059 },
+            { "Imputación": "PARTICIPACION EDESUR", "Importe": 1154125441.53, "Porcentaje": 27.44459403786059 },
             { "Imputación": "MULTAS POR CONTRAVENCIONES EJERCICIOS ANTERIORES", "Importe": 609424692.63, "Porcentaje": 3.93104533530066 },
             { "Imputación": "INTERESES POR COLOCACIONES FINANCIERAS", "Importe": 370695633.76, "Porcentaje": 2.3911425965033755 },
             { "Imputación": "TASA SERVICIOS GENERALES MUNICIPALES -ANTERIORES-", "Importe": 287485597.29, "Porcentaje": 1.8544028981101814 },
             { "Imputación": "DERECHOS DE OFICINA DEL EJERCICIO", "Importe": 278459369.58, "Porcentaje": 1.7961799367437314 },
             { "Imputación": "CONVENIO A.C.A.R.A.", "Importe": 198320284.04, "Porcentaje": 1.279249162200039 },
-            { "Imputación": "TASA POR SERVICIOS VARIOS EJERCICIO", "Importe": 155851432.52, "Porcentaje": 1.0053072253500486 }
+            { "Imputación": "TASA POR SERVICIOS VARIOS EJERCICIO", "Importe": 155851432.52, "Porcentaje": 21.0053072253500486 }
         ];
 
         const fallbackComposicionAbril = [
@@ -543,6 +546,7 @@
             { "Imputación": "CONVENIO A.C.A.R.A.", "Importe": 195026276.42, "Porcentaje": 1.1532042700642942 }
         ];
 
+        // --- STREAMING_CHUNK: Instantiating standard runtime variables ---
         // --- 2. MODELO DE DATOS ACTIVO ---
         let dbCajaAcumulada = null;
         let dbCajaMensual = null;
@@ -561,6 +565,7 @@
             registrarEventos();
         };
 
+        // --- STREAMING_CHUNK: Fetching Github JSON with fail-safe error handling ---
         // --- 4. FUNCIÓN DE CARGA DUAL (JSON FETCH + EMBEDDED FALLBACK) ---
         async function cargarDatos() {
             const statusDot = document.getElementById('status-dot');
@@ -571,8 +576,8 @@
                 const resAcum = await fetch('./kpi_caja_acumulada.json');
                 const resMens = await fetch('./kpi_caja_mensual.json');
                 const resDiar = await fetch('./kpi_caja_diaria.json');
-                const resCompAbr = await fetch('./composicion_abril_2026.json');
-                const resCompMay = await fetch('./composicion_mayo_2026.json');
+                const resCompAbr = await fetch('./top10_imputacion_mes_anterior.json');
+                const resCompMay = await fetch('./top10_imputacion_mesencurso.json');
 
                 if (resAcum.ok && resMens.ok && resDiar.ok && resCompAbr.ok && resCompMay.ok) {
                     dbCajaAcumulada = await resAcum.json();
@@ -587,7 +592,7 @@
                     throw new Error("HTTP error parsing JSON. Usando datos internos.");
                 }
             } catch (err) {
-                // Fallback automático transparente
+                // Fallback automático transparente si no se encuentran los JSON
                 dbCajaAcumulada = fallbackAcumulada;
                 dbCajaMensual = fallbackMensual;
                 dbCajaDiaria = fallbackDiaria;
@@ -599,6 +604,7 @@
             }
         }
 
+        // --- STREAMING_CHUNK: Formatting financial values ---
         // --- 5. LÓGICA DE FORMATOS ---
         const formatMoneda = new Intl.NumberFormat('es-AR', {
             style: 'currency',
@@ -632,6 +638,7 @@
             return `${meses[mes] || 'Mes'} ${anio}`;
         };
 
+        // --- STREAMING_CHUNK: Populating KPIs and tables on UI ---
         // --- 6. RENDERIZACIÓN DE COMPONENTES ---
         function renderizarTodo() {
             if (!dbCajaAcumulada || !dbCajaMensual || !dbCajaDiaria) return;
@@ -687,6 +694,7 @@
             });
         }
 
+        // --- STREAMING_CHUNK: Initializing evolution line/bar charts ---
         // --- 7. LÓGICA GRÁFICA (CHART.JS) ---
         function actualizarGrafico() {
             const ctx = document.getElementById('mainCajaChart').getContext('2d');
@@ -777,6 +785,7 @@
             });
         }
 
+        // --- STREAMING_CHUNK: Initializing composition percentage chart ---
         // --- 7B. GRÁFICO COMPARATIVO PORCENTUAL (ABRIL VS MAYO) ---
         function actualizarGraficoComposicion() {
             if (!dbComposicionAbril || !dbComposicionMayo) return;
@@ -882,6 +891,7 @@
             });
         }
 
+        // --- STREAMING_CHUNK: Subscribing to click events ---
         // --- 8. CAPTURA DE EVENTOS DE INTERFAZ ---
         function registrarEventos() {
             const btnDiario = document.getElementById('btn-show-diario');
