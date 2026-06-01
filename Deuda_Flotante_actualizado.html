@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero Deuda Flotante - Sistema Institucional</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+            --radius-sys: 12px;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        .solid-header {
+             background-color: var(--bg-main);
+             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* TIPOGRAFÍA */
+        h1 { font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+        h2 { font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--azul-inst); }
+        .text-desc { font-weight: 400; font-size: 0.875rem; }
+        .text-num { font-weight: 700; }
+
+        /* COMPONENTES BASE (CARDS FLAT) */
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            border-radius: var(--radius-sys);
+            padding: 1.5rem;
+            position: relative;
+            border-left: 8px solid var(--acento);
+        }
+
+        .card-grafica {
+            background-color: var(--glass-claro);
+            color: var(--azul-inst);
+            border-radius: var(--radius-sys);
+            padding: 1.5rem;
+        }
+
+        .kpi-icon {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            opacity: 0.05;
+            color: var(--azul-inst);
+        }
+
+        /* TABLAS */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--azul-inst);
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 2px solid rgba(25, 86, 124, 0.2);
+            letter-spacing: 0.1em;
+        }
+        td {
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--azul-inst);
+            border-bottom: 1px solid rgba(25, 86, 124, 0.1);
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        
+        .font-mono-nums { font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8">
+
+    <header class="solid-header fixed top-0 left-0 w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex flex-col items-center sm:items-start">
+                    <h1 class="text-xl sm:text-2xl text-white">Deuda Flotante</h1>
+                    <p class="text-[10px] font-bold tracking-widest uppercase opacity-80 text-white/70">
+                        Economía y Finanzas · Proveedores Críticos
+                    </p>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 text-white/70">ULTIMA ACTUALIZACION</p>
+                        <p class="text-xl font-bold text-white" id="fecha-actual">--/--/----</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-28"></div>
+
+    <div class="max-w-7xl mx-auto space-y-8 pb-12">
+
+        <section id="kpi-container">
+            <div class="card-informativa">
+                <p class="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-2">Total Deuda Flotante</p>
+                <h3 id="total-deuda-value" class="text-4xl md:text-5xl font-extrabold font-mono-nums">
+                    </h3>
+                <div class="kpi-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <section class="card-informativa">
+                <div class="flex justify-between items-center mb-6">
+                    <h2>Top 10 Proveedores Críticos</h2>
+                    <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-[#D34872]/10 text-[#D34872]">Análisis de Riesgo</span>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="w-10 text-center">#</th>
+                                <th>Proveedor / Entidad</th>
+                                <th class="text-right">Saldo Deuda</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-proveedores-body">
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="card-grafica">
+                <h2 class="mb-6">Distribución Deuda (Top 10)</h2>
+                <div class="relative w-full h-[450px]">
+                    <canvas id="proveedoresChart"></canvas>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // DATOS MANTENIDOS PARA ACTUALIZACIÓN PYTHON
+        const kpiData = {
+    "Total Deuda Flotante": 4321357693.769999
+};
+        const rawProveedores = [
+    {
+        "PROVEEDOR": "5-51022  BRIALES S A",
+        "SALDO/DEUDA 2025": 1218332229.64
+    },
+    {
+        "PROVEEDOR": "5-51156  TPS CONSTRUCTORA S. A.",
+        "SALDO/DEUDA 2025": 1166490201.4
+    },
+    {
+        "PROVEEDOR": "3-2  INSTITUTO DE PREVISIÓN SOCIAL",
+        "SALDO/DEUDA 2025": 803708336.0799985
+    },
+    {
+        "PROVEEDOR": "5-50055 ECODYMA",
+        "SALDO/DEUDA 2025": 356224890.08
+    },
+    {
+        "PROVEEDOR": "1-3341 BUILDING",
+        "SALDO/DEUDA 2025": 139450343.2
+    },
+    {
+        "PROVEEDOR": "5-51360  COOPERATIVA DE TRABAJO HERMACON LIMITADA",
+        "SALDO/DEUDA 2025": 167459777.17
+    },
+    {
+        "PROVEEDOR": "3-3  INST.OBRA MEDICO ASISTENCIAL",
+        "SALDO/DEUDA 2025": 164684285.46
+    },
+    {
+        "PROVEEDOR": "1-3228  INDUSTRIAS MAS SRL",
+        "SALDO/DEUDA 2025": 103306694.37
+    },
+    {
+        "PROVEEDOR": "5-3045  COOPERATIVA DE TRABAJO LA FUERZA DE LOS LA FUERZA DE LOS JOVENES LTDA",
+        "SALDO/DEUDA 2025": 57544361.57
+    },
+    {
+        "PROVEEDOR": "3-10877  HABERES DEL PERSONAL",
+        "SALDO/DEUDA 2025": 55834769.62
+    },
+    {
+        "PROVEEDOR": "1-2214  MINUTILLO HNOS S.R.L.",
+        "SALDO/DEUDA 2025": 48130930.0
+    },
+    {
+        "PROVEEDOR": "1-2167  TELECENTRO S.A.",
+        "SALDO/DEUDA 2025": 11940334.030000003
+    },
+    {
+        "PROVEEDOR": "1-3121  GAMA NETWORKS S A",
+        "SALDO/DEUDA 2025": 7596110.619999999
+    },
+    {
+        "PROVEEDOR": "1-2713  TELECOM ARGENTINA S.A.",
+        "SALDO/DEUDA 2025": 6687313.62
+    },
+    {
+        "PROVEEDOR": "3-1591  PROVINCIA ASEGURADORA DE RIESGOS DE TRABAJO S.A.",
+        "SALDO/DEUDA 2025": 4065670.27
+    },
+    {
+        "PROVEEDOR": "1-3272  GALASSO ABEL OMAR",
+        "SALDO/DEUDA 2025": 2950000.0
+    },
+    {
+        "PROVEEDOR": "1-2682  Y.P.F. S.A.",
+        "SALDO/DEUDA 2025": 1403600.0
+    },
+    {
+        "PROVEEDOR": "3-16502  TRUJILLO PALACIO SAMANTAH",
+        "SALDO/DEUDA 2025": 964308.96
+    },
+    {
+        "PROVEEDOR": "3-15524  GARAY IRENE RAQUEL",
+        "SALDO/DEUDA 2025": 600000.0
+    },
+    {
+        "PROVEEDOR": "3-15176  CRESPE MARTIN DANIEL",
+        "SALDO/DEUDA 2025": 543000.0
+    },
+    {
+        "PROVEEDOR": "3-1115  TESORERO MUNICIPAL",
+        "SALDO/DEUDA 2025": 480000.0
+    },
+    {
+        "PROVEEDOR": "3-12629  RIVERO MIRIAM OLGA",
+        "SALDO/DEUDA 2025": 478500.0
+    },
+    {
+        "PROVEEDOR": "3-15664  TORRES FLORENCIA AGUSTINA MICAELA",
+        "SALDO/DEUDA 2025": 451112.2
+    },
+    {
+        "PROVEEDOR": "3-10935  AGUA Y SANEAMIENTOS ARGENTINOS SA",
+        "SALDO/DEUDA 2025": 387809.4399999999
+    },
+    {
+        "PROVEEDOR": "3-14846  DE URQUIZA MAXIMILIANO",
+        "SALDO/DEUDA 2025": 362000.0
+    },
+    {
+        "PROVEEDOR": "3-2781  TELEFONICA MOVILES ARGENTINA S.A",
+        "SALDO/DEUDA 2025": 317816.06
+    },
+    {
+        "PROVEEDOR": "3-14394  SARAVIA JORGE ALBERTO",
+        "SALDO/DEUDA 2025": 300000.0
+    },
+    {
+        "PROVEEDOR": "3-16657  CABRERA ANA MARIA",
+        "SALDO/DEUDA 2025": 300000.0
+    },
+    {
+        "PROVEEDOR": "3-16513  SUAREZ LIDIA MARIA",
+        "SALDO/DEUDA 2025": 127780.0
+    },
+    {
+        "PROVEEDOR": "3-15869  RODRIGUEZ JOAQUIN",
+        "SALDO/DEUDA 2025": 100000.0
+    },
+    {
+        "PROVEEDOR": "3-16514  TOMAS EZEQUIEL PAZ",
+        "SALDO/DEUDA 2025": 79320.0
+    },
+    {
+        "PROVEEDOR": "3-16497  HERRERA BEJARANO FERNANDO JOSE",
+        "SALDO/DEUDA 2025": 19550.0
+    },
+    {
+        "PROVEEDOR": "3-16496  LUNA ALBERTO YSMAEL",
+        "SALDO/DEUDA 2025": 17748.0
+    },
+    {
+        "PROVEEDOR": "3-16510  PEREZ PABLO ELIEZER",
+        "SALDO/DEUDA 2025": 13702.0
+    },
+    {
+        "PROVEEDOR": "3-16509  PUCCI ANGEL SALVADOR",
+        "SALDO/DEUDA 2025": 3576.0
+    },
+    {
+        "PROVEEDOR": "3-16  METROGAS S.A.",
+        "SALDO/DEUDA 2025": 1623.95
+    },
+    {
+        "PROVEEDOR": "1-3177  COOPERATIVA DE TRABAJO SEMBRADORES DE ESPERANZA",
+        "SALDO/DEUDA 2025": 0.03
+    }
+];
+
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(amount);
+        };
+
+        const formatMillions = (amount) => {
+            return '$ ' + (amount / 1000000).toFixed(1) + ' M';
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('fecha-actual').textContent = new Date().toLocaleDateString('es-AR');
+
+            // KPI Total unificado en Millones
+            document.getElementById('total-deuda-value').textContent = formatMillions(kpiData["Total Deuda Flotante"]);
+
+            // Tabla - CORTE ESTRICTO TOP 10
+            const tablaBody = document.getElementById('tabla-proveedores-body');
+            rawProveedores.slice(0, 10).forEach((row, index) => {
+                const tr = document.createElement('tr');
+                const nombreLimpio = row.PROVEEDOR.replace(/^\d+-\d+\s+/, '');
+                tr.innerHTML = `
+                    <td class="text-center font-bold" style="color: var(--magenta)">${index + 1}</td>
+                    <td class="uppercase font-bold" style="font-size: 0.7rem;">${nombreLimpio}</td>
+                    <td class="text-right font-bold font-mono-nums">${formatCurrency(row["SALDO/DEUDA 2025"])}</td>
+                `;
+                tablaBody.appendChild(tr);
+            });
+
+            // Gráfico - CORTE ESTRICTO TOP 10
+            const ctx = document.getElementById('proveedoresChart').getContext('2d');
+            const top10Data = rawProveedores.slice(0, 10);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: top10Data.map(p => p.PROVEEDOR.replace(/^\d+-\d+\s+/, '').substring(0, 20)),
+                    datasets: [{
+                        data: top10Data.map(p => p["SALDO/DEUDA 2025"]),
+                        backgroundColor: '#4AB5E0',
+                        borderRadius: 6,
+                        barThickness: 25
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: '#19567C' }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { 
+                                color: '#19567C',
+                                font: { family: 'Montserrat', size: 10 },
+                                callback: (v) => '$' + (v / 1000000).toFixed(0) + 'M'
+                            }
+                        },
+                        y: {
+                            grid: { color: 'rgba(25, 86, 124, 0.05)' },
+                            ticks: { color: '#19567C', font: { family: 'Montserrat', size: 9, weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

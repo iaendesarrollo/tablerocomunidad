@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espacios Públicos - Lomas de Zamora</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <style>
+        :root {
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+            --radius-sys: 12px;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Tipografía Jerárquica */
+        h1 { font-weight: 800; text-transform: uppercase; }
+        h2, h3, h4 { font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .text-num { font-weight: 700; }
+        .text-desc { font-weight: 400; }
+
+        /* Tarjetas Flat */
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            border-radius: var(--radius-sys);
+            position: relative;
+            overflow: hidden;
+        }
+        .card-grafica {
+            background-color: var(--glass-claro);
+            color: var(--azul-inst);
+            border-radius: var(--radius-sys);
+        }
+
+        /* KPIs Destacados */
+        .kpi-destacado {
+            border-left: 8px solid var(--acento);
+        }
+        .icon-bg {
+            position: absolute;
+            right: 0.5rem;
+            bottom: 0.5rem;
+            opacity: 0.05;
+            color: var(--azul-inst);
+        }
+
+        /* Tablas Institucionales */
+        .custom-table th {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--azul-inst);
+            border-bottom: 2px solid rgba(25, 86, 124, 0.2);
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .custom-table td {
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            border-bottom: 1px solid rgba(25, 86, 124, 0.1);
+        }
+
+        /* Botones */
+        .btn-sys {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sys);
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--blanco); color: var(--azul-inst); }
+        .btn-primary:hover { background: var(--glass-claro); }
+        .btn-active { background: var(--acento); color: var(--blanco); }
+        .btn-active:hover { background: #3A95B8; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100; justify-content: center; align-items: center;
+        }
+        .modal-box {
+            background: var(--blanco);
+            color: var(--azul-inst);
+            padding: 2rem;
+            border-radius: var(--radius-sys);
+            width: 90%; max-width: 900px; max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        header {
+            background-color: var(--bg-main);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6 lg:p-8">
+
+    <header class="fixed top-0 left-0 w-full z-50">
+        <div class="container mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-xl sm:text-3xl text-white">Espacios Públicos</h1>
+                <p class="text-[10px] font-bold text-blue-200 tracking-widest uppercase">Tablero de Gestión Territorial</p>
+            </div>
+            
+            <div class="text-right">
+                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">Última Actualización</p>
+                <p class="text-lg font-bold text-white">02/03/2026</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-28"></div>
+
+    <div class="max-w-7xl mx-auto space-y-8 pb-12">
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="card-informativa kpi-destacado p-6">
+                <p class="text-[10px] uppercase font-bold tracking-widest opacity-60">Total Espacios</p>
+                <p class="text-4xl text-num mt-2" id="kpi-total-plazas">135</p>
+                <i class="fa-solid fa-map-location-dot icon-bg text-4xl"></i>
+            </div>
+
+            <div class="card-informativa kpi-destacado p-6">
+                <p class="text-[10px] uppercase font-bold tracking-widest opacity-60">Plazas Relevadas</p>
+                <p class="text-4xl text-num mt-2" style="color: var(--acento)" id="kpi-relevadas">50</p>
+                <button id="btn-detalle-plazas" class="btn-sys btn-primary mt-4 w-full">Ver Listado</button>
+                <i class="fa-solid fa-clipboard-check icon-bg text-4xl"></i>
+            </div>
+
+            <div class="card-informativa kpi-destacado p-6">
+                <p class="text-[10px] uppercase font-bold tracking-widest opacity-60">CGMs Operativos</p>
+                <p class="text-4xl text-num mt-2" id="kpi-cgms">14</p>
+                <i class="fa-solid fa-building icon-bg text-4xl"></i>
+            </div>
+        </div>
+
+        <div class="card-grafica p-8">
+            <h3 class="text-sm mb-6">Distribución de Espacios por CGM</h3>
+            <div class="h-[350px]">
+                <canvas id="cgmChart"></canvas>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg">Personal y Placeros</h2>
+                <button id="btn-detalle-placeros" class="btn-sys btn-active">
+                    Desglose por Dependencia <i class="fa-solid fa-chevron-down ml-2"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card-informativa p-6 border-l-8 border-[#D34872]">
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-60">Cooperativa</p>
+                    <p class="text-3xl text-num mt-1" id="kpi-cooperativa">114</p>
+                </div>
+                <div class="card-informativa p-6 border-l-8 border-[#D34872]]">
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-60">Municipal</p>
+                    <p class="text-3xl text-num mt-1" id="kpi-municipal">34</p>
+                </div>
+                <div class="card-informativa p-6 border-l-8 border-orange-400">
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-60">Salguero</p>
+                    <p class="text-3xl text-num mt-1" id="kpi-salguero">8</p>
+                </div>
+            </div>
+
+            <div id="tooltip-placeros" class="card-informativa hidden p-6 mt-4">
+                <table class="custom-table w-full">
+                    <thead>
+                        <tr><th>CGM</th><th class="text-center">Dotación</th><th>Distribución</th></tr>
+                    </thead>
+                    <tbody id="placeros-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="mt-8 text-center text-white/30 text-[10px] font-bold uppercase tracking-[0.4em]">
+            Municipio de Lomas de Zamora · 2026 · Unidad de Datos e Infraestructura
+        </footer>
+    </div>
+
+    <div id="modal-listado-plazas" class="modal-overlay">
+        <div class="modal-box">
+            <div class="flex justify-between items-center border-b pb-4 mb-4">
+                <h3>Detalle de Plazas Relevadas</h3>
+                <button id="btn-close-listado" class="text-magenta font-bold">CERRAR</button>
+            </div>
+            <table class="custom-table w-full">
+                <thead><tr><th>CGM</th><th>Plaza</th><th>Ubicación</th><th class="text-center">Ficha</th></tr></thead>
+                <tbody id="plazas-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="modal-detalle" class="modal-overlay">
+        <div class="modal-box max-w-xl">
+            <h3 id="modal-title" class="text-xl mb-4"></h3>
+            <div id="modal-content" class="grid grid-cols-1 gap-4"></div>
+            <button id="btn-close-modal" class="btn-sys btn-active mt-6 w-full">Volver al Tablero</button>
+        </div>
+    </div>
+
+    <script>
+        const cgmData = {"LOMAS": 18, "LLAVALLOL": 17, "SANTA CATALINA": 16, "SAN JOSE": 14, "BANFIELD": 12, "CENTENARIO": 11, "TEMPERLEY": 10, "FIORITO": 9, "PARQUE BARON": 8, "BUDGE": 6, "SANTA MARTA": 5, "TURDERA": 4, "ALBERTINA": 3, "LAMADRID": 2};
+        const placeroAggData = [{"CGM": "ALBERTINA", "DEPENDENCIA": "COOPERATIVA", "count": 10}, {"CGM": "BANFIELD", "DEPENDENCIA": "COOPERATIVA", "count": 9}, {"CGM": "BANFIELD", "DEPENDENCIA": "MUNICIPAL", "count": 5}, {"CGM": "BANFIELD", "DEPENDENCIA": "SALGUERO", "count": 1}, {"CGM": "BUDGE", "DEPENDENCIA": "COOPERATIVA", "count": 3}, {"CGM": "LOMAS", "DEPENDENCIA": "MUNICIPAL", "count": 6}];
+        const plazasData = {"Plaza Grigera": [{"CGM": "LOMAS", "Ubicación": "Av Hipolito Yrigoyen", "Va. de Estado [Juegos]": "En mantenimiento", "Va. cantidad [Bancos]": "mas de 10"}]};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctx = document.getElementById('cgmChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(cgmData),
+                    datasets: [{
+                        label: 'Espacios',
+                        data: Object.values(cgmData),
+                        backgroundColor: '#4AB5E0',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(25, 86, 124, 0.05)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Lógica Placeros
+            const tableBodyPlaceros = document.getElementById('placeros-table-body');
+            const groupedPlaceros = {};
+            placeroAggData.forEach(r => {
+                if(!groupedPlaceros[r.CGM]) groupedPlaceros[r.CGM] = { total: 0, desc: '' };
+                groupedPlaceros[r.CGM].total += r.count;
+                groupedPlaceros[r.CGM].desc += `<span class="text-[9px] font-bold px-2 py-1 mr-1 bg-gray-100 rounded">${r.DEPENDENCIA}: ${r.count}</span>`;
+            });
+
+            Object.keys(groupedPlaceros).forEach(cgm => {
+                const row = `<tr><td class="font-bold">${cgm}</td><td class="text-center font-bold text-acento">${groupedPlaceros[cgm].total}</td><td>${groupedPlaceros[cgm].desc}</td></tr>`;
+                tableBodyPlaceros.innerHTML += row;
+            });
+
+            // UI Events
+            document.getElementById('btn-detalle-placeros').onclick = () => document.getElementById('tooltip-placeros').classList.toggle('hidden');
+            document.getElementById('btn-detalle-plazas').onclick = () => document.getElementById('modal-listado-plazas').style.display = 'flex';
+            document.getElementById('btn-close-listado').onclick = () => document.getElementById('modal-listado-plazas').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

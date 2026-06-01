@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Control Operativo - Covelia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+            --radius-sys: 12px;
+        }
+        
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background-color: var(--bg-main); 
+            color: var(--blanco); 
+            margin: 0;
+            padding-bottom: 3rem;
+        }
+        
+        header { 
+            background-color: var(--bg-main); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+            padding: 1.5rem 0; 
+        }
+
+        /* Estilo de Tarjetas UX/UI */
+        .card-informativa { 
+            background-color: var(--blanco); 
+            color: var(--azul-inst); 
+            border-radius: var(--radius-sys); 
+            padding: 1.5rem; 
+            position: relative; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between;
+            min-height: 140px;
+            border-left: 8px solid var(--acento);
+        }
+        
+        .kpi-icon-bg { position: absolute; right: -5px; bottom: -5px; font-size: 5rem; opacity: 0.05; color: var(--azul-inst); }
+
+        .card-grafica { 
+            background-color: var(--glass-claro); 
+            color: var(--azul-inst); 
+            border-radius: var(--radius-sys); 
+            padding: 2rem; 
+        }
+
+        /* Tablas */
+        .table-container { background-color: var(--blanco); border-radius: var(--radius-sys); overflow: hidden; color: var(--azul-inst); }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-transform: uppercase; font-weight: 800; font-size: 0.75rem; padding: 1rem; text-align: left; border-bottom: 2px solid rgba(25, 86, 124, 0.15); }
+        td { padding: 1rem; font-size: 0.875rem; border-bottom: 1px solid rgba(25, 86, 124, 0.05); }
+        
+        .critical-text { color: var(--magenta) !important; font-weight: 700; }
+        h1 { font-weight: 800; text-transform: uppercase; letter-spacing: -0.025em; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl text-white">Tablero de Control</h1>
+                <p class="text-[10px] text-[#4AB5E0] font-bold uppercase tracking-[0.2em]">Logística y Recolección de Residuos</p>
+            </div>
+            <div class="text-right border-l border-white/20 pl-6 text-white">
+                <p class="text-[10px] uppercase font-bold opacity-60">Última Actualización</p>
+                <p class="text-xl font-bold">21/04/2026</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="card-informativa">
+                <p class="text-[10px] font-bold uppercase opacity-60">Total Rutas</p>
+                <h2 class="text-5xl font-extrabold">84</h2>
+                <i class="fas fa-truck kpi-icon-bg"></i>
+            </div>
+            <div class="card-informativa">
+                <p class="text-[10px] font-bold uppercase opacity-60">% Cumplimiento</p>
+                <h2 class="text-5xl font-extrabold">92.9%</h2>
+                <i class="fas fa-check-circle kpi-icon-bg"></i>
+            </div>
+            <div class="card-informativa">
+                <p class="text-[10px] font-bold uppercase opacity-60">KMs Totales</p>
+                <h2 class="text-5xl font-extrabold">1.447,5</h2>
+                <i class="fas fa-tachometer-alt kpi-icon-bg"></i>
+            </div>
+            <div class="card-informativa" style="border-left-color: var(--magenta);">
+                <p class="text-[10px] font-bold uppercase opacity-60">Novedades (Check)</p>
+                <h2 class="text-5xl font-extrabold critical-text">6</h2>
+                <i class="fas fa-exclamation-triangle kpi-icon-bg" style="color: var(--magenta);"></i>
+            </div>
+        </section>
+
+        <section class="card-grafica shadow-2xl">
+            <h3 class="text-sm font-extrabold uppercase mb-8 tracking-widest text-[#19567C]"><i class="fas fa-chart-line mr-2"></i> Evolución de Cumplimiento Histórico</h3>
+            <div class="h-80">
+                <canvas id="chartEvolucion"></canvas>
+            </div>
+        </section>
+
+        <section class="table-container shadow-2xl">
+            <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
+                <h3 class="text-sm font-bold uppercase text-[#19567C] tracking-widest"><i class="fas fa-exclamation-circle mr-2"></i> Detalle de Alertas Detectadas</h3>
+                <span class="text-[10px] font-bold text-gray-400 uppercase italic">Solo rutas con estado crítico</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Ruta</th>
+                            <th>CGM</th>
+                            <th>Estado</th>
+                            <th>Calles Faltantes / Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Datos filtrados del archivo CSV (Jornada 26/01/2026)
+        const novedades = [{"f": "2026-04-21", "r": "16D", "c": "Santa Catalina", "e": "CHECK RECORRIDO", "d": "Thomas Edison de Pasaje 9 a Facundo Quiroga Martel de Diagonal 62 a Zanetti Miatello de Martel a Silvero Manco Pasaje del Pueblo de Diagonal 62 a Martel Chaco de Pasaje Del Pueblo a Rosas Rosas de Rosario a Forgione Tierra del Fuego de Diagonal 62 a  Miatello Silvero Manco de Martel a Diagonal 62 Pardo de Martel a Elizalde Zanetti de Martel a Elizalde"}, {"f": "2026-04-21", "r": "34D", "c": "Santa Catalina", "e": "CHECK RECORRIDO", "d": "Zanetti de Martel a Elizalde 20 de Junio de Goodwyn a General Costa Las Flores de Goodwyn a General Costa Leonardo Da Vinci de Monte Olivo a Chacho Peñaloza Marurana de Carlos Voss a Alberto Franco 28 De Julio de Geronimo Costa a Jose Tallon Thomas Edison de Alberto Franco a Carlos Voss"}, {"f": "2026-04-21", "r": "35D", "c": "Santa Catalina", "e": "CHECK RECORRIDO", "d": "Padre Mujica de Progreso a Juan Manuel de Rosas Agustin Magaldi de Saladillo a Avenida La Noria Raul LLobera de La Rioja a Avenida La Noria San Juan de Progreso a La Rioja Saladillo de La Torre a Raul LLobera Cordoba de Progreso a La Rioja Lorea de La Torre a 7 De Mayo San Martin de Los Pinos a Elizalde"}, {"f": "2026-04-21", "r": "54D", "c": "Banfield", "e": "CHECK RECORRIDO", "d": "Yapeyu de Pedernera a Fonrouge Derqui de Pedernera a Pintos 11 De Septiembre de Pedernera a Pintos Quintana de Matheu a Pedernera"}, {"f": "2026-04-21", "r": "60D", "c": "San Jose", "e": "CHECK RECORRIDO", "d": "El Benteveo de El Hornero a Juan De Garay La Torcaza  de El Hornero a Juan De Garay"}, {"f": "2026-04-21", "r": "62D", "c": "San Jose", "e": "CHECK RECORRIDO", "d": "Caaguazú de El Hornero a Juan De Garay La Golondrina de Lules a El Chingolo"}];
+
+        // 1. Poblado de Tabla
+        const tbody = document.getElementById('tabla-body');
+        novedades.forEach(n => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${n.f}</td>
+                <td class="font-extrabold">${n.r}</td>
+                <td>${n.c}</td>
+                <td class="critical-text">${n.e}</td>
+                <td class="text-[11px] italic opacity-80">${n.d}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // 2. Gráfico de Barras con Chart.js
+        const ctx = document.getElementById('chartEvolucion').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ["10/04", "11/04", "14/04", "15/04", "16/04", "17/04", "18/04", "20/04", "21/04"],
+                datasets: [
+                    { 
+                        label: 'CUMPLIMENTADO', 
+                        data: [76, 73, 74, 78, 74, 77, 77, 79, 78], 
+                        backgroundColor: '#4AB5E0',
+                        borderRadius: 6 
+                    },
+                    { 
+                        label: 'CHECK RECORRIDO', 
+                        data: [8, 11, 10, 6, 10, 7, 7, 5, 6], 
+                        backgroundColor: '#19567C',
+                        borderRadius: 6 
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: 'Montserrat', weight: 'bold' }, color: '#19567C' } }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#19567C' } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#19567C' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

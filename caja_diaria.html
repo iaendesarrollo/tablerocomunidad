@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de Caja Municipal Diaria</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Font: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* PALETA OBLIGATORIA SISTEMA FONDO OSCURO SGR */
+            --bg-main: #19567C;
+            --blanco: #FFFFFF;
+            --acento: #4AB5E0;
+            --magenta: #D34872;
+            --glass-claro: #E2F1F7;
+            --azul-inst: #19567C;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--blanco);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            font-weight: 400;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* SISTEMA DE COMPONENTES SGR */
+        .radius-sys {
+            border-radius: 12px !important;
+        }
+
+        /* TIPOGRAFÍA */
+        h1 { font-weight: 800; text-transform: uppercase; }
+        h2 { font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .text-desc { font-weight: 400; }
+        .text-num { font-weight: 700; }
+
+        /* CARDS CONTENEDORAS */
+        .card-informativa {
+            background-color: var(--blanco);
+            color: var(--azul-inst);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: none;
+            border-left: 8px solid var(--acento);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-informativa:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .card-grafica {
+            background-color: var(--glass-claro);
+            color: var(--azul-inst);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .border-magenta {
+            border-left-color: var(--magenta) !important;
+        }
+
+        .border-azul {
+            border-left-color: var(--azul-inst) !important;
+        }
+
+        /* ÍCONO TRANSLÚCIDO EN TARJETAS */
+        .card-icon {
+            position: absolute;
+            right: -5%;
+            bottom: -15%;
+            height: 110%;
+            width: auto;
+            color: var(--azul-inst);
+            opacity: 0.04;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* HEADER SÓLIDO */
+        .solid-header {
+             background-color: var(--bg-main);
+             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* BLOQUES SEPARADORES DE SECCIÓN */
+        .block-title {
+            color: var(--blanco);
+            font-size: 1.15rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .block-divider {
+            flex-grow: 1;
+            height: 1px;
+            background-color: var(--blanco);
+            opacity: 0.2;
+        }
+
+        /* TABLAS STYLES SGR */
+        .table-container {
+            width: 100%;
+            max-height: 440px;
+            overflow-y: auto;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background-color: var(--blanco);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            color: var(--azul-inst);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid rgba(25, 86, 124, 0.2);
+        }
+        td {
+            padding: 0.85rem 1rem;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(25, 86, 124, 0.1);
+            color: var(--azul-inst);
+            vertical-align: middle;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: rgba(25, 86, 124, 0.03); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--acento); border-radius: 4px; }
+        
+        .table-container::-webkit-scrollbar-track { background: var(--blanco); }
+        .table-container::-webkit-scrollbar-thumb { background: rgba(25, 86, 124, 0.2); }
+    </style>
+</head>
+<body>
+
+    <!-- Encabezado Oficial SÓLIDO del Sistema SGR -->
+    <header class="solid-header fixed top-0 left-0 w-full z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-6 w-full sm:w-auto justify-center sm:justify-start">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--blanco)]">
+                            ESTADO DE CAJA MUNICIPAL DIARIA
+                        </h1>
+                        <p class="text-xs sm:text-sm font-bold tracking-widest uppercase mt-1 text-[var(--acento)]">
+                            Secretaría de Economía y Finanzas · Tesorería General (El detalle de caja diaria solo incluye los fondos municipales de libre disponibilidad)
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4 w-full sm:w-auto justify-center sm:justify-end">
+                    <!-- Estado de Carga de Datos Estricto GitHub -->
+                    <div class="bg-black/25 px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" id="status-dot"></span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-white/90" id="status-text">Buscando JSONs...</span>
+                    </div>
+                    
+                    <div class="h-10 w-px bg-[var(--blanco)] opacity-30 hidden sm:block"></div>
+                    
+                    <div class="text-right">
+                        <p class="text-[var(--blanco)] opacity-70 text-[10px] font-bold uppercase tracking-widest">Última Fecha Procesada</p>
+                        <p class="text-[var(--blanco)] text-sm font-bold" id="kpi-fecha">--/--/----</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Espaciador para evitar solapamiento del header fijo -->
+    <div class="h-32 sm:h-24"></div>
+
+    <!-- Contenedor Principal -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto p-4 md:p-6 lg:p-8 pb-12 space-y-10">
+        
+        <!-- Contenedor de Error de Red (Oculto por defecto) -->
+        <div id="error-container" class="hidden bg-red-500/20 border border-red-500 text-white p-6 rounded-lg text-center">
+            <h2 class="text-lg font-bold mb-2">Error de Sincronización</h2>
+            <p class="text-sm">No se pudieron localizar los archivos JSON en el servidor o directorio de origen.</p>
+            <p class="text-xs opacity-70 mt-2">Asegúrese de que los archivos kpi_caja_....json y top10_imputacion_....json estén accesibles.</p>
+        </div>
+
+        <div id="contenedor-dinamico" class="space-y-10">
+            
+            <!-- BLOQUE 1: KPIs Principales de Tesorería -->
+            <div>
+                <div class="block-title">
+                    <svg class="w-5 h-5 text-[var(--acento)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    Resumen de Indicadores Clave (KPI)
+                    <div class="block-divider"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- KPI 1: Caja Total Acumulada -->
+                    <div class="card-informativa border-azul radius-sys p-6">
+                        <div class="relative z-10">
+                            <h3 class="text-xs font-bold uppercase tracking-widest opacity-70 mb-2 text-[var(--azul-inst)]">Caja Total Acumulada</h3>
+                            <p class="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-1 tracking-tight" id="kpi-total-acumulada">$ --</p>
+                            <p class="text-xs font-semibold text-[var(--azul-inst)] opacity-65">Consolidado general 2026</p>
+                        </div>
+                        <svg class="card-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h2.25c.12.78.89 1.46 2.26 1.46 1.53 0 2.22-.75 2.22-1.57 0-1.06-.92-1.42-2.39-1.91-1.99-.66-3.41-1.61-3.41-3.46 0-1.55 1.13-2.69 2.74-3.08V4h2.67v1.93c1.55.33 2.8 1.4 2.97 3.03h-2.21c-.16-.83-.87-1.39-2.06-1.39-1.25 0-2.02.66-2.02 1.48 0 1.02.83 1.34 2.47 1.88 2.22.75 3.32 1.76 3.32 3.53-.01 1.63-1.12 2.89-2.86 3.23z"/></svg>
+                    </div>
+
+                    <!-- KPI 2: Caja Mes en Curso Acumulada -->
+                    <div class="card-informativa radius-sys p-6">
+                        <div class="relative z-10">
+                            <h3 class="text-xs font-bold uppercase tracking-widest opacity-70 mb-2 text-[var(--azul-inst)]">Caja Mes en Curso Acumulada</h3>
+                            <p class="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-1 tracking-tight text-[var(--azul-inst)]" id="kpi-mes-curso">$ --</p>
+                            <p class="text-xs font-semibold text-[var(--acento)] uppercase tracking-wider" id="kpi-mes-nombre">Mes --</p>
+                        </div>
+                        <svg class="card-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
+                    </div>
+
+                    <!-- KPI 3: Caja Diaria (Último Registro) -->
+                    <div class="card-informativa border-magenta radius-sys p-6">
+                        <div class="relative z-10">
+                            <h3 class="text-xs font-bold uppercase tracking-widest opacity-70 mb-2 text-[var(--azul-inst)]">Caja Diaria</h3>
+                            <p class="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-1 tracking-tight text-[var(--azul-inst)]" id="kpi-diaria-actual">$ --</p>
+                            <p class="text-xs font-semibold text-[var(--magenta)] uppercase tracking-wider" id="kpi-diaria-fecha">Día --</p>
+                        </div>
+                        <svg class="card-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M11.5 2C6.81 2 3 5.81 3 10.5S6.81 19 11.5 19h.5v3c0 .83.67 1.5 1.5 1.5h4c.83 0 1.5-.67 1.5-1.5v-3h.5c4.69 0 8.5-3.81 8.5-8.5S20.69 2 16 2h-4.5zm0 15C7.91 17 5 14.09 5 10.5S7.91 4 11.5 4H16c3.59 0 6.5 2.91 6.5 6.5S19.59 17 16 17h-4.5z"/></svg>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- BLOQUE 2: Análisis Gráfico y Tabla Comparativa -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Sección Gráfico (Izquierda - Ocupa 2 de 3 cols) -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div class="block-title mb-0">
+                            <svg class="w-5 h-5 text-[var(--acento)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                            Evolución Temporal de Ingresos
+                        </div>
+                        
+                        <!-- Selectores de visualización temporal -->
+                        <div class="flex items-center gap-2 bg-black/20 p-1.5 rounded-lg border border-white/5 text-xs">
+                            <button id="btn-show-diario" class="px-3 py-1.5 rounded font-bold uppercase transition bg-[var(--acento)] text-[var(--azul-inst)]">Diario</button>
+                            <button id="btn-show-mensual" class="px-3 py-1.5 rounded font-bold uppercase transition text-white hover:bg-white/10">Mensual</button>
+                        </div>
+                    </div>
+
+                    <div class="card-grafica radius-sys p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 class="text-sm font-bold uppercase tracking-wide text-[var(--azul-inst)]" id="chart-title">Arqueo Diario Continuo</h3>
+                                <p class="text-[11px] text-[var(--azul-inst)] opacity-70 uppercase tracking-widest mt-0.5" id="chart-sub">Ingreso operativo en Pesos por jornada de caja</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-[#4AB5E0]"></span>
+                                <span class="text-xs font-bold text-[var(--azul-inst)] uppercase">Recaudado</span>
+                            </div>
+                        </div>
+                        
+                        <div class="relative w-full h-[360px]">
+                            <canvas id="mainCajaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección Tabla / Desglose de Operaciones (Derecha) -->
+                <div class="space-y-4">
+                    <div class="block-title">
+                        <svg class="w-5 h-5 text-[var(--acento)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                        Registro Diario Reciente
+                    </div>
+
+                    <div class="bg-white text-[var(--azul-inst)] radius-sys p-4 shadow-xl flex flex-col h-[432px]">
+                        <div class="flex justify-between items-center pb-3 border-b border-[var(--azul-inst)]/15">
+                            <span class="text-xs font-bold uppercase tracking-wider text-[var(--azul-inst)]">Arqueo</span>
+                            <span class="text-[10px] bg-[var(--glass-claro)] px-2.5 py-1 rounded-full font-bold text-[var(--azul-inst)] uppercase tracking-wider">Últimos registros</span>
+                        </div>
+                        
+                        <div class="table-container flex-grow mt-3">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="p-2 text-xs font-bold uppercase tracking-wider">Fecha</th>
+                                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-right">Importe</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-diaria-body">
+                                    <!-- Dinámico por JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BLOQUE 3: Comparativa de Composición (Abril vs Mayo) -->
+            <div class="space-y-4 pt-4">
+                <div class="block-title">
+                    <svg class="w-5 h-5 text-[var(--acento)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    Composición Porcentual Relativa
+                    <div class="block-divider"></div>
+                </div>
+
+                <div class="card-grafica radius-sys p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
+                        <div>
+                            <h3 class="text-sm font-bold uppercase tracking-wide text-[var(--azul-inst)]">Participación de Recursos (%)</h3>
+                            <p class="text-[11px] text-[var(--azul-inst)] opacity-70 uppercase tracking-widest mt-0.5">Contraste de los Top 10 Ingresos entre Mes Anterior y Mes en Curso</p>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs font-bold text-[var(--azul-inst)]">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-sm bg-[#19567C]"></span>
+                                <span>MES ANTERIOR</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-sm bg-[#4AB5E0]"></span>
+                                <span>MES EN CURSO</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative w-full h-[450px]">
+                        <canvas id="composicionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Pie de Página Oficial SGR -->
+    <footer class="py-8 text-center text-[var(--blanco)] text-xs opacity-60">
+        <div class="flex justify-center items-center gap-4 mb-2">
+            <span class="h-px w-8 bg-[var(--blanco)] opacity-30"></span>
+            <p class="uppercase tracking-widest font-normal">Municipio de Lomas de Zamora</p>
+            <span class="h-px w-8 bg-[var(--blanco)] opacity-30"></span>
+        </div>
+        <p>© 2026 · Unidad de Datos e Infraestructura Económica</p>
+    </footer>
+
+    <!-- SCRIPT ESTRICTO DINÁMICO (SIN FALLBACKS/DATOS ESTÁTICOS) -->
+    <script>
+        // --- 1. MODELO DE DATOS ACTIVO (Vacío inicialmente) ---
+        let dbCajaAcumulada = null;
+        let dbCajaMensual = null;
+        let dbCajaDiaria = null;
+        let dbComposicionAnterior = null;
+        let dbComposicionCurso = null;
+
+        let currentChartMode = 'diario'; 
+        let chartInstance = null;
+        let composicionChartInstance = null;
+
+        // --- 2. INICIALIZADOR ASÍNCRONO ---
+        window.onload = async function() {
+            await cargarDatos();
+            if(dbCajaAcumulada && dbCajaMensual && dbCajaDiaria && dbComposicionAnterior && dbComposicionCurso) {
+                renderizarTodo();
+                registrarEventos();
+            }
+        };
+
+        // --- 3. FETCH STRICT: Carga Exclusiva desde JSONs Provistos ---
+        async function cargarDatos() {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const errContainer = document.getElementById('error-container');
+            const dynContainer = document.getElementById('contenedor-dinamico');
+
+            try {
+                // LLAMADAS HACIA LOS ARCHIVOS INDICADOS ESTRICTAMENTE
+                const [resAcum, resMens, resDiar, resCompAnt, resCompCur] = await Promise.all([
+                    fetch('./kpi_caja_acumulada.json'),
+                    fetch('./kpi_caja_mensual.json'),
+                    fetch('./kpi_caja_diaria.json'),
+                    fetch('./top10_imputacion_mes_anterior.json'),
+                    fetch('./top10_imputacion_mesencurso.json')
+                ]);
+
+                if (!resAcum.ok || !resMens.ok || !resDiar.ok || !resCompAnt.ok || !resCompCur.ok) {
+                    throw new Error("No se encontraron uno o más archivos JSON estipulados.");
+                }
+
+                // ASIGNACIÓN AL MODELO DE DATOS
+                dbCajaAcumulada = await resAcum.json();
+                dbCajaMensual = await resMens.json();
+                dbCajaDiaria = await resDiar.json();
+                dbComposicionAnterior = await resCompAnt.json();
+                dbComposicionCurso = await resCompCur.json();
+                
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                statusText.textContent = "Datos GitHub Sincronizados";
+
+            } catch (err) {
+                // SI FALLA EL FETCH, LA UI MUESTRA ERROR. NO HAY FALLBACK ESTÁTICO.
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
+                statusText.textContent = "Error de Conexión";
+                errContainer.classList.remove('hidden');
+                dynContainer.classList.add('hidden'); // Ocultar UI vacía
+                console.error("Fallo de red o archivo faltante: ", err);
+            }
+        }
+
+        // --- 4. LÓGICA DE FORMATOS ---
+        const formatMoneda = new Intl.NumberFormat('es-AR', {
+            style: 'currency',
+            currency: 'ARS',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        const formatShort = (value) => {
+            if (value >= 1000000000) {
+                return '$ ' + (value / 1000000000).toLocaleString('es-AR', { maximumFractionDigits: 2 }) + ' MM';
+            }
+            return '$ ' + (value / 1000000).toLocaleString('es-AR', { maximumFractionDigits: 1 }) + ' M';
+        };
+
+        const formatearFecha = (fechaStr) => {
+            const partes = fechaStr.split('-');
+            if (partes.length === 3) {
+                return `${partes[2]}/${partes[1]}/${partes[0]}`;
+            }
+            return fechaStr;
+        };
+
+        const getNombreMes = (mesAnioStr) => {
+            const meses = {
+                "01": "Enero", "02": "Febrero", "03": "Marzo", "04": "Abril",
+                "05": "Mayo", "06": "Junio", "07": "Julio", "08": "Agosto",
+                "09": "Septiembre", "10": "Octubre", "11": "Noviembre", "12": "Diciembre"
+            };
+            const [mes, anio] = mesAnioStr.split('/');
+            return `${meses[mes] || 'Mes'} ${anio}`;
+        };
+
+        // --- 5. RENDERIZACIÓN DE COMPONENTES ---
+        function renderizarTodo() {
+            // --- KPI 1: Caja Total Acumulada ---
+            const totalAcum = dbCajaAcumulada["Total Importe Caja Diaria"];
+            document.getElementById('kpi-total-acumulada').textContent = formatShort(totalAcum);
+            document.getElementById('kpi-total-acumulada').title = formatMoneda.format(totalAcum);
+
+            // --- KPI 2: Caja Mes en Curso acumulada ---
+            const mensualArray = dbCajaMensual["Total Importe Caja Mensual"];
+            const mesActualObj = mensualArray[mensualArray.length - 1]; 
+            const totalMesActual = mesActualObj["Importe"];
+            
+            document.getElementById('kpi-mes-curso').textContent = formatShort(totalMesActual);
+            document.getElementById('kpi-mes-curso').title = formatMoneda.format(totalMesActual);
+            document.getElementById('kpi-mes-nombre').textContent = `Mes: ${getNombreMes(mesActualObj["Mes/Año"])}`;
+
+            // --- KPI 3: Caja Diaria ---
+            const diariaArray = dbCajaDiaria["Total Importe Caja Diaria"];
+            const ultimaCajaDiariaObj = diariaArray[diariaArray.length - 1];
+            const importeUltimoDia = ultimaCajaDiariaObj["Importe"];
+            
+            document.getElementById('kpi-diaria-actual').textContent = formatShort(importeUltimoDia);
+            document.getElementById('kpi-diaria-actual').title = formatMoneda.format(importeUltimoDia);
+            document.getElementById('kpi-diaria-fecha').textContent = `Último Día: ${formatearFecha(ultimaCajaDiariaObj["fecha"])}`;
+
+            // Actualizar Fecha Operativa General en el Header
+            document.getElementById('kpi-fecha').textContent = formatearFecha(ultimaCajaDiariaObj["fecha"]);
+
+            renderizarTablaDiaria();
+            actualizarGrafico();
+            actualizarGraficoComposicion();
+        }
+
+        function renderizarTablaDiaria() {
+            const tableBody = document.getElementById('table-diaria-body');
+            tableBody.innerHTML = '';
+
+            const diariaArray = dbCajaDiaria["Total Importe Caja Diaria"];
+            const ultimosMovimientos = [...diariaArray].slice(-15).reverse();
+
+            ultimosMovimientos.forEach(mov => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-2.5 font-bold text-xs uppercase tracking-wide text-[var(--azul-inst)]">${formatearFecha(mov.fecha)}</td>
+                    <td class="p-2.5 text-right font-bold text-xs text-emerald-600">${formatMoneda.format(mov.Importe)}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // --- 6. LÓGICA GRÁFICA (CHART.JS) ---
+        function actualizarGrafico() {
+            const ctx = document.getElementById('mainCajaChart').getContext('2d');
+            
+            Chart.defaults.color = '#19567C';
+            Chart.defaults.font.family = "'Montserrat', sans-serif";
+            Chart.defaults.font.weight = 500;
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            let labels = [];
+            let dataPoints = [];
+
+            if (currentChartMode === 'diario') {
+                document.getElementById('chart-title').textContent = "Arqueo Diario Continuo";
+                document.getElementById('chart-sub').textContent = "Ingreso diario en pesos en los últimos 30 días registrados";
+                
+                const diariaArray = dbCajaDiaria["Total Importe Caja Diaria"].slice(-30);
+                labels = diariaArray.map(d => formatearFecha(d.fecha).substring(0, 5)); 
+                dataPoints = diariaArray.map(d => d.Importe);
+            } else {
+                document.getElementById('chart-title').textContent = "Histórico de Caja Mensual";
+                document.getElementById('chart-sub').textContent = "Evolución de acumulación mensual consolidada en Pesos 2026";
+                
+                const mensualArray = dbCajaMensual["Total Importe Caja Mensual"];
+                labels = mensualArray.map(m => getNombreMes(m["Mes/Año"]));
+                dataPoints = mensualArray.map(m => m.Importe);
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: currentChartMode === 'diario' ? 'line' : 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Importe Caja',
+                        data: dataPoints,
+                        borderColor: '#4AB5E0',
+                        backgroundColor: currentChartMode === 'diario' ? 'rgba(74, 181, 224, 0.15)' : '#19567C',
+                        hoverBackgroundColor: '#D34872',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#FFFFFF',
+                        pointBorderColor: '#4AB5E0',
+                        pointBorderWidth: 2,
+                        pointRadius: currentChartMode === 'diario' ? 4 : 0,
+                        fill: currentChartMode === 'diario',
+                        tension: 0.35,
+                        borderRadius: currentChartMode === 'diario' ? 0 : 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(25, 86, 124, 0.95)',
+                            padding: 12,
+                            cornerRadius: 8,
+                            titleFont: { weight: 'bold' },
+                            callbacks: {
+                                label: function(context) {
+                                    return ' Importe: ' + formatMoneda.format(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                font: { size: 10, weight: '700' }
+                            }
+                        },
+                        y: {
+                            grid: { color: 'rgba(25, 86, 124, 0.08)' },
+                            border: { display: false },
+                            ticks: {
+                                font: { size: 10 },
+                                callback: function(value) {
+                                    return formatShort(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- 7. GRÁFICO COMPARATIVO DE COMPOSICIÓN (BARRAS PORCENTUALES) ---
+        function actualizarGraficoComposicion() {
+            const ctxComp = document.getElementById('composicionChart').getContext('2d');
+
+            if (composicionChartInstance) {
+                composicionChartInstance.destroy();
+            }
+
+            // Consolidar categorías únicas presentes en ambos meses
+            const mapCategorias = new Set();
+            dbComposicionAnterior.forEach(item => mapCategorias.add(item["Imputación"]));
+            dbComposicionCurso.forEach(item => mapCategorias.add(item["Imputación"]));
+            const arrayCategorias = Array.from(mapCategorias);
+
+            // Generar vectores de porcentajes
+            const dataPorcentajeAnterior = arrayCategorias.map(cat => {
+                const encontrado = dbComposicionAnterior.find(item => item["Imputación"] === cat);
+                return encontrado ? encontrado.Porcentaje : 0;
+            });
+
+            const dataPorcentajeCurso = arrayCategorias.map(cat => {
+                const encontrado = dbComposicionCurso.find(item => item["Imputación"] === cat);
+                return encontrado ? encontrado.Porcentaje : 0;
+            });
+
+            // Recortar etiquetas largas
+            const labelsComprimidas = arrayCategorias.map(label => {
+                let s = label.replace(" - EJERCICIO-", "").replace(" -EJERCICIO-", "").replace(" DEL EJERCICIO", "");
+                if (s.length > 30) {
+                    return s.substring(0, 28) + "...";
+                }
+                return s;
+            });
+
+            composicionChartInstance = new Chart(ctxComp, {
+                type: 'bar',
+                data: {
+                    labels: labelsComprimidas,
+                    datasets: [
+                        {
+                            label: 'Mes Anterior (%)',
+                            data: dataPorcentajeAnterior,
+                            backgroundColor: '#19567C',
+                            borderColor: '#19567C',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.8,
+                            categoryPercentage: 0.6
+                        },
+                        {
+                            label: 'Mes en Curso (%)',
+                            data: dataPorcentajeCurso,
+                            backgroundColor: '#4AB5E0',
+                            borderColor: '#4AB5E0',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            barPercentage: 0.8,
+                            categoryPercentage: 0.6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(25, 86, 124, 0.95)',
+                            padding: 12,
+                            cornerRadius: 8,
+                            titleFont: { weight: 'bold' },
+                            callbacks: {
+                                label: function(context) {
+                                    return ` Participación: ${context.raw.toFixed(2)}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                font: { size: 9, weight: '700' },
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
+                        y: {
+                            grid: { color: 'rgba(25, 86, 124, 0.08)' },
+                            border: { display: false },
+                            ticks: {
+                                font: { size: 10 },
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- 8. CAPTURA DE EVENTOS ---
+        function registrarEventos() {
+            const btnDiario = document.getElementById('btn-show-diario');
+            const btnMensual = document.getElementById('btn-show-mensual');
+
+            btnDiario.addEventListener('click', () => {
+                currentChartMode = 'diario';
+                btnDiario.className = "px-3 py-1.5 rounded font-bold uppercase transition bg-[var(--acento)] text-[var(--azul-inst)]";
+                btnMensual.className = "px-3 py-1.5 rounded font-bold uppercase transition text-white hover:bg-white/10";
+                actualizarGrafico();
+            });
+
+            btnMensual.addEventListener('click', () => {
+                currentChartMode = 'mensual';
+                btnMensual.className = "px-3 py-1.5 rounded font-bold uppercase transition bg-[var(--acento)] text-[var(--azul-inst)]";
+                btnDiario.className = "px-3 py-1.5 rounded font-bold uppercase transition text-white hover:bg-white/10";
+                actualizarGrafico();
+            });
+        }
+    </script>
+</body>
+</html>
