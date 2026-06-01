@@ -199,84 +199,47 @@
         
         // 1. Datos Resumen Diario (SGR)
         const resumenDiarioData = {
-            "total_registros": 1550,
+            "total_registros": 1893,
             "top_tipo": "Servicios Públicos",
-            "top_sub_tipo": "Luminaria LED no enciende",
-            "top_zonificacion_cav": "BANFIELD"
+            "top_sub_tipo": "Retiro de montículos de basura o tierra",
+            "top_zonificacion_cav": "SANTA CATALINA"
 };
 
         // 2. Datos Seguridad y Justicia
         const rawSeguridad911 = {
-            "('ALARMA (PULSADOR)', datetime.date(2026, 5, 28))": 1,
-            "('ALARMA (SPB TOBILLERAS)', datetime.date(2026, 5, 28))": 4,
-            "('ALARMAS (SPB Género)', datetime.date(2026, 5, 28))": 2,
-            "('ALARMAS (SPB Tobilleras)', datetime.date(2026, 5, 28))": 4,
-            "('Alarma', datetime.date(2026, 5, 28))": 11,
-            "('Auxilio general', datetime.date(2026, 5, 28))": 17,
-            "('BOTON DE PANICO (VIOLENCIA DE GENERO)', datetime.date(2026, 5, 28))": 1,
-            "('CONFRONTACION (CONFRONTACION )', datetime.date(2026, 5, 28))": 1,
-            "('CONTRAVENTORES (DESORDEN EN VIA PUBLICA)', datetime.date(2026, 5, 28))": 1,
-            "('CONTRAVENTORES (RUIDOS MOLESTOS - MUSICA ALTA - EXTERIOR)', datetime.date(2026, 5, 28))": 1,
-            "('CONTRAVENTORES (RUIDOS MOLESTOS - MUSICA ALTA - INTERIOR)', datetime.date(2026, 5, 28))": 1,
-            "('Disparo de arma de fuego', datetime.date(2026, 5, 28))": 1,
-            "('EMERGENCIA CIVIL (EMERGENCIA CIVIL)', datetime.date(2026, 5, 28))": 3,
-            "('EMERGENCIA DE SALUD (EN ESTABLECIMIENTO OFICIAL)', datetime.date(2026, 5, 28))": 1,
-            "('EMERGENCIA DE SALUD (EN VIA PUBLICA)', datetime.date(2026, 5, 28))": 1,
-            "('EMERGENCIA DE SALUD (PRESUNCIÓN DE FALLECIMIENTO)', datetime.date(2026, 5, 28))": 1,
-            "('Emergencia sanitaria', datetime.date(2026, 5, 28))": 38,
-            "('HALLAZGO (PERSONA INDIGENTE)', datetime.date(2026, 5, 28))": 1,
-            "('HALLAZGO (PERSONA PERDIDA)', datetime.date(2026, 5, 28))": 2,
-            "('HALLAZGO (VEHICULO ABANDONADO)', datetime.date(2026, 5, 28))": 1,
-            "('Hallazgo vehicular', datetime.date(2026, 5, 28))": 4,
-            "('INCENDIO (DE VEHICULO - AUTOMOTOR)', datetime.date(2026, 5, 28))": 1,
-            "('INCENDIO (VIA PUBLICA)', datetime.date(2026, 5, 28))": 3,
-            "('INCIDENTES VIALES (ACCIDENTE - CHOQUE CON HERIDOS)', datetime.date(2026, 5, 28))": 1,
-            "('INTEGRIDAD A LA VIDA (SUICIDIO)', datetime.date(2026, 5, 28))": 5,
-            "('Incendio', datetime.date(2026, 5, 28))": 11,
-            "('Persona en actitud sospechosa', datetime.date(2026, 5, 28))": 7,
-            "('Robo a comercio', datetime.date(2026, 5, 28))": 3,
-            "('Robo de motovehículo', datetime.date(2026, 5, 28))": 5,
-            "('Robo de vehículo', datetime.date(2026, 5, 28))": 7,
-            "('Robo en finca', datetime.date(2026, 5, 28))": 3,
-            "('Robo en vía pública', datetime.date(2026, 5, 28))": 1,
-            "('Siniestro vial', datetime.date(2026, 5, 28))": 18,
-            "('TRANSITO (OTRAS CONTINGENCIAS)', datetime.date(2026, 5, 28))": 3,
-            "('TRANSITO (SEMAFORO NO FUNCIONA)', datetime.date(2026, 5, 28))": 1,
-            "('Violencia', datetime.date(2026, 5, 28))": 9,
-            "('Violencia de género', datetime.date(2026, 5, 28))": 16,
-            "('Violencia infantil', datetime.date(2026, 5, 28))": 2,
-            "('Violencia intrafamiliar', datetime.date(2026, 5, 28))": 6
-};
+            "('Robo de vehículo', datetime.date(2026, 4, 12))": 5,
+            "('Robo en finca', datetime.date(2026, 4, 12))": 3,
+            "('Robo en vía pública', datetime.date(2026, 4, 12))": 6
+        };
         const rawEmergencias107 = {
-            "('Centro Médico', '28/05/2026')": 1,
-            "('Domicilio Particular', '28/05/2026')": 32,
-            "('Instituciones Educativas', '28/05/2026')": 12,
-            "('Vía Pública', '28/05/2026')": 12,
-            "('Área Pública', '28/05/2026')": 4
-};
+            "('Centro Médico', '12/04/2026')": 2,
+            "('Domicilio Particular', '12/04/2026')": 17,
+            "('Vía Pública', '12/04/2026')": 18,
+            "('Área Pública', '12/04/2026')": 1
+        };
 
         const totalSeguridad911 = Object.values(rawSeguridad911).reduce((sum, val) => sum + val, 0);
         const totalEmergencias107 = Object.values(rawEmergencias107).reduce((sum, val) => sum + val, 0);
 
         const top3Seguridad911 = {
-            "Emergencia sanitaria": 862,
-            "Siniestro vial": 495,
-            "Alarma": 333
-};
+            "Robo en vía pública": 58,
+            "Robo de vehículo": 36,
+            "Robo en finca": 34
+        };
 
         const top3Emergencias107 = {
-            "Domicilio Particular": 648,
-            "Vía Pública": 487,
-            "Instituciones Educativas": 183
-};
+            "Domicilio Particular": 207,
+            "Vía Pública": 179,
+            "Instituciones Educativas": 48
+        };
 
         // 3. Datos Operaciones (Ceamse / Flota)
         const rawKpiData = {
-            "total_descargas_ceamse": 3095,
-            "total_tn_neta_ceamse": 19747.960000000003,
-            "proyeccion_tn_neta_ceamse": 21863.81285714286,
-            "camiones_trabajando_su": 80,
-            "camiones_op_trabajando": 5,
+            "total_descargas_ceamse": 3319,
+            "total_tn_neta_ceamse": 21055.260000000002,
+            "proyeccion_tn_neta_ceamse": Infinity,
+            "camiones_trabajando_su": 78,
+            "camiones_op_trabajando": 6,
             "porcentaje_cumplidas_covelia": 90.47619047619048
 };
         // ============================================================================
