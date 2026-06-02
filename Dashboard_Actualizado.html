@@ -199,46 +199,54 @@
         
         // 1. Datos Resumen Diario (SGR)
         const resumenDiarioData = {
-            "total_registros": 1893,
+            "total_registros": 1680,
             "top_tipo": "Servicios Públicos",
-            "top_sub_tipo": "Retiro de montículos de basura o tierra",
-            "top_zonificacion_cav": "SANTA CATALINA"
+            "top_sub_tipo": "Retiro de ramas y troncos de poda domiciliaria",
+            "top_zonificacion_cav": "BANFIELD"
 };
 
         // 2. Datos Seguridad y Justicia
         const rawSeguridad911 = {
-            "('Robo de vehículo', datetime.date(2026, 4, 12))": 5,
-            "('Robo en finca', datetime.date(2026, 4, 12))": 3,
-            "('Robo en vía pública', datetime.date(2026, 4, 12))": 6
-        };
+            "('Emergencia sanitaria', datetime.date(2026, 6, 2))": 4,
+            "('INCENDIO (VIA PUBLICA)', datetime.date(2026, 6, 2))": 3,
+            "('INCIDENTES VIALES (ACCIDENTE - CHOQUE CON HERIDOS)', datetime.date(2026, 6, 2))": 1,
+            "('INTEGRIDAD SEXUAL (ABUSO)', datetime.date(2026, 6, 2))": 1,
+            "('Incendio', datetime.date(2026, 6, 2))": 3,
+            "('Siniestro vial', datetime.date(2026, 6, 2))": 3,
+            "('TRANSITO (SEMAFORO NO FUNCIONA)', datetime.date(2026, 6, 2))": 1,
+            "('Violencia', datetime.date(2026, 6, 2))": 1,
+            "('Violencia de género', datetime.date(2026, 6, 2))": 3,
+            "('Violencia infantil', datetime.date(2026, 6, 2))": 1
+};
         const rawEmergencias107 = {
-            "('Centro Médico', '12/04/2026')": 2,
-            "('Domicilio Particular', '12/04/2026')": 17,
-            "('Vía Pública', '12/04/2026')": 18,
-            "('Área Pública', '12/04/2026')": 1
-        };
+            "('Centro Médico', '01/06/2026')": 2,
+            "('Domicilio Particular', '01/06/2026')": 18,
+            "('Instituciones Educativas', '01/06/2026')": 11,
+            "('Vía Pública', '01/06/2026')": 16,
+            "('Área Pública', '01/06/2026')": 2
+};
 
         const totalSeguridad911 = Object.values(rawSeguridad911).reduce((sum, val) => sum + val, 0);
         const totalEmergencias107 = Object.values(rawEmergencias107).reduce((sum, val) => sum + val, 0);
 
         const top3Seguridad911 = {
-            "Robo en vía pública": 58,
-            "Robo de vehículo": 36,
-            "Robo en finca": 34
-        };
+            "Emergencia sanitaria": 25,
+            "Siniestro vial": 22,
+            "Incendio": 15
+};
 
         const top3Emergencias107 = {
-            "Domicilio Particular": 207,
-            "Vía Pública": 179,
-            "Instituciones Educativas": 48
-        };
+            "Domicilio Particular": 18,
+            "Vía Pública": 16,
+            "Instituciones Educativas": 11
+};
 
         // 3. Datos Operaciones (Ceamse / Flota)
         const rawKpiData = {
-            "total_descargas_ceamse": 3319,
-            "total_tn_neta_ceamse": 21055.260000000002,
-            "proyeccion_tn_neta_ceamse": Infinity,
-            "camiones_trabajando_su": 78,
+            "total_descargas_ceamse": 151,
+            "total_tn_neta_ceamse": 1191.8600000000001,
+            "proyeccion_tn_neta_ceamse": 35755.8,
+            "camiones_trabajando_su": 79,
             "camiones_op_trabajando": 6,
             "porcentaje_cumplidas_covelia": 90.47619047619048
 };
