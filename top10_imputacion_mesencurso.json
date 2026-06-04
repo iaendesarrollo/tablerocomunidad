@@ -1,1 +1,52 @@
-[]
+[
+    {
+        "Imputaci\u00f3n": "TASA SERVICIOS GENERALES MUNICIPALES - EJERCICIO-",
+        "Importe": 135617483.08,
+        "Porcentaje": 26.711919967514696
+    },
+    {
+        "Imputaci\u00f3n": "MULTAS POR CONTRAVENCIONES EJERCICIOS ANTERIORES",
+        "Importe": 101363643.38,
+        "Porcentaje": 19.965106770084002
+    },
+    {
+        "Imputaci\u00f3n": "INSPECCI\u00d3N DE SEGURIDAD E HIGIENE -EJERCICIO-",
+        "Importe": 54570581.55,
+        "Porcentaje": 10.748503613538187
+    },
+    {
+        "Imputaci\u00f3n": "INSPECCI\u00d3N DE SEGURIDAD E HIGIENE -ANTERIORES-",
+        "Importe": 41551694.99,
+        "Porcentaje": 8.184236470696941
+    },
+    {
+        "Imputaci\u00f3n": "TASA SERVICIOS GENERALES MUNICIPALES -ANTERIORES-",
+        "Importe": 38171828.16,
+        "Porcentaje": 7.518520441956307
+    },
+    {
+        "Imputaci\u00f3n": "DERECHOS DE OFICINA DEL EJERCICIO",
+        "Importe": 29549280.96,
+        "Porcentaje": 5.820179007713271
+    },
+    {
+        "Imputaci\u00f3n": "MULTAS POR CONTRAVENCIONES DEL EJERCICIO",
+        "Importe": 23829248.61,
+        "Porcentaje": 4.693531890581159
+    },
+    {
+        "Imputaci\u00f3n": "MULTAS POR CONTRAVENCIONES (EJERC.ANTERIORES",
+        "Importe": 15006750.0,
+        "Porcentaje": 2.95580699382274
+    },
+    {
+        "Imputaci\u00f3n": "INFRACCION A LAS OBLIGACIONES EJERCICIO ANTERIORES",
+        "Importe": 14849789.0,
+        "Porcentaje": 2.9248911445177663
+    },
+    {
+        "Imputaci\u00f3n": "IMPUESTO AUTOMOTOR LEY 13.010 - ANTERIORES-",
+        "Importe": 12703584.370000001,
+        "Porcentaje": 2.502163594879854
+    }
+]
