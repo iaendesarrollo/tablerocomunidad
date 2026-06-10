@@ -183,71 +183,70 @@
     <script>
         // MANTENIMIENTO DE ESTRUCTURA DE DATOS PARA ACTUALIZACIÓN PYTHON
         const camionesData = {
-    "Fecha": "2026-06-09",
+    "Fecha": "2026-06-10",
     "Operativos": 5,
-    "No_Operativo": 5
+    "No_Operativo": 6
 };
         const maquinariaData = {
-    "Fecha": "2026-06-09",
-    "Operativos": 0,
-    "No_Operativo": 1
+    "Fecha": "2026-06-10",
+    "Operativos": 1,
+    "No_Operativo": 0
 };
         
         const salidaDiariaRaw = {
     "resumen_maq": [
         {
-            "Fecha": "2026-06-09",
+            "Fecha": "2026-06-10",
             "Area": "SS PLANIFICACION HIDRICA",
-            "Operativos": 0,
-            "No_Operativo": 1
+            "Operativos": 1,
+            "No_Operativo": 0
         }
     ],
     "resumen_cam": [
         {
-            "Fecha": "2026-06-09",
+            "Fecha": "2026-06-10",
             "Area": "SS REDES Y SERV. CONCESIONADOS",
             "Operativos": 5,
-            "No_Operativo": 5
+            "No_Operativo": 6
         }
     ]
 };
 
         const noOperativosRaw = {
-    "no_operativos_ultimo_dia_maq": [
-        {
-            "Fecha": "09/06/2026",
-            "Dominio": "DHV52",
-            "Tipo": "MOTONIVELADORA",
-            "Detalle": "TALLER"
-        }
-    ],
+    "no_operativos_ultimo_dia_maq": [],
     "no_operativos_ultimo_dia": [
         {
-            "Fecha": "09/06/2026",
+            "Fecha": "10/06/2026",
             "Dominio": "AD855MU",
             "Tipo": "ATMOSFERICO",
             "Detalle": "QUEDA EN VIALES,EN ESPERA DE VTV"
         },
         {
-            "Fecha": "09/06/2026",
+            "Fecha": "10/06/2026",
             "Dominio": "AF827ZU",
             "Tipo": "HIDRANTE",
             "Detalle": "ESPERANDO CAMBIO DE MANGUERA Y  ARREGLO DE BOMBA"
         },
         {
-            "Fecha": "09/06/2026",
+            "Fecha": "10/06/2026",
+            "Dominio": "AG863SQ",
+            "Tipo": "ATMOSFERICO",
+            "Detalle": "TALLER"
+        },
+        {
+            "Fecha": "10/06/2026",
             "Dominio": "AG981EZ",
             "Tipo": "HIDROELEVADOR",
             "Detalle": "TALLER, PERDIDA DE ACEITE"
         },
         {
-            "Fecha": "09/06/2026",
+            "Fecha": "10/06/2026",
             "Dominio": "AH077AR",
             "Tipo": "HIDRANTE",
             "Detalle": "SIN FUNCIONAR"
         },
         {
-            "Fecha": "09/06/2026",
+            "Fecha": "10/06/2026",
             "Dominio": "NVR680",
             "Tipo": "ALMEJA",
             "Detalle": "TALLER,PERDIDA DE LIQUIDO"
@@ -361,6 +360,11 @@
             "Fecha": "2026-06-09",
             "Operativos": 5,
             "No_Operativo": 5
+        },
+        {
+            "Fecha": "2026-06-10",
+            "Operativos": 5,
+            "No_Operativo": 6
         }
     ],
     "tabla_30d_maq": [
@@ -468,6 +472,11 @@
             "Fecha": "2026-06-09",
             "Operativos": 0,
             "No_Operativo": 1
+        },
+        {
+            "Fecha": "2026-06-10",
+            "Operativos": 1,
+            "No_Operativo": 0
         }
     ]
 };
