@@ -199,7 +199,7 @@
         
         // 1. Datos Resumen Diario (SGR)
         const resumenDiarioData = {
-            "total_registros": 1800,
+            "total_registros": 1534,
             "top_tipo": "Estadística",
             "top_sub_tipo": "Otras Derivaciones",
             "top_zonificacion_cav": "LOMAS"
@@ -207,74 +207,76 @@
 
         // 2. Datos Seguridad y Justicia
         const rawSeguridad911 = {
-            "('ALARMA (ACTIVACION DE ALARMA EN EDIFICIOS PUBLICOS)', datetime.date(2026, 6, 23))": 1,
-            "('ALARMAS (SPB Género)', datetime.date(2026, 6, 23))": 2,
-            "('ALARMAS (SPB Tobilleras)', datetime.date(2026, 6, 23))": 3,
-            "('ALARMAS (SV-SENSOR VERIFICADO)', datetime.date(2026, 6, 23))": 2,
-            "('ANILLO DIGITAL (CAPTURA ACTIVA)', datetime.date(2026, 6, 23))": 2,
-            "('Alarma', datetime.date(2026, 6, 23))": 18,
-            "('Auxilio general', datetime.date(2026, 6, 23))": 10,
-            "('BOTON DE PANICO (VIOLENCIA DE GENERO)', datetime.date(2026, 6, 23))": 1,
-            "('DESAPARICION DE PERSONAS (DESAPARICION)', datetime.date(2026, 6, 23))": 1,
-            "('Desaparición de persona', datetime.date(2026, 6, 23))": 2,
-            "('EMERGENCIA DE SALUD (PRESUNCION DE FALLECIMIENTO)', datetime.date(2026, 6, 23))": 1,
-            "('EMERGENCIA DE SALUD (PRESUNCIÓN DE FALLECIMIENTO)', datetime.date(2026, 6, 23))": 1,
-            "('EYSE (USO EXCLUSIVO CD) ((CD) INCENDIO DETECTOR DE HUMO)', datetime.date(2026, 6, 23))": 1,
-            "('Emergencia sanitaria', datetime.date(2026, 6, 23))": 31,
-            "('Hallazgo vehicular', datetime.date(2026, 6, 23))": 3,
-            "('INCENDIO (VIA PUBLICA)', datetime.date(2026, 6, 23))": 6,
-            "('INTEGRIDAD A LA VIDA (AMENAZA DE MUERTE)', datetime.date(2026, 6, 23))": 1,
-            "('INTEGRIDAD A LA VIDA (SUICIDIO)', datetime.date(2026, 6, 23))": 5,
-            "('Incendio', datetime.date(2026, 6, 23))": 4,
-            "('ROBO (VIA PUBLICA)', datetime.date(2026, 6, 23))": 1,
-            "('ROBO AUTOMOTOR (VEHICULOS)', datetime.date(2026, 6, 23))": 1,
-            "('Robo a comercio', datetime.date(2026, 6, 23))": 1,
-            "('Robo de autoparte', datetime.date(2026, 6, 23))": 1,
-            "('Robo de motovehículo', datetime.date(2026, 6, 23))": 5,
-            "('Robo de vehículo', datetime.date(2026, 6, 23))": 4,
-            "('Robo en edificio público', datetime.date(2026, 6, 23))": 1,
-            "('Robo en finca', datetime.date(2026, 6, 23))": 2,
-            "('Robo en vía pública', datetime.date(2026, 6, 23))": 3,
-            "('SEÑALCO (USO EXCLUSIVO CD) ((CD) PREVENCIÓN)', datetime.date(2026, 6, 23))": 1,
-            "('SEÑALCO (USO EXCLUSIVO CD) ((CD) ROBO VOLUMÉTRICO)', datetime.date(2026, 6, 23))": 1,
-            "('STARLIGHT (USO EXCLUSIVO CD) ((CD) ROBO (PROTECCIÓN LOCAL))', datetime.date(2026, 6, 23))": 1,
-            "('Siniestro vial', datetime.date(2026, 6, 23))": 22,
-            "('TRANSITO (MANIOBRAS PELIGROSAS)', datetime.date(2026, 6, 23))": 1,
-            "('TRANSITO (OTRAS CONTINGENCIAS)', datetime.date(2026, 6, 23))": 1,
-            "('Violencia', datetime.date(2026, 6, 23))": 10,
-            "('Violencia de género', datetime.date(2026, 6, 23))": 8,
-            "('Violencia infantil', datetime.date(2026, 6, 23))": 2,
-            "('Violencia intrafamiliar', datetime.date(2026, 6, 23))": 2
+            "('ALARMA (SPB TOBILLERAS)', datetime.date(2026, 6, 24))": 2,
+            "('ALARMAS (SPB Género)', datetime.date(2026, 6, 24))": 3,
+            "('ALARMAS (SPB Tobilleras)', datetime.date(2026, 6, 24))": 14,
+            "('Alarma', datetime.date(2026, 6, 24))": 3,
+            "('Auxilio general', datetime.date(2026, 6, 24))": 18,
+            "('CONFRONTACION (CONFRONTACION )', datetime.date(2026, 6, 24))": 1,
+            "('CONTRAVENTORES (VENTA DE ALCOHOL)', datetime.date(2026, 6, 24))": 1,
+            "('Desaparición de persona', datetime.date(2026, 6, 24))": 2,
+            "('Disparo de arma de fuego', datetime.date(2026, 6, 24))": 1,
+            "('EMERGENCIA CIVIL (EMERGENCIA CIVIL)', datetime.date(2026, 6, 24))": 2,
+            "('EMERGENCIA DE SALUD (EN ESCUELA)', datetime.date(2026, 6, 24))": 5,
+            "('EMERGENCIA DE SALUD (EN VIA PUBLICA)', datetime.date(2026, 6, 24))": 1,
+            "('Emergencia sanitaria', datetime.date(2026, 6, 24))": 36,
+            "('HALLAZGO (PERSONA INDIGENTE)', datetime.date(2026, 6, 24))": 2,
+            "('HALLAZGO (PERSONA PERDIDA)', datetime.date(2026, 6, 24))": 6,
+            "('Hallazgo vehicular', datetime.date(2026, 6, 24))": 2,
+            "('INCENDIO (INCENDIO)', datetime.date(2026, 6, 24))": 1,
+            "('INCENDIO (VIA PUBLICA)', datetime.date(2026, 6, 24))": 2,
+            "('INCIDENTES VIALES (ACCIDENTE - CHOQUE SIN HERIDOS)', datetime.date(2026, 6, 24))": 1,
+            "('INTEGRIDAD A LA VIDA (AMENAZA DE MUERTE)', datetime.date(2026, 6, 24))": 1,
+            "('INTEGRIDAD A LA VIDA (SUICIDIO)', datetime.date(2026, 6, 24))": 1,
+            "('Incendio', datetime.date(2026, 6, 24))": 5,
+            "('Persona en actitud sospechosa', datetime.date(2026, 6, 24))": 4,
+            "('ROBO (EN ESCUELA)', datetime.date(2026, 6, 24))": 1,
+            "('ROBO (VIA PUBLICA)', datetime.date(2026, 6, 24))": 5,
+            "('Robo a comercio', datetime.date(2026, 6, 24))": 1,
+            "('Robo a entidad financiera', datetime.date(2026, 6, 24))": 1,
+            "('Robo de vehículo', datetime.date(2026, 6, 24))": 4,
+            "('Robo en edificio público', datetime.date(2026, 6, 24))": 1,
+            "('Robo en finca', datetime.date(2026, 6, 24))": 4,
+            "('Robo en vía pública', datetime.date(2026, 6, 24))": 5,
+            "('SEÑALCO (USO EXCLUSIVO CD) ((CD) ROBO PUERTA CAJERO AUTOMÁTICO)', datetime.date(2026, 6, 24))": 1,
+            "('SEÑALCO (USO EXCLUSIVO CD) ((CD) ROBO VOLUMÉTRICO)', datetime.date(2026, 6, 24))": 1,
+            "('SOSPECHOSOS (EN VEHICULO)', datetime.date(2026, 6, 24))": 1,
+            "('Siniestro vial', datetime.date(2026, 6, 24))": 25,
+            "('TRANSITO (OTRAS CONTINGENCIAS)', datetime.date(2026, 6, 24))": 3,
+            "('Violencia', datetime.date(2026, 6, 24))": 13,
+            "('Violencia de género', datetime.date(2026, 6, 24))": 14,
+            "('Violencia infantil', datetime.date(2026, 6, 24))": 3,
+            "('Violencia intrafamiliar', datetime.date(2026, 6, 24))": 6
 };
         const rawEmergencias107 = {
-            "('Centro Médico', '23/06/2026')": 1,
-            "('Domicilio Particular', '23/06/2026')": 18,
-            "('Instituciones Educativas', '23/06/2026')": 10,
-            "('Vía Pública', '23/06/2026')": 14,
-            "('Área Pública', '23/06/2026')": 1
+            "('Centro Médico', '24/06/2026')": 1,
+            "('Domicilio Particular', '24/06/2026')": 19,
+            "('Instituciones Educativas', '24/06/2026')": 9,
+            "('Vía Pública', '24/06/2026')": 9,
+            "('Área Pública', '24/06/2026')": 2
 };
 
         const totalSeguridad911 = Object.values(rawSeguridad911).reduce((sum, val) => sum + val, 0);
         const totalEmergencias107 = Object.values(rawEmergencias107).reduce((sum, val) => sum + val, 0);
 
         const top3Seguridad911 = {
-            "Emergencia sanitaria": 242,
-            "Siniestro vial": 192,
-            "Auxilio general": 110
+            "Emergencia sanitaria": 278,
+            "Siniestro vial": 217,
+            "Auxilio general": 128
 };
 
         const top3Emergencias107 = {
-            "Domicilio Particular": 464,
-            "Vía Pública": 359,
-            "Instituciones Educativas": 170
+            "Domicilio Particular": 483,
+            "Vía Pública": 368,
+            "Instituciones Educativas": 179
 };
 
         // 3. Datos Operaciones (Ceamse / Flota)
         const rawKpiData = {
-            "total_descargas_ceamse": 2475,
-            "total_tn_neta_ceamse": 16851.178999999996,
-            "proyeccion_tn_neta_ceamse": 21979.79869565217,
-            "camiones_trabajando_su": 75,
+            "total_descargas_ceamse": 2744,
+            "total_tn_neta_ceamse": 18645.279,
+            "proyeccion_tn_neta_ceamse": 23306.59875,
+            "camiones_trabajando_su": 74,
             "camiones_op_trabajando": 7,
             "porcentaje_cumplidas_covelia": 90.47619047619048
 };
